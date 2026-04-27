@@ -1,0 +1,19 @@
+//
+//  SNUECafeteriaProjectTests.swift
+//  SNUECafeteriaProjectTests
+//
+//  Created by 한현민 on 4/27/26.
+//
+
+import Testing
+@testable import SNUECafeteriaProject
+
+struct SNUECafeteriaProjectTests {
+
+    @Test func example() async throws {
+        // Write your test here and use APIs like `#expect(...)` to check expected conditions.
+        // Swift Testing Documentation
+        // https://developer.apple.com/documentation/testing
+    }
+
+}
