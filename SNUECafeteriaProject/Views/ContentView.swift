@@ -25,7 +25,9 @@ struct ContentView: View {
                 SettingsScreen()
             }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .task {
+            DataSeeder.seedIfNeeded(context: modelContext)
+        }
     }
 }
 

@@ -10,10 +10,11 @@ import SwiftData
 
 @Model
 final class DayMeal {
-    var date: Date
-    var lunchItems: [MenuItem]
-    var dinnerItems: [MenuItem]
+    @Attribute(.unique) var date: Date  // 어떤 일자의 메뉴인지 식별하기 위한 필드
+    @Relationship(deleteRule: .cascade) var lunchItems: [MenuItem]
+    @Relationship(deleteRule: .cascade) var dinnerItems: [MenuItem]
     var isHoliday: Bool
+    var createdAt: Date  // DB 조회 여부를 위한 필드
     
     var hasLunch: Bool {
         !isHoliday && !lunchItems.isEmpty
@@ -32,12 +33,14 @@ final class DayMeal {
         date: Date,
         lunchItems: [MenuItem],
         dinnerItems: [MenuItem],
-        isHoliday: Bool
+        isHoliday: Bool,
+        createdAt: Date = Date()
     ) {
         self.date = date
         self.lunchItems = lunchItems
         self.dinnerItems = dinnerItems
         self.isHoliday = isHoliday
+        self.createdAt = createdAt
     }
 
     static func sample() -> DayMeal {

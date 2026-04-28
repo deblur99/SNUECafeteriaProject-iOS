@@ -8,48 +8,81 @@
 import SwiftUI
 
 struct MealCardView: View {
-    let menus: [String] = [
-        "홍국쌀밥",
-        "된장찌개",
-        "사태갈비찜",
-        "두부양념조림",
-        "삼색겨자냉채",
-        "열무김치",
-    ]
-    
+    let dayMeal: DayMeal
+    let mealType: MealType
+
+    private var menuItems: [MenuItem] {
+        mealType == .lunch ? dayMeal.lunchItems : dayMeal.dinnerItems
+    }
+
+    private var mealTypeLabel: String {
+        mealType == .lunch ? "중식" : "석식"
+    }
+
+    private var accentColor: Color {
+        mealType == .lunch ? .orange : .indigo
+    }
+
+    private var dateLabel: String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "ko_KR")
+        formatter.dateFormat = "M/d (E)"
+        return formatter.string(from: dayMeal.date)
+    }
+
     var body: some View {
-        VStack(alignment: .leading) {
-            HStack {
-                Text("금")
+        VStack(alignment: .leading, spacing: 0) {
+            // Header
+            HStack(spacing: 12) {
+                Text(dayMeal.weekdayLabel)
+                    .font(.system(.subheadline, design: .rounded).bold())
                     .foregroundStyle(.white)
-                    .bold()
-                    .padding()
-                    .background(Circle().fill(.blue))
-                
-                VStack(alignment: .leading) {
-                    Text("4/24 (금)")
-                    Text("중식")
-                        .bold()
+                    .frame(width: 34, height: 34)
+                    .background(accentColor, in: Circle())
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(dateLabel)
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                    Text(mealTypeLabel)
+                        .font(.headline)
                 }
-                
+
                 Spacer()
+
+                Text(mealTypeLabel)
+                    .font(.caption.bold())
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .foregroundStyle(accentColor)
+                    .background(accentColor.opacity(0.15), in: Capsule())
             }
-            
-            ForEach(menus, id: \.self) { menu in
-                Text(menu)
-                    .padding(.vertical, 2)
+            .padding()
+
+            Divider()
+                .padding(.horizontal)
+
+            // Menu items
+            if dayMeal.isHoliday || menuItems.isEmpty {
+                Text("식단 정보 없음")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .padding()
+            } else {
+                VStack(alignment: .leading, spacing: 6) {
+                    ForEach(menuItems, id: \.name) { item in
+                        Text(item.name)
+                            .font(.subheadline)
+                    }
+                }
+                .padding()
             }
         }
-        .padding()
-        .background(
-            RoundedRectangle(cornerRadius: 12)
-                .fill(Color.gray.opacity(0.1))
-                .shadow(radius: 4, x: 2, y: 4)
-        )
+        .background(Color.secondary.opacity(0.08), in: RoundedRectangle(cornerRadius: 16))
     }
 }
 
 #Preview {
-    MealCardView()
+    MealCardView(dayMeal: .sample(), mealType: .lunch)
         .padding()
 }

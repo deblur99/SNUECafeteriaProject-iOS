@@ -1,0 +1,224 @@
+- generic [active] [ref=e1]:
+  - generic:
+    - link "본문으로 바로가기":
+      - /url: "#sub_content"
+    - link "메인메뉴 바로가기":
+      - /url: "#gnb"
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - heading "서울교육대학교" [level=1] [ref=e5]:
+          - link "서울교육대학교" [ref=e6] [cursor=pointer]:
+            - /url: /snue/main.do?mi=Y
+            - emphasis [ref=e7]: 서울교육대학교
+        - generic:
+          - link "검색영역 열기" [ref=e8] [cursor=pointer]:
+            - /url: "#mSearch"
+            - generic [ref=e9]: 
+            - generic [ref=e10]: 검색영역 열기
+          - text:  
+        - link "전체메뉴 열기" [ref=e12] [cursor=pointer]:
+          - /url: "#popFullmenu"
+          - generic [ref=e13]: 전체메뉴 열기
+    - text:                                       
+    - link "open 사용자 메뉴 열기" [ref=e14] [cursor=pointer]:
+      - /url: ""
+      - generic [ref=e15]: 
+      - generic [ref=e16]: 
+      - generic [ref=e17]: 
+      - generic [ref=e18]: open
+      - emphasis [ref=e19]: 사용자 메뉴 열기
+    - generic [ref=e21]:
+      - generic [ref=e24]:
+        - paragraph [ref=e25]
+        - heading "주간식단안내" [level=2] [ref=e28]
+        - emphasis [ref=e29]: SEOUL NATIONAL UNIVERSITY OF EDUCATION
+      - generic [ref=e30]:
+        - generic [ref=e31]:
+          - complementary [ref=e32]:
+            - link "HOME" [ref=e33] [cursor=pointer]:
+              - /url: /snue/main.do
+              - generic [ref=e34]: 
+              - emphasis [ref=e35]: HOME
+            - list [ref=e36]:
+              - listitem [ref=e37]:
+                - link " SNUE생활" [ref=e38] [cursor=pointer]:
+                  - /url: "javascript:"
+                - listitem [ref=e39]:
+                  - link " 주간식단안내" [ref=e40] [cursor=pointer]:
+                    - /url: "javascript:"
+                  - list [ref=e41]
+          - generic [ref=e42]:
+            - link "공유 열기" [ref=e43] [cursor=pointer]:
+              - /url: javascript:;
+              - generic [ref=e44]: 
+            - text:     
+            - link "인쇄" [ref=e45] [cursor=pointer]:
+              - /url: javascript:;
+              - generic [ref=e46]: 
+        - generic [ref=e48]:
+          - generic [ref=e49]:
+            - link " 학생" [ref=e51] [cursor=pointer]:
+              - /url: javascript:;
+            - generic [ref=e52]:
+              - generic [ref=e53]:
+                - heading "중식" [level=3] [ref=e54]
+                - list [ref=e56]:
+                  - listitem [ref=e57]:
+                    - heading "월" [level=4] [ref=e58]
+                    - generic [ref=e59]:
+                      - strong [ref=e60]: "04.27"
+                      - paragraph [ref=e61]:
+                        - text: 강된장찌개
+                        - text: 산채비빔밥
+                        - text: 도토리묵야채무침
+                        - text: 배추김치
+                        - text: 사르르딸기콘
+                  - listitem [ref=e62]:
+                    - heading "화" [level=4] [ref=e63]
+                    - generic [ref=e64]:
+                      - strong [ref=e65]: "04.28"
+                      - paragraph [ref=e66]:
+                        - text: 백순두부탕
+                        - text: 대패삼겹새송이마늘구이
+                        - text: 오징어초무침
+                        - text: 올리브유참나물유자청무침
+                        - text: 배추김치
+                  - listitem [ref=e67]:
+                    - heading "수" [level=4] [ref=e68]
+                    - generic [ref=e69]:
+                      - strong [ref=e70]: "04.29"
+                      - paragraph [ref=e71]:
+                        - text: 소고기미역국
+                        - text: 불닭치즈닭갈비
+                        - text: 단호박그래놀라샐러드
+                        - text: 미나리무생채
+                        - text: 배추김치
+                  - listitem [ref=e72]:
+                    - heading "목" [level=4] [ref=e73]
+                    - generic [ref=e74]:
+                      - strong [ref=e75]: "04.30"
+                      - paragraph [ref=e76]:
+                        - text: 가쓰오팽이국
+                        - text: 치즈등심돈까스
+                        - text: 샐러드파스타
+                        - text: 배추김치
+                  - listitem [ref=e77]:
+                    - heading "금" [level=4] [ref=e78]
+                    - generic [ref=e79]:
+                      - strong [ref=e80]: "05.01"
+                      - paragraph [ref=e81]: 휴무
+              - generic [ref=e82]:
+                - heading "석식" [level=3] [ref=e83]
+                - list [ref=e85]:
+                  - listitem [ref=e86]:
+                    - heading "월" [level=4] [ref=e87]
+                    - generic [ref=e88]:
+                      - strong [ref=e89]: "04.27"
+                      - paragraph [ref=e90]:
+                        - text: 맑은무채국
+                        - text: 해물야끼우동
+                        - text: 뿌링클치킨가라아게
+                        - text: 배추김치
+                  - listitem [ref=e91]:
+                    - heading "화" [level=4] [ref=e92]
+                    - generic [ref=e93]:
+                      - strong [ref=e94]: "04.28"
+                      - paragraph [ref=e95]:
+                        - text: 배추된장국
+                        - text: 파기름훈제볶음밥
+                        - text: 오븐콘치즈샐러드
+                        - text: 깍두기
+                  - listitem [ref=e96]:
+                    - heading "수" [level=4] [ref=e97]
+                    - generic [ref=e98]:
+                      - strong [ref=e99]: "04.29"
+                      - paragraph [ref=e100]:
+                        - text: 콩나물국
+                        - text: 직화제육덮밥
+                        - text: 연유에그산도
+                        - text: 배추김치
+                  - listitem [ref=e101]:
+                    - heading "목" [level=4] [ref=e102]
+                    - generic [ref=e103]:
+                      - strong [ref=e104]: "04.30"
+                      - paragraph [ref=e105]:
+                        - text: 유부장국
+                        - text: 마제덮밥
+                        - text: 오꼬노미야끼
+                        - text: 반달단무지
+                  - listitem [ref=e106]:
+                    - heading "금" [level=4] [ref=e107]
+                    - generic [ref=e108]:
+                      - strong [ref=e109]: "05.01"
+                      - paragraph [ref=e110]: 휴무
+            - text:  
+          - generic [ref=e112]:
+            - link "첫 페이지" [ref=e113] [cursor=pointer]:
+              - /url: "javascript:"
+            - generic [ref=e114]:
+              - strong [ref=e115]: "1"
+              - link "2" [ref=e116] [cursor=pointer]:
+                - /url: "javascript:"
+            - link "다음 페이지" [ref=e117] [cursor=pointer]:
+              - /url: "javascript:"
+            - link "끝 페이지" [ref=e118] [cursor=pointer]:
+              - /url: "javascript:"
+  - contentinfo [ref=e119]:
+    - generic [ref=e120]:
+      - generic [ref=e121]:
+        - button " 자주찾는 서비스" [ref=e123] [cursor=pointer]
+        - button " 교내 주요사이트" [ref=e125] [cursor=pointer]
+        - list [ref=e127]:
+          - listitem [ref=e128]:
+            - link " 페이스북 새창열기" [ref=e129] [cursor=pointer]:
+              - /url: javascript:;
+              - generic [ref=e130]: 
+              - emphasis [ref=e131]: 페이스북 새창열기
+          - listitem [ref=e132]:
+            - link " 트위터 새창열기" [ref=e133] [cursor=pointer]:
+              - /url: javascript:;
+              - generic [ref=e134]: 
+              - emphasis [ref=e135]: 트위터 새창열기
+          - listitem [ref=e136]:
+            - link "b 블로그 새창열기" [ref=e137] [cursor=pointer]:
+              - /url: javascript:;
+              - text: b
+              - emphasis [ref=e138]: 블로그 새창열기
+          - listitem [ref=e139]:
+            - link " 유튜브 새창열기" [ref=e140] [cursor=pointer]:
+              - /url: https://www.youtube.com/@snueofficial
+              - generic [ref=e141]: 
+              - emphasis [ref=e142]: 유튜브 새창열기
+          - listitem [ref=e143]:
+            - link " 인스타그램 새창열기" [ref=e144] [cursor=pointer]:
+              - /url: https://www.instagram.com/snueofficial?igsh=dzB3bjJqbjg4Zjh1
+              - generic [ref=e145]: 
+              - emphasis [ref=e146]: 인스타그램 새창열기
+      - generic [ref=e147]:
+        - list [ref=e148]:
+          - listitem [ref=e149]:
+            - link "개인정보처리방침" [ref=e150] [cursor=pointer]:
+              - /url: /snue/cm/cntnts/cntntsView.do?mi=1374&cntntsId=1213
+              - strong [ref=e151]: 개인정보처리방침
+          - listitem [ref=e152]:
+            - link "이메일주소무단수집거부" [ref=e153] [cursor=pointer]:
+              - /url: /snue/cm/cntnts/cntntsView.do?mi=1374&cntntsId=1215
+          - listitem [ref=e154]:
+            - link "행정서비스헌장" [ref=e155] [cursor=pointer]:
+              - /url: /snue/cm/cntnts/cntntsView.do?mi=1377&cntntsId=1220
+          - listitem [ref=e156]:
+            - link "정부3.0정보공개" [ref=e157] [cursor=pointer]:
+              - /url: /snue/cm/cntnts/cntntsView.do?mi=1379&cntntsId=1218
+          - listitem [ref=e158]:
+            - link "대학정보공시" [ref=e159] [cursor=pointer]:
+              - /url: https://www.academyinfo.go.kr/pubinfo/pubinfo1600/doInit.do?schlId=0000255
+          - listitem [ref=e160]:
+            - link "부패신고상담" [ref=e161] [cursor=pointer]:
+              - /url: https://www.clean.go.kr/
+          - listitem [ref=e162]:
+            - link "갑질피해신고" [ref=e163] [cursor=pointer]:
+              - /url: /snue/cm/cntnts/cntntsView.do?mi=3585&cntntsId=3387
+        - generic [ref=e164]: (06639) 서울시 서초구 서초중앙로 96(서초동 1650번지) 서울교육대학교 Tel.02-3475-2114 Fax. 02-581-7711
+        - paragraph [ref=e165]: Copyright © Seoul National University of Education. All Rights Reserved.
+      - text: 

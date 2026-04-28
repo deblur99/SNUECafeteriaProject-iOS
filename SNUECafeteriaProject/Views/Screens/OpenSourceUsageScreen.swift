@@ -9,7 +9,11 @@ import SwiftUI
 
 struct OpenSourceUsageScreen: View {
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        VStack {
+            Text("오픈소스 이용내역")
+                .navigationTitle("오픈소스 이용내역")
+                .navigationBarTitleDisplayMode(.inline)
+        }
     }
 }
 
