@@ -12,20 +12,18 @@ import SwiftData
 nonisolated enum MealSyncService {
     // MARK: - Public
     
-    static func syncIfNeeded(modelContext: ModelContext) async -> [DayMeal] {
-        guard await checkFetchFromFirestoreNeeded(modelContext: modelContext) else {
+    static func syncIfNeeded(modelContext: ModelContext) async {
+        guard await shouldRefreshCache(modelContext: modelContext) else {
             print("No need to fetch from Firestore, using local cache")
-            return await loadMealsFromSwiftData(modelContext: modelContext)
+            return
         }
         
         do {
             let meals = try await FirestoreManager.shared.fetchAllMeals()
             print("meals.count: \(meals.count), meals.last: ")
             saveMealsToSwiftData(meals: meals, modelContext: modelContext)
-            return meals
         } catch {
             print("Error fetching meals: \(error)")
-            return []
         }
     }
     
@@ -69,24 +67,22 @@ nonisolated enum MealSyncService {
     
     // MARK: - Firestore Transactions Helpers
     
-    private static func checkFetchFromFirestoreNeeded(modelContext: ModelContext) async -> Bool {
-        // 로컬에서 가져온 걸로 확인해서 로컬에 저장된 날짜가 오늘 날짜보다 앞이면 Firestore에서 가져와야 함
+    private static func shouldRefreshCache(modelContext: ModelContext) async -> Bool {
+        // 1. 로컬에 저장된 마지막 식단 확인
         guard let lastMeal = await loadLastMealFromSwiftData(modelContext: modelContext) else {
-            print("No meals in local cache, fetch from Firestore needed")
+            print("캐시가 비어 있어 업데이트가 필요합니다.")
             return true
         }
         
-        let nowAsDay = Calendar.current.component(.day, from: .now)
-        let lastMealCreatedAtAsDay = Calendar.current.component(.day, from: lastMeal.createdAt)
+        // 2. 마지막 저장일이 '오늘'인지 확인 (Calendar API 사용으로 월/년도 바뀜 문제 해결)
+        let isUpToDate = Calendar.current.isDateInToday(lastMeal.createdAt)
         
-        if nowAsDay - lastMealCreatedAtAsDay > 0 {
-            // 하루 이상 지났으면 서버에서 가져오도록 함
-            print("Fetch from Firestore needed: last meal created at \(lastMeal.createdAt), now is \(Date())")
-            return true
-        } else {
-            // 당일 가져온 데이터면 그대로 사용하도록 함
-            print("Fetch from Firestore NOT needed: last meal created at \(lastMeal.createdAt), now is \(Date())")
+        if isUpToDate {
+            print("오늘 가져온 데이터가 있으므로 캐시를 유지합니다.")
             return false
+        } else {
+            print("캐시가 만료되어(어제 이전 데이터) 새로고침이 필요합니다.")
+            return true
         }
     }
 }

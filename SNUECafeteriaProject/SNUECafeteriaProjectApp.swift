@@ -14,11 +14,17 @@ import SwiftUI
 
 @main
 struct SNUECafeteriaProjectApp: App {
-    // Firebase 연동
+    /// Firebase 연동
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
 
-    // 포그라운드 변화 감지
+    /// 포그라운드 변화 감지
     @Environment(\.scenePhase) private var scenePhase
+    
+    /// 오류 Alert 메시지 띄우기
+    @State private var errorMessage: String? = nil
+    
+    // Stores
+    @State private var mealStore = MealStore()
 
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
@@ -37,16 +43,26 @@ struct SNUECafeteriaProjectApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environment(mealStore)
+                .alert(errorMessage ?? "", isPresented: .constant(errorMessage != nil)) {
+                    Button("확인") {
+                        errorMessage = nil
+                    }
+                }
         }
         .modelContainer(sharedModelContainer)
         .onChange(of: scenePhase) { _, newPhase in
             // 포그라운드 진입이 감지되면 데이터 동기화
             if newPhase == .active {
                 Task {
+                    guard await NetworkManager.shared.isConnected() else {
+                        errorMessage = "네트워크 연결이 없습니다. 데이터 동기화를 건너뜁니다."
+                        print("네트워크 연결이 없습니다. 데이터 동기화를 건너뜁니다.")
+                        return
+                    }
                     let modelContext = ModelContext(sharedModelContainer)
-                    _ = await MealSyncService.syncIfNeeded(
-                        modelContext: modelContext
-                    )
+                    await MealSyncService.syncIfNeeded(modelContext: modelContext)
+                    try? mealStore.load(modelContext: modelContext)
                 }
             }
         }

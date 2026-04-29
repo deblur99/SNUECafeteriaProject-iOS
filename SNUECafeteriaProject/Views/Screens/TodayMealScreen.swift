@@ -10,18 +10,10 @@ import SwiftUI
 
 struct TodayMealScreen: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    @Environment(MealStore.self) private var mealStore
 
-    @Query private var todayMeals: [DayMeal]
-
-    init() {
-        var cal = Calendar(identifier: .gregorian)
-        cal.timeZone = TimeZone(identifier: "Asia/Seoul")!
-        let now = Date()
-        let start = cal.startOfDay(for: now)
-        let end = cal.date(byAdding: .day, value: 1, to: start)!
-        _todayMeals = Query(filter: #Predicate<DayMeal> { meal in
-            meal.date >= start && meal.date < end
-        })
+    private var todayMeal: DayMeal? {
+        mealStore.todayMeal
     }
 
     private var columns: [GridItem] {
@@ -33,7 +25,7 @@ struct TodayMealScreen: View {
     var body: some View {
         NavigationStack {
             VStack {
-                if let meal = todayMeals.first {
+                if let meal = todayMeal {
                     if meal.isHoliday || (!meal.hasLunch && !meal.hasDinner) {
                         ContentUnavailableView(
                             meal.isHoliday ? "오늘은 휴무일입니다" : "오늘의 식단 없음",

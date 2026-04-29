@@ -14,21 +14,24 @@ final class MealStore {
     private(set) var meals: [DayMeal] = []
     
     var todayMeal: DayMeal? {
-        meals.first { Calendar.current.isDateInToday($0.date) }
+        meals.first { Calendar.kst.isDateInToday($0.date) }
     }
     
     var tomorrowMeal: DayMeal? {
-        meals.first { Calendar.current.isDateInTomorrow($0.date) }
+        meals.first { Calendar.kst.isDateInTomorrow($0.date) }
     }
     
     var availableDates: Set<Date> {
-        Set(meals.map { Calendar.current.startOfDay(for: $0.date) })
+        Set(meals.map { Calendar.kst.startOfDay(for: $0.date) })
     }
     
-    /// 주간 메뉴를 가져오는 메서드
-    func meals(for weekStartDate: Date) -> [DayMeal] {
-        // TODO: 특정 날짜를 매개변수로 넘기면 어떻게 그 날짜가 속한 주의 메뉴들을 가져올 수 있는지 알아보기
-        []
+    /// 주어진 날짜가 속한 주(월~일)의 메뉴를 반환한다.
+    func weekMeals(for date: Date) -> [DayMeal] {
+        guard let interval = Calendar.kstWeekInterval(for: date) else { return [] }
+        return meals.filter { meal in
+            let day = Calendar.kst.startOfDay(for: meal.date)
+            return day >= interval.start && day < interval.end
+        }
     }
     
     func load(modelContext: ModelContext) throws {

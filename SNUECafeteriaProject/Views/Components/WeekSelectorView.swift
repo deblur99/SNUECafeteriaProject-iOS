@@ -9,73 +9,69 @@ import SwiftUI
 
 // TODO: 전체 데이터 가져와서 데이터가 없는 주는 선택 못하게 하기
 struct WeekSelectorView: View {
-    @Binding var selectedDateRange: ClosedRange<Date>
+    @Binding var selectedDate: Date
+    let availableDates: Set<Date>
     
     private var dateRangeString: String {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "M월 d일"
-        let startString = dateFormatter.string(from: selectedDateRange.lowerBound)
-        let endString = dateFormatter.string(from: selectedDateRange.upperBound)
-        return "\(startString) ~ \(endString)"
+        guard let interval = Calendar.kstWeekInterval(for: selectedDate) else { return "" }
+        let formatter = DateFormatter()
+        formatter.dateFormat = "M월 d일"
+        // interval.end는 다음 주 월요일 00:00 (exclusive) → 1일 빼면 일요일
+        let sunday = Calendar.kst.date(byAdding: .day, value: -1, to: interval.end)!
+        return "\(formatter.string(from: interval.start)) ~ \(formatter.string(from: sunday))"
+    }
+    
+    private var canGoPrev: Bool {
+        weekHasData(weekOffset: -1)
+    }
+    
+    private var canGoNext: Bool {
+        weekHasData(weekOffset: 1)
     }
     
     var body: some View {
         HStack(alignment: .center, spacing: 12) {
             Button {
-                moveDateRangeToLastWeek()
+                move(by: -1)
             } label: {
                 Image(systemName: "chevron.left")
             }
             .buttonStyle(.glass)
+            .disabled(!canGoPrev)
             
             Text(dateRangeString)
                 .bold()
                 .frame(minWidth: 160, alignment: .center)
             
             Button {
-                moveDateRangeToNextWeek()
+                move(by: 1)
             } label: {
                 Image(systemName: "chevron.right")
             }
             .buttonStyle(.glass)
+            .disabled(!canGoNext)
         }
     }
     
-    private func moveDateRangeToLastWeek() {
-        selectedDateRange = Calendar.current.date(
-            byAdding: .day,
-            value: -7,
-            to: selectedDateRange.lowerBound
-        )!...Calendar.current.date(
-            byAdding: .day,
-            value: -7,
-            to: selectedDateRange.upperBound
-        )!
+    private func move(by weeks: Int) {
+        if let newDate = Calendar.kst.date(byAdding: .weekOfYear, value: weeks, to: selectedDate) {
+            selectedDate = newDate
+        }
     }
     
-    private func moveDateRangeToNextWeek() {
-        selectedDateRange = Calendar.current.date(
-            byAdding: .day,
-            value: 7,
-            to: selectedDateRange.lowerBound
-        )!...Calendar.current.date(
-            byAdding: .day,
-            value: 7,
-            to: selectedDateRange.upperBound
-        )!
+    /// 지정한 주 오프셋의 주에 데이터가 하나라도 있는지 확인한다.
+    private func weekHasData(weekOffset: Int) -> Bool {
+        guard
+            !availableDates.isEmpty,
+            let targetDate = Calendar.kst.date(byAdding: .weekOfYear, value: weekOffset, to: selectedDate),
+            let interval = Calendar.kstWeekInterval(for: targetDate)
+        else { return false }
+        return availableDates.contains { $0 >= interval.start && $0 < interval.end }
     }
 }
 
 #Preview {
-    @Previewable @State var selectedDateRange: ClosedRange<Date> = {
-        let endDate = Date()
-        let startDate = Calendar.current.date(
-            byAdding: .day,
-            value: -7,
-            to: endDate
-        )!  // 끝 날짜에서 7일 전
-        return startDate...endDate
-    }()
+    @Previewable @State var selectedDate: Date = .now
     
-    WeekSelectorView(selectedDateRange: $selectedDateRange)
+    WeekSelectorView(selectedDate: $selectedDate, availableDates: [])
 }

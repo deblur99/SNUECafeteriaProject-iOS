@@ -9,27 +9,26 @@ import SwiftData
 import SwiftUI
 
 struct WeekMealScreen: View {
-    @State private var selectedDateRange: ClosedRange<Date> = {
-        var cal = Calendar(identifier: .gregorian)
-        cal.timeZone = TimeZone(identifier: "Asia/Seoul")!
-        let now = Date()
-        let weekday = cal.component(.weekday, from: now) // 1=일, 7=토
-        let sunday = cal.date(byAdding: .day, value: -(weekday - 1), to: cal.startOfDay(for: now))!
-        let saturday = cal.date(byAdding: .day, value: 6, to: sunday)!
-        return sunday ... saturday
-    }()
-
+    @Environment(MealStore.self) private var mealStore
+    
+    @State private var selectedDate: Date = .now
     @State private var isSheetPresented: Bool = false
-    @State private var lastSelectedDate: Date = .now
+    
+    private var weekMeals: [DayMeal] {
+        mealStore.weekMeals(for: selectedDate)
+    }
 
     var body: some View {
         NavigationStack {
-            WeekMealListView(dateRange: selectedDateRange)
+            WeekMealListView(meals: weekMeals)
                 .background(Color(uiColor: .systemGroupedBackground))
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .title) {
-                        WeekSelectorView(selectedDateRange: $selectedDateRange)
+                        WeekSelectorView(
+                            selectedDate: $selectedDate,
+                            availableDates: mealStore.availableDates
+                        )
                     }
 
                     ToolbarItem(placement: .topBarTrailing) {
@@ -40,10 +39,10 @@ struct WeekMealScreen: View {
                 }
                 .sheet(isPresented: $isSheetPresented) {
                     WeekDatePickerModal(
-                        initialDate: lastSelectedDate
-                    ) { range, date in
-                        selectedDateRange = range
-                        lastSelectedDate = date
+                        initialDate: selectedDate,
+                        availableDates: mealStore.availableDates
+                    ) { date in
+                        selectedDate = date
                     }
                 }
         }
@@ -51,19 +50,9 @@ struct WeekMealScreen: View {
 }
 
 private struct WeekMealListView: View {
+    let meals: [DayMeal]
+    
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
-    @Query private var meals: [DayMeal]
-
-    init(dateRange: ClosedRange<Date>) {
-        let start = dateRange.lowerBound
-        let end = dateRange.upperBound
-        _meals = Query(
-            filter: #Predicate<DayMeal> { meal in
-                meal.date >= start && meal.date <= end
-            },
-            sort: \.date
-        )
-    }
 
     private var columns: [GridItem] {
         (horizontalSizeClass ?? .compact) == .regular
