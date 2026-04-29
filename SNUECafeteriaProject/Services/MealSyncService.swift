@@ -19,7 +19,7 @@ nonisolated enum MealSyncService {
         }
         
         do {
-            let meals = try await FirestoreManager.shared.fetchAllMeals()
+            let meals = try await FirestoreService.shared.fetchAllMeals()
             print("meals.count: \(meals.count), meals.last: ")
             saveMealsToSwiftData(meals: meals, modelContext: modelContext)
         } catch {

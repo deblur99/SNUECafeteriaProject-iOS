@@ -8,8 +8,8 @@
 import Foundation
 import FirebaseFirestore
 
-nonisolated final class FirestoreManager: Sendable {
-    static let shared = FirestoreManager()
+nonisolated final class FirestoreService: Sendable {
+    static let shared = FirestoreService()
     
     private nonisolated(unsafe) let _db = Firestore.firestore()
     

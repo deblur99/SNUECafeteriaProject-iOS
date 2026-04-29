@@ -9,8 +9,8 @@ import Foundation
 import Network
 import os
 
-nonisolated final class NetworkManager: Sendable {
-    static let shared = NetworkManager()
+nonisolated final class NetworkService: Sendable {
+    static let shared = NetworkService()
 
     private let monitor = NWPathMonitor()
     private let monitorQueue = DispatchQueue(label: "com.snuecafeteria.network-monitor")

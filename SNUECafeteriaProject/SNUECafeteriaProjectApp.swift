@@ -55,7 +55,7 @@ struct SNUECafeteriaProjectApp: App {
             // 포그라운드 진입이 감지되면 데이터 동기화
             if newPhase == .active {
                 Task {
-                    guard await NetworkManager.shared.isConnected() else {
+                    guard await NetworkService.shared.isConnected() else {
                         errorMessage = "네트워크 연결이 없습니다. 데이터 동기화를 건너뜁니다."
                         print("네트워크 연결이 없습니다. 데이터 동기화를 건너뜁니다.")
                         return

@@ -18,7 +18,7 @@ final class NotificationService {
         let settings = await center.notificationSettings()
 
         switch settings.authorizationStatus {
-        case .authorized, .provisional:
+        case .authorized, .provisional, .ephemeral:
             return true
         case .denied:
             return false
