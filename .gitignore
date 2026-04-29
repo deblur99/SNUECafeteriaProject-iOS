@@ -111,4 +111,13 @@ Temporary Items
 # vim
 *.swp
 
+# Firebase Client Key
 **/GoogleService-Info.plist
+
+# Firebase logs
+firebase-debug.log*
+.firebase/
+
+# Firebase Service Account Key
+serviceAccountKey.json
+*.local.json
