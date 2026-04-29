@@ -42,13 +42,33 @@ final class DayMeal {
         self.isHoliday = isHoliday
         self.createdAt = createdAt
     }
+}
 
+extension DayMeal {
     static func sample() -> DayMeal {
         DayMeal(
             date: Date(),
             lunchItems: [MenuItem(name: "김치볶음밥"), MenuItem(name: "된장국")],
             dinnerItems: [MenuItem(name: "불고기"), MenuItem(name: "미역국")],
             isHoliday: false
+        )
+    }
+    
+    static func sampleEmpty() -> DayMeal {
+        DayMeal(
+            date: Date(),
+            lunchItems: [],
+            dinnerItems: [],
+            isHoliday: false
+        )
+    }
+    
+    static func sampleHoliday() -> DayMeal {
+        DayMeal(
+            date: Date(),
+            lunchItems: [],
+            dinnerItems: [],
+            isHoliday: true
         )
     }
 }

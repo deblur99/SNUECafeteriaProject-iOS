@@ -25,9 +25,6 @@ struct ContentView: View {
                 SettingsScreen()
             }
         }
-        .task {
-            DataSeeder.seedIfNeeded(context: modelContext)
-        }
     }
 }
 

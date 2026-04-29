@@ -1,0 +1,26 @@
+[debug] [2026-04-29T05:37:42.558Z] ----------------------------------------------------------------------
+[debug] [2026-04-29T05:37:42.568Z] Command:       /usr/local/bin/firebase /Users/deblur/.cache/firebase/tools/lib/node_modules/firebase-tools/lib/bin/firebase login:ci --no-localhost
+[debug] [2026-04-29T05:37:42.568Z] CLI Version:   15.15.0
+[debug] [2026-04-29T05:37:42.568Z] Platform:      darwin
+[debug] [2026-04-29T05:37:42.569Z] Node Version:  v20.18.2
+[debug] [2026-04-29T05:37:42.569Z] Time:          Wed Apr 29 2026 14:37:42 GMT+0900 (Korean Standard Time)
+[debug] [2026-04-29T05:37:42.570Z] ----------------------------------------------------------------------
+[debug] 
+[warn] ⚠  Authenticating with a `login:ci` token is deprecated and will be removed in a future major version of `firebase-tools`. Instead, use a service account key with `GOOGLE_APPLICATION_CREDENTIALS`: https://cloud.google.com/docs/authentication/getting-started 
+[debug] [2026-04-29T05:37:42.861Z] >>> [apiv2][query] POST https://auth.firebase.tools/attest [none]
+[debug] [2026-04-29T05:37:42.862Z] >>> [apiv2][body] POST https://auth.firebase.tools/attest {"session_id":"c1c15adc-f087-403f-9f23-7420916d1f6f"}
+[debug] [2026-04-29T05:37:43.715Z] <<< [apiv2][status] POST https://auth.firebase.tools/attest 200
+[debug] [2026-04-29T05:37:43.716Z] <<< [apiv2][body] POST https://auth.firebase.tools/attest {"token":"wAGL7SutoC6Ncj8r7AO9Dujk-BIe3cZdcIgnrI-EEcY"}
+[info] 
+[info] To sign in to the Firebase CLI:
+[info] 
+[info] 1. Take note of your session ID:
+[info] 
+[info]    C1C15
+[info] 
+[info] 2. Visit the URL below on any device and follow the instructions to get your code:
+[info] 
+[info]    https://auth.firebase.tools/login?code_challenge=hAGdo0Bqa2Ez-FrgauW3_O1TCkl-9AGkfO4F9x0WRlA&session=c1c15adc-f087-403f-9f23-7420916d1f6f&attest=wAGL7SutoC6Ncj8r7AO9Dujk-BIe3cZdcIgnrI-EEcY
+[info] 
+[info] 3. Paste or enter the authorization code below once you have it:
+[info] 

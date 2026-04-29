@@ -5,8 +5,8 @@
 //  Created by 한현민 on 4/27/26.
 //
 
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 // TODO: 앱 화면 진입할 때마다 아래 작업 수행하기
 // 1) 로컬 저장 확인: 로컬에 데이터가 있는지 확인하고, 없으면 Firebase로부터 데이터 가져오기 시도
@@ -14,6 +14,12 @@ import SwiftData
 
 @main
 struct SNUECafeteriaProjectApp: App {
+    // Firebase 연동
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+
+    // 포그라운드 변화 감지
+    @Environment(\.scenePhase) private var scenePhase
+
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             DayMeal.self,
@@ -33,5 +39,16 @@ struct SNUECafeteriaProjectApp: App {
             ContentView()
         }
         .modelContainer(sharedModelContainer)
+        .onChange(of: scenePhase) { _, newPhase in
+            // 포그라운드 진입이 감지되면 데이터 동기화
+            if newPhase == .active {
+                Task {
+                    let modelContext = ModelContext(sharedModelContainer)
+                    _ = await MealSyncService.syncIfNeeded(
+                        modelContext: modelContext
+                    )
+                }
+            }
+        }
     }
 }

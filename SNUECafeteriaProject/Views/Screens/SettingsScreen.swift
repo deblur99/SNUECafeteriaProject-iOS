@@ -190,6 +190,7 @@ struct SettingsScreen: View {
                     }
                 }
             }
+            .navigationTitle("설정")
             .sheet(isPresented: $showLunchTimePicker) {
                 TimeDatePickerModal(
                     initialTime: lunchTimeNotificationStatus.notificationTime ?? .now

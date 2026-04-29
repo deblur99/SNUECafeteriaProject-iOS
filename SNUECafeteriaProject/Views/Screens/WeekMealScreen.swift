@@ -5,8 +5,8 @@
 //  Created by 한현민 on 4/27/26.
 //
 
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 struct WeekMealScreen: View {
     @State private var selectedDateRange: ClosedRange<Date> = {
@@ -24,29 +24,28 @@ struct WeekMealScreen: View {
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                WeekMealListView(dateRange: selectedDateRange)
-            }
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .title) {
-                    WeekSelectorView(selectedDateRange: $selectedDateRange)
-                }
+            WeekMealListView(dateRange: selectedDateRange)
+                .background(Color(uiColor: .systemGroupedBackground))
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .title) {
+                        WeekSelectorView(selectedDateRange: $selectedDateRange)
+                    }
 
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button("날짜 선택", systemImage: "calendar") {
-                        isSheetPresented.toggle()
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button("날짜 선택", systemImage: "calendar") {
+                            isSheetPresented.toggle()
+                        }
                     }
                 }
-            }
-            .sheet(isPresented: $isSheetPresented) {
-                WeekDatePickerModal(
-                    initialDate: lastSelectedDate
-                ) { range, date in
-                    selectedDateRange = range
-                    lastSelectedDate = date
+                .sheet(isPresented: $isSheetPresented) {
+                    WeekDatePickerModal(
+                        initialDate: lastSelectedDate
+                    ) { range, date in
+                        selectedDateRange = range
+                        lastSelectedDate = date
+                    }
                 }
-            }
         }
     }
 }
@@ -80,21 +79,23 @@ private struct WeekMealListView: View {
                 description: Text("해당 주의 식단 정보가 없습니다.")
             )
         } else {
-            LazyVGrid(columns: columns, spacing: 16) {
-                ForEach(meals) { meal in
-                    if meal.isHoliday {
-                        MealCardView(dayMeal: meal, mealType: .lunch)
-                    } else {
-                        if meal.hasLunch {
+            ScrollView {
+                LazyVGrid(columns: columns, spacing: 16) {
+                    ForEach(meals) { meal in
+                        if meal.isHoliday {
                             MealCardView(dayMeal: meal, mealType: .lunch)
-                        }
-                        if meal.hasDinner {
-                            MealCardView(dayMeal: meal, mealType: .dinner)
+                        } else {
+                            if meal.hasLunch {
+                                MealCardView(dayMeal: meal, mealType: .lunch)
+                            }
+                            if meal.hasDinner {
+                                MealCardView(dayMeal: meal, mealType: .dinner)
+                            }
                         }
                     }
                 }
+                .padding()
             }
-            .padding()
         }
     }
 }

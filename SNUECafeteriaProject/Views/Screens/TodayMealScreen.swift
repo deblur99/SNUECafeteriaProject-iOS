@@ -5,8 +5,8 @@
 //  Created by 한현민 on 4/27/26.
 //
 
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 struct TodayMealScreen: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
@@ -32,7 +32,7 @@ struct TodayMealScreen: View {
 
     var body: some View {
         NavigationStack {
-            ScrollView {
+            VStack {
                 if let meal = todayMeals.first {
                     if meal.isHoliday || (!meal.hasLunch && !meal.hasDinner) {
                         ContentUnavailableView(
@@ -41,15 +41,17 @@ struct TodayMealScreen: View {
                             description: Text(meal.isHoliday ? "식당 운영을 하지 않습니다." : "등록된 식단 정보가 없습니다.")
                         )
                     } else {
-                        LazyVGrid(columns: columns, spacing: 16) {
-                            if meal.hasLunch {
-                                MealCardView(dayMeal: meal, mealType: .lunch)
+                        ScrollView {
+                            LazyVGrid(columns: columns, spacing: 16) {
+                                if meal.hasLunch {
+                                    MealCardView(dayMeal: meal, mealType: .lunch)
+                                }
+                                if meal.hasDinner {
+                                    MealCardView(dayMeal: meal, mealType: .dinner)
+                                }
                             }
-                            if meal.hasDinner {
-                                MealCardView(dayMeal: meal, mealType: .dinner)
-                            }
+                            .padding()
                         }
-                        .padding()
                     }
                 } else {
                     ContentUnavailableView(
@@ -59,11 +61,48 @@ struct TodayMealScreen: View {
                     )
                 }
             }
+            .background(Color(uiColor: .systemGroupedBackground))
             .navigationTitle("오늘의 식단")
         }
     }
 }
 
-#Preview {
+#Preview("Sample Data") {
     TodayMealScreen()
+        .modelContainer(previewContainer(type: .normal))
+}
+
+#Preview("No Data") {
+    TodayMealScreen()
+        .modelContainer(previewContainer(type: .empty))
+}
+
+#Preview("Holiday Data") {
+    TodayMealScreen()
+        .modelContainer(previewContainer(type: .holiday))
+}
+
+private enum SampleType {
+    case normal, empty, holiday
+}
+
+private func previewContainer(type: SampleType) -> ModelContainer {
+    let container = try! ModelContainer(
+        for: DayMeal.self,
+        configurations: .init(
+            isStoredInMemoryOnly: true,
+        )
+    )
+    let context = ModelContext(container)
+    let data = switch type {
+    case .normal:
+        DayMeal.sample()
+    case .empty:
+        DayMeal.sampleEmpty()
+    case .holiday:
+        DayMeal.sampleHoliday()
+    }
+    context.insert(data)
+    try! context.save() // 컨텍스트가 컨테이너에 데이터 저장
+    return container // 저장된 데이터가 있는 컨테이너 인스턴스 반환
 }
