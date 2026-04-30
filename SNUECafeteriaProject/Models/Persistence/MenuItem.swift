@@ -11,10 +11,12 @@ import SwiftData
 @Model
 final class MenuItem {
     var name: String
+    var sortIndex: Int
     var lunchDayMeal: DayMeal?
     var dinnerDayMeal: DayMeal?
     
-    init(name: String) {
+    init(name: String, sortIndex: Int = 0) {
         self.name = name
+        self.sortIndex = sortIndex
     }
 }

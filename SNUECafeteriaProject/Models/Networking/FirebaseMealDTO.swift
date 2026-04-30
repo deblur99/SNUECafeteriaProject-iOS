@@ -34,8 +34,8 @@ nonisolated struct FirestoreMealDTO: Codable, Sendable {
     func toPersistenceModel() -> DayMeal {
         DayMeal(
             date: date.dateValue(),
-            lunchItems: lunch.map { MenuItem(name: $0.name) },
-            dinnerItems: dinner.map { MenuItem(name: $0.name) },
+            lunchItems: lunch.enumerated().map { MenuItem(name: $0.element.name, sortIndex: $0.offset) },
+            dinnerItems: dinner.enumerated().map { MenuItem(name: $0.element.name, sortIndex: $0.offset) },
             isHoliday: isHoliday,
             createdAt: createdAt.dateValue()
         )

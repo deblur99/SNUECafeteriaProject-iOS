@@ -12,7 +12,7 @@ struct MealCardView: View {
     let mealType: MealType
 
     private var menuItems: [MenuItem] {
-        mealType == .lunch ? dayMeal.lunchItems : dayMeal.dinnerItems
+        mealType == .lunch ? dayMeal.sortedLunchItems : dayMeal.sortedDinnerItems
     }
 
     private var mealTypeLabel: String {

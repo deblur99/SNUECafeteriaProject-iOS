@@ -16,6 +16,14 @@ final class DayMeal {
     var isHoliday: Bool
     var createdAt: Date  // DB 조회 여부를 위한 필드
     
+    var sortedLunchItems: [MenuItem] {
+        lunchItems.sorted { $0.sortIndex < $1.sortIndex }
+    }
+    
+    var sortedDinnerItems: [MenuItem] {
+        dinnerItems.sorted { $0.sortIndex < $1.sortIndex }
+    }
+    
     var hasLunch: Bool {
         !isHoliday && !lunchItems.isEmpty
     }
@@ -48,8 +56,8 @@ extension DayMeal {
     static func sample() -> DayMeal {
         DayMeal(
             date: Date(),
-            lunchItems: [MenuItem(name: "김치볶음밥"), MenuItem(name: "된장국")],
-            dinnerItems: [MenuItem(name: "불고기"), MenuItem(name: "미역국")],
+            lunchItems: [MenuItem(name: "김치볶음밥", sortIndex: 0), MenuItem(name: "된장국", sortIndex: 1)],
+            dinnerItems: [MenuItem(name: "불고기", sortIndex: 0), MenuItem(name: "미역국", sortIndex: 1)],
             isHoliday: false
         )
     }
