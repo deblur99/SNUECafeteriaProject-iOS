@@ -11,6 +11,8 @@ import SwiftData
 @Model
 final class MenuItem {
     var name: String
+    var lunchDayMeal: DayMeal?
+    var dinnerDayMeal: DayMeal?
     
     init(name: String) {
         self.name = name

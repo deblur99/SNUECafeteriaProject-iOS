@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+/// 알림 권한 설정 요청하는 화면
 struct NotificationPermissionScreen: View {
     enum Mode {
         case request

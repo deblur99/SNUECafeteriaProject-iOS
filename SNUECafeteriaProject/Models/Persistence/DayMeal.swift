@@ -11,8 +11,8 @@ import SwiftData
 @Model
 final class DayMeal {
     @Attribute(.unique) var date: Date  // 어떤 일자의 메뉴인지 식별하기 위한 필드
-    @Relationship(deleteRule: .cascade) var lunchItems: [MenuItem]
-    @Relationship(deleteRule: .cascade) var dinnerItems: [MenuItem]
+    @Relationship(deleteRule: .cascade, inverse: \MenuItem.lunchDayMeal) var lunchItems: [MenuItem]
+    @Relationship(deleteRule: .cascade, inverse: \MenuItem.dinnerDayMeal) var dinnerItems: [MenuItem]
     var isHoliday: Bool
     var createdAt: Date  // DB 조회 여부를 위한 필드
     

@@ -7,8 +7,7 @@
 
 import SwiftUI
 
-// MARK: - AppStorage 지원을 위한 RawRepresentable 확장
-
+/// AppStorage 지원을 위한 RawRepresentable 확장
 extension TimeNotificationStatus: RawRepresentable {
     var rawValue: String {
         (try? JSONEncoder().encode(self)).flatMap { String(data: $0, encoding: .utf8) } ?? ""
@@ -23,8 +22,7 @@ extension TimeNotificationStatus: RawRepresentable {
     }
 }
 
-// MARK: -
-
+/// 식사 알림 설정 모델
 nonisolated struct TimeNotificationStatus: Codable, Equatable {
     let mealTimeType: MealTimeType
     var notificationTime: Date?
@@ -117,6 +115,7 @@ nonisolated struct TimeNotificationStatus: Codable, Equatable {
     }
 }
 
+/// 설정 화면: 식사 알림 설정과 앱 정보 표시
 struct SettingsScreen: View {
     @AppStorage("lunchNotificationStatus") private var lunchTimeNotificationStatus: TimeNotificationStatus = .lunchDefault
     @AppStorage("dinnerNotificationStatus") private var dinnerTimeNotificationStatus: TimeNotificationStatus = .dinnerDefault

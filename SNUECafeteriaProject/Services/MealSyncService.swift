@@ -56,6 +56,8 @@ nonisolated enum MealSyncService {
         
     private static func saveMealsToSwiftData(meals: [DayMeal], modelContext: ModelContext) {
         do {
+            // 기존 데이터를 먼저 삭제해 unique constraint 충돌 방지
+            try modelContext.delete(model: DayMeal.self)
             for meal in meals {
                 modelContext.insert(meal)
             }

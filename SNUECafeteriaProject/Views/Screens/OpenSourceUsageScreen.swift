@@ -8,6 +8,7 @@
 import SwiftUI
 import WebKit
 
+/// 오픈소스 이용내역 화면
 struct OpenSourceUsageScreen: View {
     let openSourceList = OpenSourceItem.items
     
