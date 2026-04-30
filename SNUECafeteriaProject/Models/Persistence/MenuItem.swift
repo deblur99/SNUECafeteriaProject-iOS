@@ -11,7 +11,7 @@ import SwiftData
 @Model
 final class MenuItem {
     var name: String
-    var sortIndex: Int
+    var sortIndex: Int = 0
     var lunchDayMeal: DayMeal?
     var dinnerDayMeal: DayMeal?
     

@@ -61,40 +61,15 @@ struct TodayMealScreen: View {
 
 #Preview("Sample Data") {
     TodayMealScreen()
-        .modelContainer(previewContainer(type: .normal))
+        .modelContainer(DayMealPreviewHelper.previewContainer(type: .normal))
 }
 
 #Preview("No Data") {
     TodayMealScreen()
-        .modelContainer(previewContainer(type: .empty))
+        .modelContainer(DayMealPreviewHelper.previewContainer(type: .empty))
 }
 
 #Preview("Holiday Data") {
     TodayMealScreen()
-        .modelContainer(previewContainer(type: .holiday))
-}
-
-private enum SampleType {
-    case normal, empty, holiday
-}
-
-private func previewContainer(type: SampleType) -> ModelContainer {
-    let container = try! ModelContainer(
-        for: DayMeal.self,
-        configurations: .init(
-            isStoredInMemoryOnly: true,
-        )
-    )
-    let context = ModelContext(container)
-    let data = switch type {
-    case .normal:
-        DayMeal.sample()
-    case .empty:
-        DayMeal.sampleEmpty()
-    case .holiday:
-        DayMeal.sampleHoliday()
-    }
-    context.insert(data)
-    try! context.save() // 컨텍스트가 컨테이너에 데이터 저장
-    return container // 저장된 데이터가 있는 컨테이너 인스턴스 반환
+        .modelContainer(DayMealPreviewHelper.previewContainer(type: .holiday))
 }

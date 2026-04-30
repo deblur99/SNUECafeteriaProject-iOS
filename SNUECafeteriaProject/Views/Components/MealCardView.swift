@@ -28,10 +28,7 @@ struct MealCardView: View {
     }
 
     private var dateLabel: String {
-        let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "ko_KR")
-        formatter.dateFormat = "M/d (E)"
-        return formatter.string(from: dayMeal.date)
+        String.shortDateLabel(from: dayMeal.date)
     }
 
     private var willBeServedSoon: Bool {

@@ -59,7 +59,7 @@ private struct WeekMealListView: View {
             ? [GridItem(.flexible()), GridItem(.flexible())]
             : [GridItem(.flexible())]
     }
-
+    
     var body: some View {
         if meals.isEmpty {
             ContentUnavailableView(
@@ -69,18 +69,35 @@ private struct WeekMealListView: View {
             )
         } else {
             ScrollView {
-                LazyVGrid(columns: columns, spacing: 16) {
+                LazyVGrid(columns: columns) {
                     ForEach(meals) { meal in
-                        if meal.isHoliday {
-                            MealCardView(dayMeal: meal, mealType: .lunch)
-                        } else {
-                            if meal.hasLunch {
+                        HStack {
+                            Text(String.shortDateLabel(from: meal.date))
+                                .font(.subheadline)
+                                .fontWeight(.semibold)
+                                .foregroundStyle(.secondary)
+                            
+                            Spacer()
+                        }
+                        .padding(.horizontal, 8)
+                        .padding(.bottom, 4)
+                        
+                        Group {
+                            if meal.isHoliday {
                                 MealCardView(dayMeal: meal, mealType: .lunch)
-                            }
-                            if meal.hasDinner {
-                                MealCardView(dayMeal: meal, mealType: .dinner)
+                            } else {
+                                if meal.hasLunch {
+                                    MealCardView(dayMeal: meal, mealType: .lunch)
+                                }
+                                if meal.hasDinner {
+                                    MealCardView(dayMeal: meal, mealType: .dinner)
+                                }
                             }
                         }
+                        .padding(.bottom, 8)
+                        
+                        Divider()
+                            .padding(.bottom, 8)
                     }
                 }
                 .padding()
@@ -90,5 +107,16 @@ private struct WeekMealListView: View {
 }
 
 #Preview {
+    @Previewable @State var mealStore = MealStore()
+    let container = DayMealPreviewHelper.previewContainer(type: .normal)
+    
     WeekMealScreen()
+        .environment(mealStore)
+        .onAppear {
+            do {
+                try mealStore.load(modelContext: ModelContext(container))
+            } catch {
+                print("Failed to load preview data: \(error)")
+            }
+        }
 }
