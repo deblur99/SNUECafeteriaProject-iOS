@@ -137,7 +137,7 @@ struct SettingsScreen: View {
                     HStack(spacing: 20) {
                         Image(systemName: "sun.max.fill")
                             .frame(width: 20)
-                            .foregroundStyle(.orange)
+                            .foregroundStyle(.lunch)
                         
                         VStack(alignment: .leading) {
                             Text("중식 알림")
@@ -171,7 +171,7 @@ struct SettingsScreen: View {
                     HStack(spacing: 20) {
                         Image(systemName: "moon.fill")
                             .frame(width: 20)
-                            .foregroundStyle(.indigo)
+                            .foregroundStyle(.dinner)
                         
                         VStack(alignment: .leading) {
                             Text("석식 알림")

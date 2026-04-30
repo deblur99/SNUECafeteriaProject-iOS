@@ -8,8 +8,12 @@
 import SwiftUI
 
 struct MealCardView: View {
+    @Environment(MealStore.self) private var mealStore
+
     let dayMeal: DayMeal
     let mealType: MealType
+
+    @State private var isPulsing = false
 
     private var menuItems: [MenuItem] {
         mealType == .lunch ? dayMeal.sortedLunchItems : dayMeal.sortedDinnerItems
@@ -20,7 +24,7 @@ struct MealCardView: View {
     }
 
     private var accentColor: Color {
-        mealType == .lunch ? .orange : .indigo
+        .mealColor(for: mealType)
     }
 
     private var dateLabel: String {
@@ -28,6 +32,14 @@ struct MealCardView: View {
         formatter.locale = Locale(identifier: "ko_KR")
         formatter.dateFormat = "M/d (E)"
         return formatter.string(from: dayMeal.date)
+    }
+
+    private var willBeServedSoon: Bool {
+        guard let mealForNow = mealStore.mealForNow else {
+            return false
+        }
+
+        return mealForNow.meal == dayMeal && mealForNow.type == mealType
     }
 
     var body: some View {
@@ -78,11 +90,37 @@ struct MealCardView: View {
                 .padding()
             }
         }
-        .background(Color.secondary.opacity(0.08), in: RoundedRectangle(cornerRadius: 16))
+        .background(
+            Color.secondary.opacity(0.08),
+            in: RoundedRectangle(cornerRadius: 16)
+        )
+        .overlay {
+            if willBeServedSoon {
+                RoundedRectangle(cornerRadius: 16)
+                    .stroke(
+                        Color.mealColor(for: mealType)
+                            .opacity(isPulsing ? 0.7 : 0.15),
+                        lineWidth: 2
+                    )
+                    .animation(
+                        .easeInOut(duration: 1.6).repeatForever(autoreverses: true),
+                        value: isPulsing
+                    )
+            }
+        }
+        .onAppear {
+            if willBeServedSoon { isPulsing = true }
+        }
+        .onChange(of: willBeServedSoon) { _, newValue in
+            isPulsing = newValue
+        }
     }
 }
 
 #Preview {
+    @Previewable @State var mealStore = MealStore()
+
     MealCardView(dayMeal: .sample(), mealType: .lunch)
         .padding()
+        .environment(mealStore)
 }
