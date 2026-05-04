@@ -29,43 +29,72 @@ final class NotificationService {
         }
     }
 
-    /// 매일 지정한 시각에 반복 알림 등록.
-    /// 동일 식사 유형의 기존 알림이 있으면 교체.
-    func schedule(for type: TimeNotificationStatus.MealTimeType, at time: Date) {
+    /// 식단이 있는 날짜에만 개별 알림 등록.
+    /// 동일 식사 유형의 기존 알림이 있으면 모두 교체.
+    func schedule(for type: TimeNotificationStatus.MealTimeType, at time: Date, meals: [DayMeal]) async {
         let center = UNUserNotificationCenter.current()
 
-        let content = UNMutableNotificationContent()
-        switch type {
-        case .lunch:
-            content.title = "중식 시간"
-            content.body = "오늘 중식 시간입니다 🍚"
-        case .dinner:
-            content.title = "석식 시간"
-            content.body = "오늘 석식 시간입니다 🍽️"
+        // 기존 해당 유형 알림 전부 제거 (새 형식 + 구 형식 ID 모두)
+        let pending = await center.pendingNotificationRequests()
+        let toRemove = pending
+            .map(\.identifier)
+            .filter { $0.hasPrefix(type.notificationIDPrefix) }
+        center.removePendingNotificationRequests(withIdentifiers: toRemove + [type.legacyNotificationID])
+
+        // 기기 로컬 타임존 기준 시:분 추출
+        let timeComponents = Calendar.current.dateComponents([.hour, .minute], from: time)
+        guard let hour = timeComponents.hour, let minute = timeComponents.minute else { return }
+
+        // 오늘 이후 날짜 중 해당 식사 유형 데이터가 있는 날짜만 필터링
+        let today = Calendar.kst.startOfDay(for: Date())
+        let relevantMeals = meals.filter { meal in
+            let mealDay = Calendar.kst.startOfDay(for: meal.date)
+            guard mealDay >= today else { return false }
+            return type == .lunch ? meal.hasLunch : meal.hasDinner
         }
-        content.sound = .default
 
-        // 기기 로컬 타임존 기준 시:분 추출 (UNCalendarNotificationTrigger도 로컬 타임존 사용)
-        let components = Calendar.current.dateComponents([.hour, .minute], from: time)
-        let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: true)
-        let request = UNNotificationRequest(
-            identifier: type.notificationID,
-            content: content,
-            trigger: trigger
-        )
+        for meal in relevantMeals {
+            let content = UNMutableNotificationContent()
+            switch type {
+            case .lunch:
+                content.title = "중식 시간"
+                content.body = "오늘 중식 시간입니다 🍚"
+            case .dinner:
+                content.title = "석식 시간"
+                content.body = "오늘 석식 시간입니다 🍽️"
+            }
+            content.sound = .default
 
-        center.removePendingNotificationRequests(withIdentifiers: [type.notificationID])
-        center.add(request) { error in
-            if let error {
-                print("알림 등록 실패 (\(type.rawValue)): \(error)")
+            // KST 기준 년·월·일 + 사용자가 설정한 시:분 조합
+            var components = Calendar.kst.dateComponents([.year, .month, .day], from: meal.date)
+            components.hour = hour
+            components.minute = minute
+            components.second = 0
+
+            let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: false)
+            let identifier = type.notificationIDPrefix + dateKey(for: meal.date)
+            let request = UNNotificationRequest(identifier: identifier, content: content, trigger: trigger)
+
+            do {
+                try await center.add(request)
+            } catch {
+                print("알림 등록 실패 (\(type.rawValue), \(meal.date)): \(error)")
             }
         }
     }
 
-    /// 해당 식사 유형의 알림 해제
-    func cancel(for type: TimeNotificationStatus.MealTimeType) {
-        UNUserNotificationCenter.current()
-            .removePendingNotificationRequests(withIdentifiers: [type.notificationID])
+    /// 해당 식사 유형의 알림 전부 해제
+    func cancel(for type: TimeNotificationStatus.MealTimeType) async {
+        let center = UNUserNotificationCenter.current()
+        let pending = await center.pendingNotificationRequests()
+        let toRemove = pending
+            .map(\.identifier)
+            .filter { $0.hasPrefix(type.notificationIDPrefix) }
+        center.removePendingNotificationRequests(withIdentifiers: toRemove + [type.legacyNotificationID])
+    }
+
+    private func dateKey(for date: Date) -> String {
+        DateFormatter.kstCompact.string(from: date)
     }
 
     /// 매주 월요일 오전 9시 주간 식단 업데이트 알림 등록
@@ -114,5 +143,8 @@ final class NotificationService {
 }
 
 extension TimeNotificationStatus.MealTimeType {
-    var notificationID: String { "notification.\(rawValue)" }
+    /// 개별 날짜별 알림 ID에 사용하는 접두사 (예: "notification.lunch.")
+    var notificationIDPrefix: String { "notification.\(rawValue)." }
+    /// 구 형식 알림 ID (마이그레이션 제거용)
+    var legacyNotificationID: String { "notification.\(rawValue)" }
 }

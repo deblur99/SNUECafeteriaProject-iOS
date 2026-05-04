@@ -48,16 +48,10 @@ nonisolated struct FirestoreMenuItemDTO: Codable {
 
 extension FirestoreMealDTO {
     static func dateToID(_ date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.timeZone = TimeZone(identifier: "Asia/Seoul")!
-        formatter.dateFormat = "yyyy-MM-dd"
-        return formatter.string(from: date)
+        DateFormatter.kstDash.string(from: date)
     }
     
     static func idToDate(_ id: String) -> Date? {
-        let formatter = DateFormatter()
-        formatter.timeZone = TimeZone(identifier: "Asia/Seoul")!
-        formatter.dateFormat = "yyyy-MM-dd"
-        return formatter.date(from: id)
+        DateFormatter.kstDash.date(from: id)
     }
 }

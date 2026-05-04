@@ -68,9 +68,6 @@ struct TimeDatePickerModal: View {
 
 #Preview {
     TimeDatePickerModal(initialTime: .now) { time in
-        let formatter = DateFormatter()
-        formatter.timeZone = TimeZone.autoupdatingCurrent
-        formatter.dateFormat = "HH:mm"
-        print("Selected time: \(formatter.string(from: time))")
+        print("Selected time: \(DateFormatter.hourMinute.string(from: time))")
     }
 }

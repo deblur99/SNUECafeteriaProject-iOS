@@ -9,9 +9,6 @@ import Foundation
 
 extension String {
     static func shortDateLabel(from date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "ko_KR")
-        formatter.dateFormat = "M/d (E)"
-        return formatter.string(from: date)
+        DateFormatter.shortDateLabel.string(from: date)
     }
 }

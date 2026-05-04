@@ -63,13 +63,7 @@ nonisolated struct TimeNotificationStatus: Codable, Equatable {
         guard let notificationTime = notificationTime else {
             return "알림 시간 미설정"
         }
-        
-        let formatter = DateFormatter()
-        formatter.timeZone = TimeZone.autoupdatingCurrent
-        formatter.dateFormat = "HH:mm"
-        let timeString = formatter.string(from: notificationTime)
-        
-        return "매일 \(timeString)에 알림"
+        return "매일 \(DateFormatter.hourMinute.string(from: notificationTime))에 알림"
     }
     
     static var lunchDefault: TimeNotificationStatus {
@@ -121,6 +115,8 @@ struct SettingsScreen: View {
     @AppStorage("dinnerNotificationStatus") private var dinnerTimeNotificationStatus: TimeNotificationStatus = .dinnerDefault
     @AppStorage("weeklyNotificationEnabled") private var isOnWeekMealUpdateNotification: Bool = false
 
+    @Environment(MealStore.self) private var mealStore
+
     @State private var showLunchTimePicker = false
     @State private var showDinnerTimePicker = false
 
@@ -161,7 +157,7 @@ struct SettingsScreen: View {
                         Toggle(isOn: $lunchTimeNotificationStatus.isEnabled) {}
                             .onChange(of: lunchTimeNotificationStatus.isEnabled) { _, isOn in
                                 guard isOn else {
-                                    NotificationService.shared.cancel(for: .lunch)
+                                    Task { await NotificationService.shared.cancel(for: .lunch) }
                                     return
                                 }
                                 Task { await handleNotificationToggle(for: .lunch) }
@@ -195,7 +191,7 @@ struct SettingsScreen: View {
                         Toggle(isOn: $dinnerTimeNotificationStatus.isEnabled) {}
                             .onChange(of: dinnerTimeNotificationStatus.isEnabled) { _, isOn in
                                 guard isOn else {
-                                    NotificationService.shared.cancel(for: .dinner)
+                                    Task { await NotificationService.shared.cancel(for: .dinner) }
                                     return
                                 }
                                 Task { await handleNotificationToggle(for: .dinner) }
@@ -267,7 +263,9 @@ struct SettingsScreen: View {
                 ) { selectedTime in
                     lunchTimeNotificationStatus.notificationTime = selectedTime
                     if lunchTimeNotificationStatus.isEnabled {
-                        NotificationService.shared.schedule(for: .lunch, at: selectedTime)
+                        Task {
+                            await NotificationService.shared.schedule(for: .lunch, at: selectedTime, meals: mealStore.meals)
+                        }
                     }
                 }
                 .presentationDetents([.fraction(0.4)])
@@ -278,7 +276,9 @@ struct SettingsScreen: View {
                 ) { selectedTime in
                     dinnerTimeNotificationStatus.notificationTime = selectedTime
                     if dinnerTimeNotificationStatus.isEnabled {
-                        NotificationService.shared.schedule(for: .dinner, at: selectedTime)
+                        Task {
+                            await NotificationService.shared.schedule(for: .dinner, at: selectedTime, meals: mealStore.meals)
+                        }
                     }
                 }
                 .presentationDetents([.fraction(0.4)])
@@ -292,7 +292,9 @@ struct SettingsScreen: View {
                                 ? lunchTimeNotificationStatus.notificationTime
                                 : dinnerTimeNotificationStatus.notificationTime
                             if let time {
-                                NotificationService.shared.schedule(for: type, at: time)
+                                Task {
+                                    await NotificationService.shared.schedule(for: type, at: time, meals: mealStore.meals)
+                                }
                             }
                             pendingMealType = nil
                         }
@@ -334,7 +336,7 @@ struct SettingsScreen: View {
                 ? lunchTimeNotificationStatus.notificationTime
                 : dinnerTimeNotificationStatus.notificationTime
             if let time {
-                NotificationService.shared.schedule(for: type, at: time)
+                await NotificationService.shared.schedule(for: type, at: time, meals: mealStore.meals)
             }
         case .denied:
             pendingMealType = type
@@ -373,10 +375,10 @@ struct SettingsScreen: View {
         }
         // 권한이 있으면 활성화된 알림 재등록 (설정 앱에서 권한 복원 시 포함)
         if lunchTimeNotificationStatus.isEnabled, let time = lunchTimeNotificationStatus.notificationTime {
-            NotificationService.shared.schedule(for: .lunch, at: time)
+            await NotificationService.shared.schedule(for: .lunch, at: time, meals: mealStore.meals)
         }
         if dinnerTimeNotificationStatus.isEnabled, let time = dinnerTimeNotificationStatus.notificationTime {
-            NotificationService.shared.schedule(for: .dinner, at: time)
+            await NotificationService.shared.schedule(for: .dinner, at: time, meals: mealStore.meals)
         }
         if isOnWeekMealUpdateNotification {
             NotificationService.shared.scheduleWeekly()
@@ -386,4 +388,5 @@ struct SettingsScreen: View {
 
 #Preview {
     SettingsScreen()
+        .environment(MealStore())
 }

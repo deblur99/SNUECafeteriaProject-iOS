@@ -25,6 +25,10 @@ struct SNUECafeteriaProjectApp: App {
     
     // Stores
     @State private var mealStore = MealStore()
+    
+    // 알림 설정 (동기화 후 알림 재등록에 사용)
+    @AppStorage("lunchNotificationStatus") private var lunchStatus: TimeNotificationStatus = .lunchDefault
+    @AppStorage("dinnerNotificationStatus") private var dinnerStatus: TimeNotificationStatus = .dinnerDefault
 
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
@@ -52,18 +56,33 @@ struct SNUECafeteriaProjectApp: App {
         }
         .modelContainer(sharedModelContainer)
         .onChange(of: scenePhase) { _, newPhase in
-            // 포그라운드 진입이 감지되면 데이터 동기화
-            if newPhase == .active {
-                Task {
-                    guard await NetworkService.shared.isConnected() else {
-                        errorMessage = "네트워크 연결이 없습니다. 데이터 동기화를 건너뜁니다."
-                        print("네트워크 연결이 없습니다. 데이터 동기화를 건너뜁니다.")
-                        return
-                    }
-                    let modelContext = ModelContext(sharedModelContainer)
-                    await MealSyncService.syncIfNeeded(modelContext: modelContext)
-                    try? mealStore.load(modelContext: modelContext)
-                }
+            syncIfNeeded(newPhase)
+        }
+    }
+    
+}
+
+extension SNUECafeteriaProjectApp {
+    /// 포그라운드 진입이 감지되면 데이터 동기화하는 메서드
+    private func syncIfNeeded(_ scenePhase: ScenePhase) {
+        guard scenePhase == .active else { return }
+        
+        Task {
+            guard await NetworkService.shared.isConnected() else {
+                errorMessage = "네트워크 연결이 없습니다. 데이터 동기화를 건너뜁니다."
+                print("네트워크 연결이 없습니다. 데이터 동기화를 건너뜁니다.")
+                return
+            }
+            let modelContext = ModelContext(sharedModelContainer)
+            await MealSyncService.syncIfNeeded(modelContext: modelContext)
+            try? mealStore.load(modelContext: modelContext)
+            
+            // 새 식단 데이터 기준으로 알림 재등록
+            if lunchStatus.isEnabled, let time = lunchStatus.notificationTime {
+                await NotificationService.shared.schedule(for: .lunch, at: time, meals: mealStore.meals)
+            }
+            if dinnerStatus.isEnabled, let time = dinnerStatus.notificationTime {
+                await NotificationService.shared.schedule(for: .dinner, at: time, meals: mealStore.meals)
             }
         }
     }

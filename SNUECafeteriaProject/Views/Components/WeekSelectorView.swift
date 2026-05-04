@@ -14,11 +14,9 @@ struct WeekSelectorView: View {
     
     private var dateRangeString: String {
         guard let interval = Calendar.kstWeekInterval(for: selectedDate) else { return "" }
-        let formatter = DateFormatter()
-        formatter.dateFormat = "M월 d일"
         // interval.end는 다음 주 월요일 00:00 (exclusive) → 1일 빼면 일요일
         let sunday = Calendar.kst.date(byAdding: .day, value: -1, to: interval.end)!
-        return "\(formatter.string(from: interval.start)) ~ \(formatter.string(from: sunday))"
+        return "\(DateFormatter.monthDay.string(from: interval.start)) ~ \(DateFormatter.monthDay.string(from: sunday))"
     }
     
     private var canGoPrev: Bool {

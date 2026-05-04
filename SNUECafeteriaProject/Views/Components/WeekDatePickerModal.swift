@@ -71,10 +71,7 @@ struct WeekDatePickerModal: View {
 
 #Preview {
     WeekDatePickerModal(initialDate: .now, availableDates: []) { date in
-        let formatter = DateFormatter()
-        formatter.timeZone = TimeZone(identifier: "Asia/Seoul")
-        formatter.dateFormat = "yyyy-MM-dd"
-        print("selectedDate: \(formatter.string(from: date))")
+        print("selectedDate: \(DateFormatter.kstDash.string(from: date))")
     }
     .environment(\.timeZone, TimeZone(identifier: "Asia/Seoul")!)
 }
