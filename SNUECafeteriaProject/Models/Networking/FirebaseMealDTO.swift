@@ -45,13 +45,3 @@ nonisolated struct FirestoreMealDTO: Codable, Sendable {
 nonisolated struct FirestoreMenuItemDTO: Codable {
     let name: String
 }
-
-extension FirestoreMealDTO {
-    static func dateToID(_ date: Date) -> String {
-        DateFormatter.kstDash.string(from: date)
-    }
-    
-    static func idToDate(_ id: String) -> Date? {
-        DateFormatter.kstDash.date(from: id)
-    }
-}
