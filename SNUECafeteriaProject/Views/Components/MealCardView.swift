@@ -117,7 +117,10 @@ struct MealCardView: View {
 #Preview {
     @Previewable @State var mealStore = MealStore()
 
-    MealCardView(dayMeal: .sample(), mealType: .lunch)
-        .padding()
-        .environment(mealStore)
+    MealCardView(
+        dayMeal: .sample().first!,
+        mealType: .lunch
+    )
+    .padding()
+    .environment(mealStore)
 }

@@ -16,86 +16,180 @@ struct TodayMealScreen: View {
         mealStore.todayMeal
     }
 
+    private var tomorrowMeal: DayMeal? {
+        mealStore.tomorrowMeal
+    }
+
+    private enum ShowingMeal: CaseIterable {
+        case today, tomorrow
+
+        var title: LocalizedStringKey {
+            switch self {
+            case .today: "오늘의 식단"
+            case .tomorrow: "내일의 식단"
+            }
+        }
+    }
+
     private var columns: [GridItem] {
         (horizontalSizeClass ?? .compact) == .regular
             ? [GridItem(.flexible()), GridItem(.flexible())]
             : [GridItem(.flexible())]
     }
 
+    @State private var showingMeal: ShowingMeal = .today
+    @State private var dragOffset: CGFloat = 0
+
     var body: some View {
         NavigationStack {
-            ZStack {
-                VStack {
-                    if let meal = todayMeal {
-                        if meal.isHoliday || (!meal.hasLunch && !meal.hasDinner) {
-                            ContentUnavailableView(
-                                meal.isHoliday ? "오늘은 휴무일입니다" : "오늘의 식단 없음",
-                                systemImage: meal.isHoliday ? "moon.zzz" : "fork.knife",
-                                description: Text(meal.isHoliday ? "식당 운영을 하지 않습니다." : "등록된 식단 정보가 없습니다.")
-                            )
-                        } else {
-                            ScrollView {
-                                LazyVGrid(columns: columns, spacing: 16) {
-                                    if meal.hasLunch {
-                                        MealCardView(dayMeal: meal, mealType: .lunch)
-                                    }
-                                    if meal.hasDinner {
-                                        MealCardView(dayMeal: meal, mealType: .dinner)
-                                    }
+            GeometryReader { geo in
+                ZStack {
+                    // 두 페이지를 가로로 나란히 배치하고 offset으로 슬라이드 전환
+                    HStack(spacing: 0) {
+                        contentView(.today)
+                            .frame(width: geo.size.width, height: geo.size.height)
+                        contentView(.tomorrow)
+                            .frame(width: geo.size.width, height: geo.size.height)
+                    }
+                    .frame(width: geo.size.width, alignment: .leading)
+                    .offset(x: (showingMeal == .today ? 0 : -geo.size.width) + dragOffset)
+
+                    // 제스처 감지하는 투명 레이어
+                    HorizontalEdgeDragGestrueLayer { translation, isEnded in
+                        print("L -> R")
+                        // L→R: 내일 → 오늘로 이동
+                        if isEnded {
+                            withAnimation(.interpolatingSpring(stiffness: 280, damping: 28)) {
+                                if dragOffset > geo.size.width / 3 || translation > geo.size.width / 3 {
+                                    showingMeal = .today
                                 }
-                                .padding()
+                                dragOffset = 0
+                            }
+                        } else {
+                            guard showingMeal == .tomorrow else { return }
+                            dragOffset = max(0, translation)
+                        }
+                    } onDraggedFromRightToLeft: { translation, isEnded in
+                        print("R -> L")
+                        // R→L: 오늘 → 내일로 이동
+                        if isEnded {
+                            withAnimation(.interpolatingSpring(stiffness: 280, damping: 28)) {
+                                if dragOffset < -(geo.size.width / 3) || translation < -(geo.size.width / 3) {
+                                    showingMeal = .tomorrow
+                                }
+                                dragOffset = 0
+                            }
+                        } else {
+                            guard showingMeal == .today, tomorrowMeal != nil else { return }
+                            dragOffset = min(0, translation)
+                        }
+                    }
+
+                    VStack {
+                        Spacer()
+                        Picker("", selection: Binding(
+                            get: { showingMeal },
+                            set: { newValue in
+                                withAnimation(.interpolatingSpring(stiffness: 280, damping: 28)) {
+                                    showingMeal = newValue
+                                }
+                            }
+                        )) {
+                            ForEach(ShowingMeal.allCases, id: \.self) { meal in
+                                Text(meal.title)
+                                    .fontWeight(showingMeal == meal ? .bold : .regular)
+                                    .tag(meal)
                             }
                         }
-                    } else {
-                        ContentUnavailableView(
-                            "오늘의 식단 없음",
-                            systemImage: "fork.knife",
-                            description: Text("등록된 식단 정보가 없습니다.")
-                        )
+                        .frame(width: geo.size.width * 0.6)
+                        .pickerStyle(.segmented)
+                        .padding(.bottom)
                     }
                 }
-
-                // 제스처 감지하는 투명 레이어
-            }
+                .clipped()
+            } // GeometryReader
             .background(Color(uiColor: .systemGroupedBackground))
-            .navigationTitle("오늘의 식단")
+            .navigationTitle(showingMeal.title)
+        } // NavigationStack
+    }
+
+    @ViewBuilder
+    private func contentView(_ showingMeal: ShowingMeal) -> some View {
+        let meal = switch showingMeal {
+        case .today: todayMeal
+        case .tomorrow: tomorrowMeal
+        }
+
+        if let meal {
+            if meal.isHoliday || (!meal.hasLunch && !meal.hasDinner) {
+                ContentUnavailableView(
+                    meal.isHoliday ? "오늘은 휴무일입니다" : "오늘의 식단 없음",
+                    systemImage: meal.isHoliday ? "moon.zzz" : "fork.knife",
+                    description: Text(meal.isHoliday ? "식당 운영을 하지 않습니다." : "등록된 식단 정보가 없습니다.")
+                )
+            } else {
+                ScrollView {
+                    LazyVGrid(columns: columns, spacing: 16) {
+                        if meal.hasLunch {
+                            MealCardView(dayMeal: meal, mealType: .lunch)
+                        }
+                        if meal.hasDinner {
+                            MealCardView(dayMeal: meal, mealType: .dinner)
+                        }
+                    }
+                    .padding()
+                    .padding(.bottom, 56)
+                }
+            }
+        } else {
+            ContentUnavailableView(
+                "오늘의 식단 없음",
+                systemImage: "fork.knife",
+                description: Text("등록된 식단 정보가 없습니다.")
+            )
         }
     }
 }
 
 struct HorizontalEdgeDragGestrueLayer: View {
-    let onDraggedFromLeftToRight: () -> Void
-    let onDraggedFromRightToLeft: () -> Void
+    typealias DragHandler = (_ translation: Double, _ isEnded: Bool) -> Void
 
-    // 가장자리 판정 기준 (예: 끝에서 30px 이내)
-    private let edgeThreshold: CGFloat = 30
-    // 드래그 거리 판정 기준 (예: 50px 이상 밀었을 때)
-    private let dragDistance: CGFloat = 50
+    let onDraggedFromLeftToRight: DragHandler
+    let onDraggedFromRightToLeft: DragHandler
+
+    private let dragDistance: CGFloat = 10
+
+    // 현재 활성화된 드래그 방향 (true = L→R, false = R→L, nil = 없음)
+    @State private var activeDirection: Bool? = nil
 
     var body: some View {
-        GeometryReader { geometry in
-            Color.clear
-                .frame(width: 20, height: .infinity)
-                .contentShape(Rectangle())
-                .gesture(
-                    DragGesture()
-                        .onChanged { value in
-                            let startX = value.startLocation.x  // 드래그 시작 지점
-                            let width = value.translation.width  // 얼마 만큼 움직였는지
-                            
-                            // 1) 왼쪽 끝에서 오른쪽으로: 이동한 거리가 기준보다 크면 왼쪽에서 오른쪽으로
-                            if startX < edgeThreshold && width > dragDistance {
-                                onDraggedFromLeftToRight()
-                            }
-                            
-                            // 1) 오른쪽 끝에서 왼쪽으로: 이동한 거리가 -기준보다 작으면 오른쪽에서 왼쪽으로
-                            else if startX > (geometry.size.width - edgeThreshold)
-                                        && width < -dragDistance {
-                                onDraggedFromRightToLeft()
-                            }
+        Color.clear
+            .contentShape(Rectangle())
+            .gesture(
+                DragGesture()
+                    .onChanged { value in
+                        let width = value.translation.width
+                        if width > dragDistance {
+                            activeDirection = true
+                            onDraggedFromLeftToRight(width, false)
+                            print(#function, "width > dragDistance")
+                        } else if width < -dragDistance {
+                            activeDirection = false
+                            onDraggedFromRightToLeft(width, false)
+                            print(#function, "width < -dragDistance")
                         }
-                )
-        }
+                    }
+                    .onEnded { value in
+                        // 활성 방향의 핸들러만 호출, predictedEndTranslation으로 velocity 반영
+                        if activeDirection == true {
+                            onDraggedFromLeftToRight(value.predictedEndTranslation.width, true)
+                        } else if activeDirection == false {
+                            onDraggedFromRightToLeft(value.predictedEndTranslation.width, true)
+                        }
+                        activeDirection = nil
+                    }
+            )
+            .frame(maxWidth: .infinity)
     }
 }
 

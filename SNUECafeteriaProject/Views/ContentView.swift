@@ -47,4 +47,5 @@ struct ContentView: View {
 
 #Preview {
     ContentView()
+        .modifier(DayMealPreviewModifier(type: .normal))
 }

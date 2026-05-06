@@ -21,6 +21,7 @@ struct WeekMealScreen: View {
     var body: some View {
         NavigationStack {
             WeekMealListView(meals: weekMeals)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background(Color(uiColor: .systemGroupedBackground))
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {

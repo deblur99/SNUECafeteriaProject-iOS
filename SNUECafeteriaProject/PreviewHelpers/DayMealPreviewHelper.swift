@@ -30,7 +30,9 @@ nonisolated enum DayMealPreviewHelper {
         case .holiday:
             DayMeal.sampleHoliday()
         }
-        context.insert(data)
+        data.forEach {
+            context.insert($0)
+        }
         try! context.save() // 컨텍스트가 컨테이너에 데이터 저장
         return container // 저장된 데이터가 있는 컨테이너 인스턴스 반환
     }
@@ -40,9 +42,21 @@ nonisolated enum DayMealPreviewHelper {
 struct DayMealPreviewModifier: ViewModifier {
     let type: DayMealPreviewHelper.SampleType
     
+    private let container: ModelContainer
+    private let store: MealStore
+    
+    init(type: DayMealPreviewHelper.SampleType) {
+        self.type = type
+        let container = DayMealPreviewHelper.previewContainer(type: type)
+        let store = MealStore()
+        try? store.load(modelContext: ModelContext(container))
+        self.container = container
+        self.store = store
+    }
+    
     func body(content: Content) -> some View {
         content
-            .environment(MealStore())
-            .modelContainer(DayMealPreviewHelper.previewContainer(type: type))
+            .environment(store)
+            .modelContainer(container)
     }
 }
