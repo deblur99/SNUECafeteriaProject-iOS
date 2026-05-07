@@ -60,3 +60,9 @@ struct DayMealPreviewModifier: ViewModifier {
             .modelContainer(container)
     }
 }
+
+extension View {
+    func dayMealPreview(type: DayMealPreviewHelper.SampleType) -> some View {
+        self.modifier(DayMealPreviewModifier(type: type))
+    }
+}

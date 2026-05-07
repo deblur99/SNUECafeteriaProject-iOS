@@ -31,6 +31,14 @@ extension DateFormatter {
         f.dateFormat = "M/d (E)"
         return f
     }()
+    
+    /// "M월 d일 (E)" (ko_KR) — 날짜 짧은 레이블 (예: "5월 4일 (월)")
+    nonisolated static let longDateLabel: DateFormatter = {
+        let f = DateFormatter()
+        f.locale = Locale(identifier: "ko_KR")
+        f.dateFormat = "M월 d일 (E)"
+        return f
+    }()
 
     /// "M월 d일" (ko_KR) — 주간 범위 표시 (예: "5월 4일")
     nonisolated static let monthDay: DateFormatter = {
@@ -39,7 +47,7 @@ extension DateFormatter {
         f.dateFormat = "M월 d일"
         return f
     }()
-
+    
     /// "HH:mm" — 알림 시간 표시 (예: "11:30")
     nonisolated static let hourMinute: DateFormatter = {
         let f = DateFormatter()

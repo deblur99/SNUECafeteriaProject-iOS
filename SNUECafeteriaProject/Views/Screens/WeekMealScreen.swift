@@ -72,31 +72,29 @@ private struct WeekMealListView: View {
             ScrollView {
                 LazyVGrid(columns: columns) {
                     ForEach(meals) { meal in
-                        HStack {
-                            Text(String.shortDateLabel(from: meal.date))
-                                .font(.subheadline)
-                                .fontWeight(.semibold)
-                                .foregroundStyle(.secondary)
-                            
-                            Spacer()
-                        }
-                        .padding(.horizontal, 8)
-                        .padding(.bottom, 4)
-                        
-                        Group {
-                            if meal.isHoliday {
-                                MealCardView(dayMeal: meal, mealType: .lunch)
-                            } else {
-                                if meal.hasLunch {
+                        Section {
+                            Group {
+                                if meal.isHoliday {
                                     MealCardView(dayMeal: meal, mealType: .lunch)
-                                }
-                                if meal.hasDinner {
-                                    MealCardView(dayMeal: meal, mealType: .dinner)
+                                } else {
+                                    if meal.hasLunch {
+                                        MealCardView(dayMeal: meal, mealType: .lunch)
+                                    }
+                                    if meal.hasDinner {
+                                        MealCardView(dayMeal: meal, mealType: .dinner)
+                                    }
                                 }
                             }
+                            .padding(.bottom, 8)
+                        } header: {
+                            HStack {
+                                DateLabelText(date: meal.date)
+                                Spacer()
+                            }
+                            .padding(.horizontal, 4)
+                            .padding(.bottom, 4)
                         }
-                        .padding(.bottom, 8)
-                        
+
                         Divider()
                             .padding(.bottom, 8)
                     }

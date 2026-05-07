@@ -27,10 +27,6 @@ struct MealCardView: View {
         .mealColor(for: mealType)
     }
 
-    private var dateLabel: String {
-        String.shortDateLabel(from: dayMeal.date)
-    }
-
     private var willBeServedSoon: Bool {
         guard let mealForNow = mealStore.mealForNow else {
             return false
@@ -40,53 +36,40 @@ struct MealCardView: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            // Header
-            HStack(spacing: 12) {
-                Text(dayMeal.weekdayLabel)
+        HStack(alignment: .top, spacing: 0) {
+            // Left column: meal type badge
+            VStack(spacing: 6) {
+                Text(mealTypeLabel)
                     .font(.system(.subheadline, design: .rounded).bold())
                     .foregroundStyle(.white)
-                    .frame(width: 34, height: 34)
+                    .frame(width: 44, height: 44)
                     .background(accentColor, in: Circle())
-
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(dateLabel)
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                    Text(mealTypeLabel)
-                        .font(.headline)
-                }
-
-                Spacer()
-
-                Text(mealTypeLabel)
-                    .font(.caption.bold())
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .foregroundStyle(accentColor)
-                    .background(accentColor.opacity(0.15), in: Capsule())
             }
-            .padding()
+            .frame(width: 72)
+            .padding(.vertical, 14)
 
             Divider()
-                .padding(.horizontal)
+                .padding(.vertical, 12)
 
-            // Menu items
-            if dayMeal.isHoliday || menuItems.isEmpty {
-                Text("식단 정보 없음")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                    .padding()
-            } else {
-                VStack(alignment: .leading, spacing: 6) {
-                    ForEach(menuItems, id: \.name) { item in
-                        Text(item.name)
-                            .font(.subheadline)
+            // Right column: menu items
+            Group {
+                if dayMeal.isHoliday || menuItems.isEmpty {
+                    Text("식단 정보 없음")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                } else {
+                    VStack(alignment: .leading, spacing: 6) {
+                        ForEach(menuItems, id: \.name) { item in
+                            Text(item.name)
+                                .font(.subheadline)
+                        }
                     }
                 }
-                .padding()
             }
+            .padding()
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
+        .frame(maxWidth: 600)
         .background(
             Color.secondary.opacity(0.08),
             in: RoundedRectangle(cornerRadius: 16)
@@ -111,6 +94,38 @@ struct MealCardView: View {
         .onChange(of: willBeServedSoon) { _, newValue in
             isPulsing = newValue
         }
+    }
+}
+
+/// 식단 카드들을 이미지로 내보내기 위한 레이아웃 뷰
+struct MealShareContent: View {
+    let dayMeal: DayMeal
+
+    private var dateText: String {
+        return DateFormatter.longDateLabel.string(from: dayMeal.date)
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Text("서울교대 학식 메뉴")
+                    .font(.footnote.bold())
+                    .foregroundStyle(.secondary)
+                Spacer()
+                Text(dateText)
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+            }
+
+            if dayMeal.hasLunch {
+                MealCardView(dayMeal: dayMeal, mealType: .lunch)
+            }
+            if dayMeal.hasDinner {
+                MealCardView(dayMeal: dayMeal, mealType: .dinner)
+            }
+        }
+        .padding()
+        .background(Color(uiColor: .systemGroupedBackground))
     }
 }
 
