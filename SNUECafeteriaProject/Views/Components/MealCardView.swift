@@ -34,7 +34,7 @@ struct MealCardView: View {
 
         return mealForNow.meal == dayMeal && mealForNow.type == mealType
     }
-
+    
     var body: some View {
         HStack(alignment: .top, spacing: 0) {
             // Left column: meal type badge
@@ -47,16 +47,22 @@ struct MealCardView: View {
             }
             .frame(width: 72)
             .padding(.vertical, 14)
-
+            
             Divider()
                 .padding(.vertical, 12)
-
+            
             // Right column: menu items
             Group {
-                if dayMeal.isHoliday || menuItems.isEmpty {
-                    Text("식단 정보 없음")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
+                if menuItems.isEmpty {
+                    ContentUnavailableView {
+                        Label("식단 정보 없음", systemImage: "fork.knife")
+                            .font(.subheadline.weight(.semibold))
+                    } description: {
+                        Text("해당 시간대 식단이 없습니다.")
+                            .font(.footnote)
+                    }
+                    .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity)
                 } else {
                     VStack(alignment: .leading, spacing: 6) {
                         ForEach(menuItems, id: \.name) { item in
@@ -69,7 +75,7 @@ struct MealCardView: View {
             .padding()
             .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .frame(maxWidth: 600)
+        .frame(maxWidth: 350, maxHeight: 300)
         .background(
             Color.secondary.opacity(0.08),
             in: RoundedRectangle(cornerRadius: 16)
@@ -97,6 +103,54 @@ struct MealCardView: View {
     }
 }
 
+struct DayMealCardsView: View {
+    let dayMeal: DayMeal
+    
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    
+    private var columns: [GridItem] {
+        (horizontalSizeClass ?? .compact) == .regular
+            ? [GridItem(.flexible()), GridItem(.flexible())]
+            : [GridItem(.flexible())]
+    }
+    
+    var body: some View {
+        Group {
+            if dayMeal.isHoliday {
+                unavailableCard(
+                    title: "오늘은 휴무일입니다",
+                    systemImage: "moon.zzz",
+                    description: "식당 운영을 하지 않습니다."
+                )
+            } else if !dayMeal.hasLunch && !dayMeal.hasDinner {
+                unavailableCard(
+                    title: "오늘의 식단 없음",
+                    systemImage: "fork.knife",
+                    description: "등록된 식단 정보가 없습니다."
+                )
+            } else {
+                LazyVGrid(columns: columns, spacing: 16) {
+                    MealCardView(dayMeal: dayMeal, mealType: .lunch)
+                    MealCardView(dayMeal: dayMeal, mealType: .dinner)
+                }
+            }
+        }
+        .frame(maxWidth: 750, maxHeight: 700)
+    }
+    
+    private func unavailableCard(title: String, systemImage: String, description: String) -> some View {
+        ContentUnavailableView {
+            Label(title, systemImage: systemImage)
+                .font(.subheadline.weight(.semibold))
+        } description: {
+            Text(description)
+                .font(.footnote)
+        }
+        .foregroundStyle(.secondary)
+        .frame(maxWidth: .infinity)
+    }
+}
+
 /// 식단 카드들을 이미지로 내보내기 위한 레이아웃 뷰
 struct MealShareContent: View {
     let dayMeal: DayMeal
@@ -117,25 +171,39 @@ struct MealShareContent: View {
                     .foregroundStyle(.secondary)
             }
 
-            if dayMeal.hasLunch {
-                MealCardView(dayMeal: dayMeal, mealType: .lunch)
-            }
-            if dayMeal.hasDinner {
-                MealCardView(dayMeal: dayMeal, mealType: .dinner)
-            }
+            DayMealCardsView(dayMeal: dayMeal)
         }
         .padding()
         .background(Color(uiColor: .systemGroupedBackground))
     }
 }
 
-#Preview {
-    @Previewable @State var mealStore = MealStore()
-
+#Preview("Meal Card View with data") {
     MealCardView(
         dayMeal: .sample().first!,
         mealType: .lunch
     )
     .padding()
-    .environment(mealStore)
+    .dayMealPreview(type: .normal)
+}
+
+#Preview("Meal Card View with empty") {
+    MealCardView(
+        dayMeal: .sampleEmpty().first!,
+        mealType: .lunch
+    )
+    .padding()
+    .dayMealPreview(type: .empty)
+}
+
+#Preview("Day Meal Card View with data") {
+    DayMealCardsView(dayMeal: .sample().first!)
+        .padding()
+        .dayMealPreview(type: .normal)
+}
+
+#Preview("Day Meal Card View with empty") {
+    DayMealCardsView(dayMeal: .sampleEmpty().first!)
+        .padding()
+        .dayMealPreview(type: .empty)
 }

@@ -20,11 +20,19 @@ struct WeekSelectorView: View {
     }
     
     private var canGoPrev: Bool {
-        weekHasData(weekOffset: -1)
+        WeekNavigation.weekHasData(
+            selectedDate: selectedDate,
+            weekOffset: -1,
+            availableDates: availableDates
+        )
     }
     
     private var canGoNext: Bool {
-        weekHasData(weekOffset: 1)
+        WeekNavigation.weekHasData(
+            selectedDate: selectedDate,
+            weekOffset: 1,
+            availableDates: availableDates
+        )
     }
     
     var body: some View {
@@ -52,19 +60,52 @@ struct WeekSelectorView: View {
     }
     
     private func move(by weeks: Int) {
-        if let newDate = Calendar.kst.date(byAdding: .weekOfYear, value: weeks, to: selectedDate) {
+        if let newDate = WeekNavigation.targetDateForWeekMove(
+            from: selectedDate,
+            weekOffset: weeks,
+            availableDates: availableDates
+        ) {
             selectedDate = newDate
         }
     }
-    
+}
+
+enum WeekNavigation {
     /// 지정한 주 오프셋의 주에 데이터가 하나라도 있는지 확인한다.
-    private func weekHasData(weekOffset: Int) -> Bool {
+    static func weekHasData(selectedDate: Date, weekOffset: Int, availableDates: Set<Date>) -> Bool {
         guard
             !availableDates.isEmpty,
             let targetDate = Calendar.kst.date(byAdding: .weekOfYear, value: weekOffset, to: selectedDate),
             let interval = Calendar.kstWeekInterval(for: targetDate)
         else { return false }
+        
         return availableDates.contains { $0 >= interval.start && $0 < interval.end }
+    }
+    
+    /// 주 이동 시 선택할 날짜를 반환한다.
+    /// - 우선순위: 동일 요일 > 해당 주의 가장 빠른 날짜
+    static func targetDateForWeekMove(from selectedDate: Date, weekOffset: Int, availableDates: Set<Date>) -> Date? {
+        guard
+            weekHasData(selectedDate: selectedDate, weekOffset: weekOffset, availableDates: availableDates),
+            let shiftedDate = Calendar.kst.date(byAdding: .weekOfYear, value: weekOffset, to: selectedDate),
+            let interval = Calendar.kstWeekInterval(for: shiftedDate)
+        else { return nil }
+        
+        let preferredDay = Calendar.kst.startOfDay(for: shiftedDate)
+        let candidates = availableDates
+            .filter { $0 >= interval.start && $0 < interval.end }
+            .sorted()
+        
+        if candidates.contains(preferredDay) {
+            return preferredDay
+        }
+        
+        let preferredWeekday = Calendar.kst.component(.weekday, from: preferredDay)
+        if let sameWeekday = candidates.first(where: { Calendar.kst.component(.weekday, from: $0) == preferredWeekday }) {
+            return sameWeekday
+        }
+        
+        return candidates.first
     }
 }
 

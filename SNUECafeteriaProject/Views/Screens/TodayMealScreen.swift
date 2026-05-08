@@ -9,7 +9,6 @@ import SwiftData
 import SwiftUI
 
 struct TodayMealScreen: View {
-    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Environment(MealStore.self) private var mealStore
 
     private enum ShowingMeal: CaseIterable {
@@ -35,12 +34,6 @@ struct TodayMealScreen: View {
             case .tomorrow: store.tomorrowMeal
             }
         }
-    }
-
-    private var columns: [GridItem] {
-        (horizontalSizeClass ?? .compact) == .regular
-            ? [GridItem(.flexible()), GridItem(.flexible())]
-            : [GridItem(.flexible())]
     }
 
     /// UIImage는 Identifiable이 아니므로 sheet(item:) 사용을 위한 래퍼
@@ -129,14 +122,7 @@ struct TodayMealScreen: View {
                         DateLabelText(date: meal.date)
                             .padding(.horizontal, 4)
 
-                        LazyVGrid(columns: columns, spacing: 16) {
-                            if meal.hasLunch {
-                                MealCardView(dayMeal: meal, mealType: .lunch)
-                            }
-                            if meal.hasDinner {
-                                MealCardView(dayMeal: meal, mealType: .dinner)
-                            }
-                        }
+                        DayMealCardsView(dayMeal: meal)
                     }
                     .padding(.top, 16)
                     .padding(.horizontal)
