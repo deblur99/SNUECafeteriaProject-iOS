@@ -12,14 +12,6 @@ struct TodayMealScreen: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Environment(MealStore.self) private var mealStore
 
-    private var todayMeal: DayMeal? {
-        mealStore.todayMeal
-    }
-
-    private var tomorrowMeal: DayMeal? {
-        mealStore.tomorrowMeal
-    }
-
     private enum ShowingMeal: CaseIterable {
         case today, tomorrow
 
@@ -27,6 +19,20 @@ struct TodayMealScreen: View {
             switch self {
             case .today: "오늘의 식단"
             case .tomorrow: "내일의 식단"
+            }
+        }
+        
+        var dayPrefix: String {
+            switch self {
+            case .today: "오늘"
+            case .tomorrow: "내일"
+            }
+        }
+
+        func meal(from store: MealStore) -> DayMeal? {
+            switch self {
+            case .today: store.todayMeal
+            case .tomorrow: store.tomorrowMeal
             }
         }
     }
@@ -82,7 +88,7 @@ struct TodayMealScreen: View {
 
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("공유", systemImage: "square.and.arrow.up") {
-                        let meal = showingMeal == .today ? todayMeal : tomorrowMeal
+                        let meal = showingMeal.meal(from: mealStore)
                         guard let meal, !meal.isHoliday else { return }
 
                         let renderer = ImageRenderer(
@@ -104,17 +110,18 @@ struct TodayMealScreen: View {
 
     @ViewBuilder
     private func contentView(_ showingMeal: ShowingMeal) -> some View {
-        let meal = switch showingMeal {
-        case .today: todayMeal
-        case .tomorrow: tomorrowMeal
-        }
+        let meal = showingMeal.meal(from: mealStore)
 
         if let meal {
             if meal.isHoliday || (!meal.hasLunch && !meal.hasDinner) {
+                let title = meal.isHoliday ? "\(showingMeal.dayPrefix)은 휴무일입니다" : "\(showingMeal.dayPrefix)의 식단 없음"
+                let image = meal.isHoliday ? "moon.zzz" : "fork.knife"
+                let description = meal.isHoliday ? "식당 운영을 하지 않습니다." : "등록된 식단 정보가 없습니다."
+                
                 ContentUnavailableView(
-                    meal.isHoliday ? "오늘은 휴무일입니다" : "오늘의 식단 없음",
-                    systemImage: meal.isHoliday ? "moon.zzz" : "fork.knife",
-                    description: Text(meal.isHoliday ? "식당 운영을 하지 않습니다." : "등록된 식단 정보가 없습니다.")
+                    title,
+                    systemImage: image,
+                    description: Text(description)
                 )
             } else {
                 ScrollView {
@@ -138,7 +145,7 @@ struct TodayMealScreen: View {
             }
         } else {
             ContentUnavailableView(
-                "오늘의 식단 없음",
+                "\(showingMeal.dayPrefix)의 식단 없음",
                 systemImage: "fork.knife",
                 description: Text("등록된 식단 정보가 없습니다.")
             )

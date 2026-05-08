@@ -58,7 +58,9 @@ nonisolated enum MealSyncService {
         do {
             // 기존 데이터를 먼저 삭제해 unique constraint 충돌 방지
             try modelContext.delete(model: DayMeal.self)
+            let savedAt = Date()
             for meal in meals {
+                meal.createdAt = savedAt // Firestore 생성일이 아닌 앱 로컬 저장 시각을 캐시 기준으로 사용
                 modelContext.insert(meal)
             }
             try modelContext.save()
@@ -76,11 +78,11 @@ nonisolated enum MealSyncService {
             return true
         }
         
-        // 2. 마지막 저장일이 '오늘'인지 확인 (Calendar API 사용으로 월/년도 바뀜 문제 해결)
-        let isUpToDate = Calendar.current.isDateInToday(lastMeal.createdAt)
+        // 2. 마지막 앱 로컬 저장일이 '오늘(KST)'인지 확인
+        let isUpToDate = Calendar.kst.isDateInToday(lastMeal.createdAt)
         
         if isUpToDate {
-            print("오늘 가져온 데이터가 있으므로 캐시를 유지합니다.")
+            print("오늘 앱에 저장한 데이터가 있으므로 캐시를 유지합니다.")
             return false
         } else {
             print("캐시가 만료되어(어제 이전 데이터) 새로고침이 필요합니다.")
