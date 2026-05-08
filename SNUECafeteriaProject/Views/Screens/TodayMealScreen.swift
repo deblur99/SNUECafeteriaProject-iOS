@@ -51,8 +51,7 @@ struct TodayMealScreen: View {
             // TabView를 사용하여 좌우 스크롤 페이지 구현
             TabView(selection: $showingMeal) {
                 ForEach(ShowingMeal.allCases, id: \.self) { meal in
-                    contentView(meal)
-                        .tag(meal)
+                    contentView(meal).tag(meal)
                 }
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
@@ -80,7 +79,7 @@ struct TodayMealScreen: View {
                         )
                     }
                 }
-                
+
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("공유", systemImage: "square.and.arrow.up") {
                         let meal = showingMeal == .today ? todayMeal : tomorrowMeal
@@ -97,8 +96,6 @@ struct TodayMealScreen: View {
                     }
                 }
             }
-            .toolbarBackground(.visible, for: .navigationBar)
-            .toolbarBackground(.ultraThinMaterial, for: .navigationBar)
             .sheet(item: $shareableImage) { item in
                 SharePreviewSheet(image: item.uiImage)
             }
@@ -134,7 +131,9 @@ struct TodayMealScreen: View {
                             }
                         }
                     }
-                    .padding()
+                    .padding(.top, 16)
+                    .padding(.horizontal)
+                    .padding(.bottom)
                 }
             }
         } else {
