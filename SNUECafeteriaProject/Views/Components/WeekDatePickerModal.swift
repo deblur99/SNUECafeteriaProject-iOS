@@ -54,7 +54,6 @@ struct WeekDatePickerModal: View {
                 Spacer()
             }
             .padding(.horizontal)
-
             .navigationTitle("날짜로 확인할 주 선택")
             .navigationBarTitleDisplayMode(.inline)
             .presentationDetents([.height(450)])

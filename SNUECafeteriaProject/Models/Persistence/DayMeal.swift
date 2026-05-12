@@ -79,8 +79,24 @@ extension DayMeal {
             ),
             DayMeal(
                 date: Calendar.kst.date(byAdding: .day, value: 1, to: Date())!,
-                lunchItems: [MenuItem(name: "비빔밥", sortIndex: 0), MenuItem(name: "콩나물국", sortIndex: 1)],
-                dinnerItems: [MenuItem(name: "치킨", sortIndex: 0), MenuItem(name: "감자국", sortIndex: 1)],
+                lunchItems: [
+                    MenuItem(name: "비빔밥", sortIndex: 0),
+                    MenuItem(name: "콩나물국", sortIndex: 1)
+                ],
+                dinnerItems: [
+                    MenuItem(name: "치킨", sortIndex: 0),
+                    MenuItem(name: "감자국", sortIndex: 1)
+                ],
+                isHoliday: false
+            ),
+            DayMeal(
+                date: Calendar.kst.date(byAdding: .day, value: 2, to: Date())!,
+                lunchItems: [
+                    MenuItem(name: "우삼겹김치볶음밥", sortIndex: 0),
+                    MenuItem(name: "미역국", sortIndex: 1),
+                    MenuItem(name: "레몬에이드", sortIndex: 2),
+                ],
+                dinnerItems: [],
                 isHoliday: false
             )
         ]

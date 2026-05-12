@@ -14,6 +14,7 @@ struct WeekMealScreen: View {
     @Environment(MealStore.self) private var mealStore
     @State private var selectedDate: Date = Calendar.kst.startOfDay(for: Date())
     @State private var isSheetPresented: Bool = false
+    @State private var scrollTarget: Date? = nil
 
     var body: some View {
         NavigationStack {
@@ -39,6 +40,7 @@ struct WeekMealScreen: View {
                         availableDates: mealStore.availableDates
                     ) { date in
                         selectedDate = Calendar.kst.startOfDay(for: date)
+                        scrollTarget = selectedDate
                     }
                 }
         }
@@ -48,12 +50,8 @@ struct WeekMealScreen: View {
 // MARK: - Helpers
 
 private extension WeekMealScreen {
-    var selectedDay: Date {
-        Calendar.kst.startOfDay(for: selectedDate)
-    }
-
     var weekDays: [Date] {
-        guard let interval = Calendar.kstWeekInterval(for: selectedDay) else { return [] }
+        guard let interval = Calendar.kstWeekInterval(for: selectedDate) else { return [] }
         var days: [Date] = []
         var current = interval.start
         while current < interval.end {
@@ -66,9 +64,8 @@ private extension WeekMealScreen {
 
     /// 주어진 너비에 따라 1열 또는 2열 레이아웃을 반환하는 헬퍼 메서드
     func gridColumns(for width: CGFloat) -> [GridItem] {
-        let isWideWidth = width >= 768
-        return isWideWidth
-            ? [GridItem(.flexible()), GridItem(.flexible())]
+        width >= 768
+            ? [GridItem(.flexible(), spacing: 16), GridItem(.flexible())]
             : [GridItem(.flexible())]
     }
 }
@@ -88,13 +85,16 @@ private extension WeekMealScreen {
         } else {
             GeometryReader { geometry in
                 ScrollView {
-                    LazyVGrid(columns: gridColumns(for: geometry.size.width), spacing: 0) {
+                    LazyVGrid(columns: gridColumns(for: geometry.size.width), spacing: 16) {
                         ForEach(days, id: \.self) { date in
                             dayContent(for: date)
+                                .id(date)
                         }
                     }
                     .padding()
                 }
+                // dayContent.id가 변경되면: scrollTarget이 가리키는 dayContent.id에 해당하는 뷰의 상단 영역으로 스크롤 이동
+                .scrollPosition(id: $scrollTarget, anchor: .top)
             }
         }
     }
@@ -102,22 +102,19 @@ private extension WeekMealScreen {
     @ViewBuilder
     func dayContent(for date: Date) -> some View {
         let day = Calendar.kst.startOfDay(for: date)
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: 12) {
             DateLabelText(date: day)
                 .padding(.horizontal, 4)
-            if let meal = mealStore.meal(for: day) {
-                DayMealCardsView(dayMeal: meal)
-            } else {
-                ContentUnavailableView(
-                    "식단 정보 없음",
-                    systemImage: "fork.knife",
-                    description: Text("해당 날짜의 식단 정보가 없습니다.")
-                )
-            }
+
+            Divider()
+
+            DayMealCardsView(dayMeal: mealStore.meal(for: day))
         }
-        .padding(.top, 16)
-        .padding(.horizontal)
-        .padding(.bottom)
+        .padding(16)
+        .background(
+            Color(uiColor: .secondarySystemGroupedBackground),
+            in: RoundedRectangle(cornerRadius: 20)
+        )
     }
 }
 
