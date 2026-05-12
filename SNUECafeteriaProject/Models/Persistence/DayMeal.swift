@@ -10,11 +10,11 @@ import SwiftData
 
 @Model
 final class DayMeal {
-    @Attribute(.unique) var date: Date  // 어떤 일자의 메뉴인지 식별하기 위한 필드
+    @Attribute(.unique) var date: Date // 어떤 일자의 메뉴인지 식별하기 위한 필드
     @Relationship(deleteRule: .cascade, inverse: \MenuItem.lunchDayMeal) var lunchItems: [MenuItem]
     @Relationship(deleteRule: .cascade, inverse: \MenuItem.dinnerDayMeal) var dinnerItems: [MenuItem]
     var isHoliday: Bool
-    var createdAt: Date  // DB 조회 여부를 위한 필드
+    var createdAt: Date // DB 조회 여부를 위한 필드
     
     var sortedLunchItems: [MenuItem] {
         lunchItems.sorted { $0.sortIndex < $1.sortIndex }
@@ -64,7 +64,7 @@ extension DayMeal {
                     MenuItem(name: "상추들기름통들깨무침", sortIndex: 3),
                     MenuItem(name: "사르르딸기콘", sortIndex: 4),
                     MenuItem(name: "배추김치", sortIndex: 5),
-                    MenuItem(name: "깍두기", sortIndex: 6),
+                    MenuItem(name: "깍두기", sortIndex: 6)
                 ],
                 dinnerItems: [
                     MenuItem(name: "가쓰오팽이국", sortIndex: 0),
@@ -73,7 +73,7 @@ extension DayMeal {
                     MenuItem(name: "양상추샐러드", sortIndex: 3),
                     MenuItem(name: "깍두기", sortIndex: 4),
                     MenuItem(name: "오이피클", sortIndex: 5),
-                    MenuItem(name: "배추김치", sortIndex: 6),
+                    MenuItem(name: "배추김치", sortIndex: 6)
                 ],
                 isHoliday: false
             ),
@@ -81,6 +81,31 @@ extension DayMeal {
                 date: Calendar.kst.date(byAdding: .day, value: 1, to: Date())!,
                 lunchItems: [MenuItem(name: "비빔밥", sortIndex: 0), MenuItem(name: "콩나물국", sortIndex: 1)],
                 dinnerItems: [MenuItem(name: "치킨", sortIndex: 0), MenuItem(name: "감자국", sortIndex: 1)],
+                isHoliday: false
+            )
+        ]
+    }
+    
+    static func sampleWithOnlyLunch() -> [DayMeal] {
+        [
+            DayMeal(
+                date: Date(),
+                lunchItems: [
+                    MenuItem(name: "바지락삼색감자수제비", sortIndex: 0),
+                    MenuItem(name: "훈제오리양장피", sortIndex: 1),
+                    MenuItem(name: "팽이불닭소스구이", sortIndex: 2),
+                    MenuItem(name: "상추들기름통들깨무침", sortIndex: 3),
+                    MenuItem(name: "사르르딸기콘", sortIndex: 4),
+                    MenuItem(name: "배추김치", sortIndex: 5),
+                    MenuItem(name: "깍두기", sortIndex: 6)
+                ],
+                dinnerItems: [],
+                isHoliday: false
+            ),
+            DayMeal(
+                date: Calendar.kst.date(byAdding: .day, value: 1, to: Date())!,
+                lunchItems: [MenuItem(name: "비빔밥", sortIndex: 0), MenuItem(name: "콩나물국", sortIndex: 1)],
+                dinnerItems: [],
                 isHoliday: false
             )
         ]

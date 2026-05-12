@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+/// 한 끼 메뉴를 표시하는 카드 뷰
 struct MealCardView: View {
     @Environment(MealStore.self) private var mealStore
 
@@ -103,6 +104,7 @@ struct MealCardView: View {
     }
 }
 
+/// 하루 메뉴 전체를 표시하는 카드 뷰
 struct DayMealCardsView: View {
     let dayMeal: DayMeal
     
@@ -198,6 +200,12 @@ struct MealShareContent: View {
 
 #Preview("Day Meal Card View with data") {
     DayMealCardsView(dayMeal: .sample().first!)
+        .padding()
+        .dayMealPreview(type: .normal)
+}
+
+#Preview("Meal Card View with lunch data only") {
+    DayMealCardsView(dayMeal: .sampleWithOnlyLunch().first!)
         .padding()
         .dayMealPreview(type: .normal)
 }
