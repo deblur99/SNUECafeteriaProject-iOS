@@ -8,7 +8,8 @@
 import SwiftUI
 
 /// 한 끼 메뉴를 표시하는 카드 뷰
-struct MealCardView: View {
+/// - 뷰의 크기는 여기에 임의의 .frame을 지정해서 정해도 되고, 외부 컨테이너에 맞춰도 된다.
+private struct MealCardView: View {
     @Environment(MealStore.self) private var mealStore
 
     let dayMeal: DayMeal
@@ -41,7 +42,7 @@ struct MealCardView: View {
             // Left column: meal type badge
             VStack(spacing: 6) {
                 Text(mealTypeLabel)
-                    .font(.system(.subheadline, design: .rounded).bold())
+                    .font(.system(size: 16, weight: .bold, design: .rounded))
                     .foregroundStyle(.white)
                     .frame(width: 44, height: 44)
                     .background(accentColor, in: Circle())
@@ -69,6 +70,8 @@ struct MealCardView: View {
                         ForEach(menuItems, id: \.name) { item in
                             Text(item.name)
                                 .font(.subheadline)
+                                .lineLimit(nil)
+                                .fixedSize(horizontal: false, vertical: true)
                         }
                     }
                 }
@@ -76,7 +79,6 @@ struct MealCardView: View {
             .padding()
             .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .frame(maxWidth: 350, maxHeight: 300)
         .background(
             Color.secondary.opacity(0.08),
             in: RoundedRectangle(cornerRadius: 16)
@@ -105,46 +107,49 @@ struct MealCardView: View {
 }
 
 /// 하루 메뉴 전체를 표시하는 카드 뷰
-struct DayMealCardsView: View {
+private struct DayMealCardsView: View {
     let dayMeal: DayMeal?
+    /// nil이면 horizontalSizeClass 기반으로 자동 결정, 값이 있으면 해당 열 수를 강제 적용
+    var preferredColumns: Int? = nil
 
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
     private var columns: [GridItem] {
-        (horizontalSizeClass ?? .compact) == .regular
+        let count = preferredColumns ?? ((horizontalSizeClass ?? .compact) == .regular ? 2 : 1)
+        return count >= 2
             ? [GridItem(.flexible()), GridItem(.flexible())]
             : [GridItem(.flexible())]
     }
 
     var body: some View {
-        Group {
-            if dayMeal == nil {
-                ContentUnavailableView(
-                    "식단 정보 없음",
-                    systemImage: "fork.knife",
-                    description: Text("해당 날짜의 식단 정보가 없습니다.")
-                )
-                .foregroundStyle(.secondary)
-            } else if dayMeal!.isHoliday {
-                unavailableCard(
-                    title: "오늘은 휴무일입니다",
-                    systemImage: "moon.zzz",
-                    description: "식당 운영을 하지 않습니다."
-                )
-            } else if !dayMeal!.hasLunch && !dayMeal!.hasDinner {
-                unavailableCard(
-                    title: "오늘의 식단 없음",
-                    systemImage: "fork.knife",
-                    description: "등록된 식단 정보가 없습니다."
-                )
-            } else {
-                LazyVGrid(columns: columns, spacing: 16) {
-                    MealCardView(dayMeal: dayMeal!, mealType: .lunch)
-                    MealCardView(dayMeal: dayMeal!, mealType: .dinner)
-                }
+        if dayMeal == nil {
+            ContentUnavailableView(
+                "식단 정보 없음",
+                systemImage: "fork.knife",
+                description: Text("해당 날짜의 식단 정보가 없습니다.")
+            )
+            .foregroundStyle(.secondary)
+        } else if dayMeal!.isHoliday {
+            unavailableCard(
+                title: "오늘은 휴무일입니다",
+                systemImage: "moon.zzz",
+                description: "식당 운영을 하지 않습니다."
+            )
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        } else if !dayMeal!.hasLunch && !dayMeal!.hasDinner {
+            unavailableCard(
+                title: "오늘의 식단 없음",
+                systemImage: "fork.knife",
+                description: "등록된 식단 정보가 없습니다."
+            )
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        } else {
+            LazyVGrid(columns: columns, spacing: 16) {
+                MealCardView(dayMeal: dayMeal!, mealType: .lunch)
+                MealCardView(dayMeal: dayMeal!, mealType: .dinner)
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         }
-        .frame(maxWidth: 750, maxHeight: 700)
     }
 
     private func unavailableCard(title: String, systemImage: String, description: String) -> some View {
@@ -157,6 +162,29 @@ struct DayMealCardsView: View {
         }
         .foregroundStyle(.secondary)
         .frame(maxWidth: .infinity, minHeight: 140)
+    }
+}
+
+/// 날짜 헤더와 식단 카드를 묶은 하루 단위 컨테이너 카드
+struct DayMealCard: View {
+    let date: Date
+    let dayMeal: DayMeal?
+    var preferredColumns: Int? = nil
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            DateLabelText(date: date)
+                .padding(.horizontal, 4)
+
+            Divider()
+
+            DayMealCardsView(dayMeal: dayMeal, preferredColumns: preferredColumns)
+        }
+        .padding(16)
+        .background(
+            Color(uiColor: .secondarySystemGroupedBackground),
+            in: RoundedRectangle(cornerRadius: 20)
+        )
     }
 }
 

@@ -10,6 +10,7 @@ import SwiftUI
 
 struct TodayMealScreen: View {
     @Environment(MealStore.self) private var mealStore
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
     private enum ShowingMeal: CaseIterable {
         case today, tomorrow
@@ -101,6 +102,12 @@ struct TodayMealScreen: View {
         } // NavigationStack
     }
 
+    /// regular(아이패드 전체화면) 또는 wide compact(아이폰 가로 ≥ 600pt) → 2열
+    /// narrow compact(아이폰 세로, iPad Slide Over) → 1열
+    private func contentColumns(for width: CGFloat) -> Int {
+        (horizontalSizeClass ?? .compact) == .regular || width >= 600 ? 2 : 1
+    }
+
     @ViewBuilder
     private func contentView(_ showingMeal: ShowingMeal) -> some View {
         let meal = showingMeal.meal(from: mealStore)
@@ -117,16 +124,15 @@ struct TodayMealScreen: View {
                     description: Text(description)
                 )
             } else {
-                ScrollView {
-                    VStack(alignment: .leading, spacing: 16) {
-                        DateLabelText(date: meal.date)
-                            .padding(.horizontal, 4)
-
-                        DayMealCardsView(dayMeal: meal)
+                GeometryReader { geometry in
+                    ScrollView {
+                        DayMealCard(
+                            date: meal.date,
+                            dayMeal: meal,
+                            preferredColumns: contentColumns(for: geometry.size.width)
+                        )
+                        .padding()
                     }
-                    .padding(.top, 16)
-                    .padding(.horizontal)
-                    .padding(.bottom)
                 }
             }
         } else {

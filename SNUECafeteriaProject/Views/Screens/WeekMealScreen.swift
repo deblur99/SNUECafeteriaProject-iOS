@@ -12,6 +12,7 @@ import SwiftUI
 
 struct WeekMealScreen: View {
     @Environment(MealStore.self) private var mealStore
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @State private var selectedDate: Date = Calendar.kst.startOfDay(for: Date())
     @State private var isSheetPresented: Bool = false
     @State private var scrollTarget: Date? = nil
@@ -62,11 +63,20 @@ private extension WeekMealScreen {
         return days
     }
 
-    /// 주어진 너비에 따라 1열 또는 2열 레이아웃을 반환하는 헬퍼 메서드
+    /// 너비와 size class 기반으로 열 레이아웃을 결정
+    /// - iPhone 세로 (< 500pt): 1열
+    /// - iPhone 가로 (≥ 500pt): 2열
+    /// - iPad 미니 세로 (< 768pt): 1열
+    /// - iPad 세로 / iPad 미니 가로 (768pt ~ 1099pt): 2열
+    /// - iPad 가로 (≥ 1100pt): 3열
     func gridColumns(for width: CGFloat) -> [GridItem] {
-        width >= 768
-            ? [GridItem(.flexible(), spacing: 16), GridItem(.flexible())]
-            : [GridItem(.flexible())]
+        let count: Int
+        if (horizontalSizeClass ?? .compact) == .compact {
+            count = width >= 500 ? 2 : 1
+        } else {
+            count = width >= 1100 ? 3 : (width >= 768 ? 2 : 1)
+        }
+        return Array(repeating: GridItem(.flexible(), spacing: 16), count: count)
     }
 }
 
@@ -84,10 +94,11 @@ private extension WeekMealScreen {
             )
         } else {
             GeometryReader { geometry in
+                let outerColumns = gridColumns(for: geometry.size.width).count
                 ScrollView {
                     LazyVGrid(columns: gridColumns(for: geometry.size.width), spacing: 16) {
                         ForEach(days, id: \.self) { date in
-                            dayContent(for: date)
+                            dayContent(for: date, outerColumns: outerColumns)
                                 .id(date)
                         }
                     }
@@ -100,22 +111,15 @@ private extension WeekMealScreen {
     }
 
     @ViewBuilder
-    func dayContent(for date: Date) -> some View {
+    func dayContent(for date: Date, outerColumns: Int = 1) -> some View {
         let day = Calendar.kst.startOfDay(for: date)
-        VStack(alignment: .leading, spacing: 12) {
-            DateLabelText(date: day)
-                .padding(.horizontal, 4)
-
-            Divider()
-
-            DayMealCardsView(dayMeal: mealStore.meal(for: day))
-        }
-        .padding(16)
-        .background(
-            Color(uiColor: .secondarySystemGroupedBackground),
-            in: RoundedRectangle(cornerRadius: 20)
+        DayMealCard(
+            date: day,
+            dayMeal: mealStore.meal(for: day),
+            preferredColumns: outerColumns >= 2 ? 1 : nil
         )
-    }
+        .frame(maxHeight: .infinity, alignment: .top)
+    } 
 }
 
 // MARK: - Preview
