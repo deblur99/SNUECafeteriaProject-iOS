@@ -131,14 +131,14 @@ private struct DayMealCardsView: View {
             .foregroundStyle(.secondary)
         } else if dayMeal!.isHoliday {
             unavailableCard(
-                title: "오늘은 휴무일입니다",
+                title: "\(dayMeal!.isToday ? "오늘은 " : "")휴무일입니다",
                 systemImage: "moon.zzz",
                 description: "식당 운영을 하지 않습니다."
             )
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else if !dayMeal!.hasLunch && !dayMeal!.hasDinner {
             unavailableCard(
-                title: "오늘의 식단 없음",
+                title: "\(dayMeal!.isToday ? "오늘의 식단 없음" : "식단 정보 없음")",
                 systemImage: "fork.knife",
                 description: "등록된 식단 정보가 없습니다."
             )

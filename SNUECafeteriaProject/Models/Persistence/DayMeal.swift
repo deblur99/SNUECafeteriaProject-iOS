@@ -16,22 +16,32 @@ final class DayMeal {
     var isHoliday: Bool
     var createdAt: Date // DB 조회 여부를 위한 필드
     
+    /// 메뉴 아이템을 sortIndex 기준으로 정렬한 배열
     var sortedLunchItems: [MenuItem] {
         lunchItems.sorted { $0.sortIndex < $1.sortIndex }
     }
     
+    /// 메뉴 아이템을 sortIndex 기준으로 정렬한 배열
     var sortedDinnerItems: [MenuItem] {
         dinnerItems.sorted { $0.sortIndex < $1.sortIndex }
     }
     
+    /// 오늘 날짜인지 여부 (KST 기준)
+    var isToday: Bool {
+        Calendar.kst.isDateInToday(date)
+    }
+    
+    /// 휴일이 아니면서 메뉴가 존재하는지 여부
     var hasLunch: Bool {
         !isHoliday && !lunchItems.isEmpty
     }
     
+    /// 휴일이 아니면서 메뉴가 존재하는지 여부
     var hasDinner: Bool {
         !isHoliday && !dinnerItems.isEmpty
     }
     
+    /// "4/27(월)" 형태의 날짜 레이블
     var weekdayLabel: String {
         let labels = ["일", "월", "화", "수", "목", "금", "토"]
         return labels[date.weekDayInSeoul() - 1]
