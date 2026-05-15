@@ -15,7 +15,9 @@ struct WeekMealScreen: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @State private var selectedDate: Date = Calendar.kst.startOfDay(for: Date())
     @State private var isSheetPresented: Bool = false
-    /// 주차별 스크롤 위치 (키: 주의 시작일, 값: 가장 최근에 보이던 날짜)
+    /// 주차별 스크롤 위치 (키: 주의 시작일, 값: 뷰포트 상단에 위치한 날짜)
+    /// - 사용자 스크롤: LazyVGrid에 scrollTargetLayout()를 달면 partial-visible 카드도 추적
+    /// - 시트/툴바 이동: 해당 날짜를 직접 저장 → scrollPosition(id:anchor:)로 이동
     @State private var scrollPositions: [Date: Date] = [:]
     /// 드래그 또는 애니메이션 전환 중인 수평 오프셋
     @State private var dragOffset: CGFloat = 0
@@ -77,8 +79,7 @@ struct WeekMealScreen: View {
                     availableDates: mealStore.availableDates
                 ) { date in
                     let newDate = Calendar.kst.startOfDay(for: date)
-                    // 목적지 주의 스크롤 위치를 미리 지정해두면
-                    // 전환 완료 시점에 scrollPosition(id:)가 즉시 해당 날짜로 위치시킴
+                    // 목적지 주의 스크롤 위치를 해당 날짜 카드로 미리 지정
                     scrollPositions[weekStart(for: newDate)] = newDate
                     navigateTo(newDate)
                 }
@@ -268,11 +269,18 @@ private extension WeekMealScreen {
     @ViewBuilder
     func weekPane(for anchorDate: Date) -> some View {
         let weekStartDate = weekStart(for: anchorDate)
-        let positionBinding = Binding<Date?>(
-            get: { scrollPositions[weekStartDate] },
-            set: { if let d = $0 { scrollPositions[weekStartDate] = d } }
-        )
         let days = weekDays(for: anchorDate)
+        // get: 저장된 날짜 반환. 없으면 nil (ScrollView 기본 위치).
+        // set: center pane(현재 선택된 주차)이고 유효한 날짜인 경우만 저장.
+        //      off-screen pane의 SET 이벤트도 차단해 기존 저장 위치 덮어쓰기 방지.
+        let positionIDBinding = Binding<Date?>(
+            get: { scrollPositions[weekStartDate] },
+            set: { newDate in
+                guard let d = newDate else { return }
+                guard weekStartDate == weekStart(for: selectedDate) else { return }
+                scrollPositions[weekStartDate] = d
+            }
+        )
         if days.isEmpty {
             ContentUnavailableView(
                 "식단 정보 없음",
@@ -289,9 +297,12 @@ private extension WeekMealScreen {
                                 .id(date)
                         }
                     }
+                    .scrollTargetLayout()
                     .padding()
                 }
-                .scrollPosition(id: positionBinding, anchor: .top)
+                // 주차가 바뀌면 ScrollView를 새로 생성해 이전 주의 scroll offset이 잔류하지 않도록 함
+                .id(weekStartDate)
+                .scrollPosition(id: positionIDBinding, anchor: .top)
                 .scrollDisabled(dragAxis == .horizontal || isNavigating)
             }
         }
