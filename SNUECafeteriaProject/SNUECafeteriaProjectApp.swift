@@ -68,12 +68,13 @@ extension SNUECafeteriaProjectApp {
         guard scenePhase == .active else { return }
         
         Task {
+            let modelContext = ModelContext(sharedModelContainer)
             guard await NetworkService.shared.isConnected() else {
-                errorMessage = "네트워크 연결이 없습니다. 데이터 동기화를 건너뜁니다."
-                print("네트워크 연결이 없습니다. 데이터 동기화를 건너뜁니다.")
+                errorMessage = "네트워크 연결이 없습니다. 기존에 저장된 식단 정보를 가져옵니다."
+                print(errorMessage ?? "")
+                try? mealStore.load(modelContext: modelContext)  // 네트워크 없을 때 로컬 캐시에서 데이터 로드 시도
                 return
             }
-            let modelContext = ModelContext(sharedModelContainer)
             await MealSyncService.syncIfNeeded(modelContext: modelContext)
             try? mealStore.load(modelContext: modelContext)
             

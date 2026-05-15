@@ -184,7 +184,7 @@ private extension WeekMealScreen {
             try? await Task.sleep(for: .seconds(0.35))
             await MainActor.run {
                 let pending = pendingNavigation
-                // animation: nil → scrollPosition(id:) がアニメーションなしで位置を復元
+                // animation: nil → scrollPosition(id:)
                 withTransaction(Transaction(animation: nil)) {
                     selectedDate = Calendar.kst.startOfDay(for: targetDate)
                     dragOffset = 0
