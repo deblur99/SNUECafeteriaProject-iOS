@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		61C3BF442FB717B0005C6C3B /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 61C3BF432FB717B0005C6C3B /* WidgetKit.framework */; };
+		61C3BF462FB717B0005C6C3B /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 61C3BF452FB717B0005C6C3B /* SwiftUI.framework */; };
+		61C3BF582FB717B3005C6C3B /* MealMenuWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 61C3BF412FB717B0005C6C3B /* MealMenuWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		61F8BA032FA19C490061EA46 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 61F8BA022FA19C490061EA46 /* FirebaseAnalytics */; };
 		61F8BA052FA19C490061EA46 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 61F8BA042FA19C490061EA46 /* FirebaseCore */; };
 		61F8BA072FA19C490061EA46 /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = 61F8BA062FA19C490061EA46 /* FirebaseCrashlytics */; };
@@ -29,12 +32,36 @@
 			remoteGlobalIDString = 61A7897E2F9F3DA000F135BB;
 			remoteInfo = SNUECafeteriaProject;
 		};
+		61C3BF552FB717B2005C6C3B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 61A789772F9F3DA000F135BB /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 61C3BF402FB717B0005C6C3B;
+			remoteInfo = MealMenuWidgetExtension;
+		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		61C3BF572FB717B2005C6C3B /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				61C3BF582FB717B3005C6C3B /* MealMenuWidgetExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		61A7897F2F9F3DA000F135BB /* SNUECafeteriaProject.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SNUECafeteriaProject.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		61A7898E2F9F3DA300F135BB /* SNUECafeteriaProjectTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SNUECafeteriaProjectTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		61A789982F9F3DA300F135BB /* SNUECafeteriaProjectUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SNUECafeteriaProjectUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		61C3BF412FB717B0005C6C3B /* MealMenuWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = MealMenuWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		61C3BF432FB717B0005C6C3B /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		61C3BF452FB717B0005C6C3B /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -44,6 +71,13 @@
 				Info.plist,
 			);
 			target = 61A7897E2F9F3DA000F135BB /* SNUECafeteriaProject */;
+		};
+		61C3BF5C2FB717B3005C6C3B /* Exceptions for "MealMenuWidget" folder in "MealMenuWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 61C3BF402FB717B0005C6C3B /* MealMenuWidgetExtension */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
@@ -64,6 +98,14 @@
 		61A7899B2F9F3DA300F135BB /* SNUECafeteriaProjectUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = SNUECafeteriaProjectUITests;
+			sourceTree = "<group>";
+		};
+		61C3BF472FB717B0005C6C3B /* MealMenuWidget */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				61C3BF5C2FB717B3005C6C3B /* Exceptions for "MealMenuWidget" folder in "MealMenuWidgetExtension" target */,
+			);
+			path = MealMenuWidget;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -95,6 +137,15 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		61C3BF3E2FB717B0005C6C3B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				61C3BF462FB717B0005C6C3B /* SwiftUI.framework in Frameworks */,
+				61C3BF442FB717B0005C6C3B /* WidgetKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -104,6 +155,8 @@
 				61A789812F9F3DA000F135BB /* SNUECafeteriaProject */,
 				61A789912F9F3DA300F135BB /* SNUECafeteriaProjectTests */,
 				61A7899B2F9F3DA300F135BB /* SNUECafeteriaProjectUITests */,
+				61C3BF472FB717B0005C6C3B /* MealMenuWidget */,
+				61C3BF422FB717B0005C6C3B /* Frameworks */,
 				61A789802F9F3DA000F135BB /* Products */,
 			);
 			sourceTree = "<group>";
@@ -114,8 +167,18 @@
 				61A7897F2F9F3DA000F135BB /* SNUECafeteriaProject.app */,
 				61A7898E2F9F3DA300F135BB /* SNUECafeteriaProjectTests.xctest */,
 				61A789982F9F3DA300F135BB /* SNUECafeteriaProjectUITests.xctest */,
+				61C3BF412FB717B0005C6C3B /* MealMenuWidgetExtension.appex */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		61C3BF422FB717B0005C6C3B /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				61C3BF432FB717B0005C6C3B /* WidgetKit.framework */,
+				61C3BF452FB717B0005C6C3B /* SwiftUI.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -128,10 +191,12 @@
 				61A7897B2F9F3DA000F135BB /* Sources */,
 				61A7897C2F9F3DA000F135BB /* Frameworks */,
 				61A7897D2F9F3DA000F135BB /* Resources */,
+				61C3BF572FB717B2005C6C3B /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				61C3BF562FB717B2005C6C3B /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				61A789812F9F3DA000F135BB /* SNUECafeteriaProject */,
@@ -194,6 +259,28 @@
 			productReference = 61A789982F9F3DA300F135BB /* SNUECafeteriaProjectUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
+		61C3BF402FB717B0005C6C3B /* MealMenuWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 61C3BF592FB717B3005C6C3B /* Build configuration list for PBXNativeTarget "MealMenuWidgetExtension" */;
+			buildPhases = (
+				61C3BF3D2FB717B0005C6C3B /* Sources */,
+				61C3BF3E2FB717B0005C6C3B /* Frameworks */,
+				61C3BF3F2FB717B0005C6C3B /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				61C3BF472FB717B0005C6C3B /* MealMenuWidget */,
+			);
+			name = MealMenuWidgetExtension;
+			packageProductDependencies = (
+			);
+			productName = MealMenuWidgetExtension;
+			productReference = 61C3BF412FB717B0005C6C3B /* MealMenuWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -214,6 +301,9 @@
 					61A789972F9F3DA300F135BB = {
 						CreatedOnToolsVersion = 26.4.1;
 						TestTargetID = 61A7897E2F9F3DA000F135BB;
+					};
+					61C3BF402FB717B0005C6C3B = {
+						CreatedOnToolsVersion = 26.4.1;
 					};
 				};
 			};
@@ -237,6 +327,7 @@
 				61A7897E2F9F3DA000F135BB /* SNUECafeteriaProject */,
 				61A7898D2F9F3DA200F135BB /* SNUECafeteriaProjectTests */,
 				61A789972F9F3DA300F135BB /* SNUECafeteriaProjectUITests */,
+				61C3BF402FB717B0005C6C3B /* MealMenuWidgetExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -257,6 +348,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		61A789962F9F3DA300F135BB /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		61C3BF3F2FB717B0005C6C3B /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -287,6 +385,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		61C3BF3D2FB717B0005C6C3B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -299,6 +404,11 @@
 			isa = PBXTargetDependency;
 			target = 61A7897E2F9F3DA000F135BB /* SNUECafeteriaProject */;
 			targetProxy = 61A789992F9F3DA300F135BB /* PBXContainerItemProxy */;
+		};
+		61C3BF562FB717B2005C6C3B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 61C3BF402FB717B0005C6C3B /* MealMenuWidgetExtension */;
+			targetProxy = 61C3BF552FB717B2005C6C3B /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -584,6 +694,66 @@
 			};
 			name = Release;
 		};
+		61C3BF5A2FB717B3005C6C3B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 44HRTG996V;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = MealMenuWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = MealMenuWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.deblurlab.SNUECafeteriaProject.MealMenuWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		61C3BF5B2FB717B3005C6C3B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 44HRTG996V;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = MealMenuWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = MealMenuWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.deblurlab.SNUECafeteriaProject.MealMenuWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -619,6 +789,15 @@
 			buildConfigurations = (
 				61A789A92F9F3DA300F135BB /* Debug */,
 				61A789AA2F9F3DA300F135BB /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		61C3BF592FB717B3005C6C3B /* Build configuration list for PBXNativeTarget "MealMenuWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				61C3BF5A2FB717B3005C6C3B /* Debug */,
+				61C3BF5B2FB717B3005C6C3B /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
