@@ -270,11 +270,13 @@ private extension WeekMealScreen {
     func weekPane(for anchorDate: Date) -> some View {
         let weekStartDate = weekStart(for: anchorDate)
         let days = weekDays(for: anchorDate)
-        // get: 저장된 날짜 반환. 없으면 nil (ScrollView 기본 위치).
+        // get: 저장된 날짜 반환. 없으면 첫 날(월요일)로 이동.
+        //      nil을 반환하면 ScrollView가 이전 주의 offset을 그대로 유지(scroll bleeding)하므로
+        //      미방문 주차도 명시적으로 첫 날을 지정해 최상단을 보장한다.
         // set: center pane(현재 선택된 주차)이고 유효한 날짜인 경우만 저장.
         //      off-screen pane의 SET 이벤트도 차단해 기존 저장 위치 덮어쓰기 방지.
         let positionIDBinding = Binding<Date?>(
-            get: { scrollPositions[weekStartDate] },
+            get: { scrollPositions[weekStartDate] ?? days.first },
             set: { newDate in
                 guard let d = newDate else { return }
                 guard weekStartDate == weekStart(for: selectedDate) else { return }
@@ -300,8 +302,8 @@ private extension WeekMealScreen {
                     .scrollTargetLayout()
                     .padding()
                 }
-                // 주차가 바뀌면 ScrollView를 새로 생성해 이전 주의 scroll offset이 잔류하지 않도록 함
-                .id(weekStartDate)
+                // positionIDBinding.get이 days.first를 fallback으로 반환하므로
+                // .id(weekStartDate)로 강제 재생성 없이도 scroll bleeding이 발생하지 않는다
                 .scrollPosition(id: positionIDBinding, anchor: .top)
                 .scrollDisabled(dragAxis == .horizontal || isNavigating)
             }
