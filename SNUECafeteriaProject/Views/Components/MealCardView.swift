@@ -44,11 +44,9 @@ private struct MealCardView: View {
             // Left column: meal type badge
             VStack(spacing: 6) {
                 Text(mealTypeLabel)
-                    .font(.system(
-                        size: isForExport ? 13 : 16,
-                        weight: .bold,
-                        design: .rounded
-                    ))
+                    .font(isForExport
+                        ? .system(size: 13, weight: .bold, design: .rounded)
+                        : .system(.callout, design: .rounded, weight: .bold))
                     .foregroundStyle(.white)
                     .frame(
                         width: isForExport ? 36 : 44,
@@ -67,13 +65,12 @@ private struct MealCardView: View {
                 if menuItems.isEmpty {
                     ContentUnavailableView {
                         Label("식단 정보 없음", systemImage: "fork.knife")
-                            .font(.system(
-                                size: isForExport ? 13 : 15,
-                                weight: .semibold
-                            ))
+                            .font(isForExport
+                                ? .system(size: 13, weight: .semibold)
+                                : .subheadline.weight(.semibold))
                     } description: {
                         Text("해당 시간대 식단이 없습니다.")
-                            .font(.system(size: isForExport ? 12 : 13))
+                            .font(isForExport ? .system(size: 12) : .footnote)
                     }
                     .foregroundStyle(.secondary)
                     .frame(maxWidth: .infinity)
@@ -81,7 +78,7 @@ private struct MealCardView: View {
                     VStack(alignment: .leading, spacing: isForExport ? 4 : 6) {
                         ForEach(menuItems, id: \.name) { item in
                             Text(item.name)
-                                .font(.system(size: isForExport ? 14 : 15))
+                                .font(isForExport ? .system(size: 14) : .subheadline)
                                 .lineLimit(nil)
                                 .fixedSize(horizontal: false, vertical: true)
                         }
