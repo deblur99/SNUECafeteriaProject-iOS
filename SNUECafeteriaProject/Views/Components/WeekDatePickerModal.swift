@@ -39,7 +39,7 @@ struct WeekDatePickerModal: View {
         NavigationStack {
             VStack {
                 DatePicker(
-                    "날짜로 확인할 주 선택",
+                    "날짜를 선택해 주간 식단 확인",
                     selection: $selectedDate,
                     in: datePickerRange,
                     displayedComponents: [.date]
@@ -54,7 +54,7 @@ struct WeekDatePickerModal: View {
                 Spacer()
             }
             .padding(.horizontal)
-            .navigationTitle("날짜로 확인할 주 선택")
+            .navigationTitle("날짜를 선택해 주간 식단 확인")
             .navigationBarTitleDisplayMode(.inline)
             .presentationDetents([.height(450)])
             .toolbar {
