@@ -8,6 +8,15 @@
 import SwiftUI
 import WidgetKit
 
+// MARK: - Deep Link URLs
+
+private enum WidgetDeepLink {
+    /// 앱의 "오늘의 식단" 페이지 (오늘 탭 + 오늘 세그먼트)
+    static let today = URL(string: "snuecafeteria://today")!
+    /// 앱의 "내일의 식단" 페이지 (오늘 탭 + 내일 세그먼트)
+    static let tomorrow = URL(string: "snuecafeteria://tomorrow")!
+}
+
 // MARK: - Timeline Entry
 
 struct MealEntry: TimelineEntry {
@@ -319,6 +328,7 @@ private struct SmallEntryView: View {
                 .frame(maxHeight: .infinity, alignment: .top)
         }
         .padding(.vertical, metrics.outerPadding)
+        .widgetURL(WidgetDeepLink.today)
     }
 }
 
@@ -343,23 +353,30 @@ private struct MediumEntryView: View {
             .frame(maxHeight: .infinity)
         }
         .padding(metrics.outerPadding)
+        .widgetURL(WidgetDeepLink.today)
     }
 }
 
-/// Large: 오늘 + 내일 메뉴
+/// Large: 오늘 + 내일 메뉴 (각 섹션을 Link로 감싸 서로 다른 탭으로 분기)
 private struct LargeEntryView: View {
     let entry: MealEntry
     private let metrics = WidgetSizeMetrics.large
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            WidgetDaySection(label: "오늘 교대 메뉴", meal: entry.todayMeal, metrics: metrics)
+            Link(destination: WidgetDeepLink.today) {
+                WidgetDaySection(label: "오늘 교대 메뉴", meal: entry.todayMeal, metrics: metrics)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
 
             Rectangle()
                 .fill(Color.secondary.opacity(0.3))
                 .frame(height: 1)
 
-            WidgetDaySection(label: "내일 교대 메뉴", meal: entry.tomorrowMeal, metrics: metrics, isToday: false)
+            Link(destination: WidgetDeepLink.tomorrow) {
+                WidgetDaySection(label: "내일 교대 메뉴", meal: entry.tomorrowMeal, metrics: metrics, isToday: false)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
         }
         .padding(metrics.outerPadding)
     }

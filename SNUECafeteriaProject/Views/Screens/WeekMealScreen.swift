@@ -8,11 +8,82 @@
 import SwiftData
 import SwiftUI
 
-// MARK: - WeekMealScreen
+// MARK: - Supporting Types
+
+private enum DragAxis { case horizontal, vertical }
+
+// MARK: - Week Pane View
+
+/// anchorDate 기준 한 주의 콘텐츠 pane. 주차별 스크롤 위치 자동 기억·복원.
+private struct WeekPaneView: View {
+    let days: [Date]
+    /// get: 저장된 날짜 반환. 없으면 첫 날(월요일)로 이동.
+    ///      nil을 반환하면 ScrollView가 이전 주의 offset을 그대로 유지(scroll bleeding)하므로
+    ///      미방문 주차도 명시적으로 첫 날을 지정해 최상단을 보장한다.
+    /// set: center pane(현재 선택된 주차)이고 유효한 날짜인 경우만 저장.
+    ///      off-screen pane의 SET 이벤트도 차단해 기존 저장 위치 덮어쓰기 방지.
+    @Binding var scrollPosition: Date?
+    var dragAxis: DragAxis?
+    var isNavigating: Bool
+
+    @Environment(MealStore.self) private var mealStore
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+
+    var body: some View {
+        if days.isEmpty {
+            ContentUnavailableView(
+                "식단 정보 없음",
+                systemImage: "fork.knife",
+                description: Text("해당 주의 식단 정보가 없습니다.")
+            )
+        } else {
+            GeometryReader { geometry in
+                let columns = gridColumns(for: geometry.size.width)
+                ScrollView {
+                    LazyVGrid(columns: columns, spacing: 16) {
+                        ForEach(days, id: \.self) { date in
+                            let day = Calendar.kst.startOfDay(for: date)
+                            DayMealCard(
+                                date: day,
+                                dayMeal: mealStore.meal(for: day),
+                                preferredColumns: columns.count >= 2 ? 1 : nil
+                            )
+                            .frame(maxHeight: .infinity, alignment: .top)
+                            .id(date)
+                        }
+                    }
+                    .scrollTargetLayout()
+                    .padding()
+                }
+                // scrollPosition.get이 days.first를 fallback으로 반환하므로
+                // .id(weekStartDate)로 강제 재생성 없이도 scroll bleeding이 발생하지 않는다
+                .scrollPosition(id: $scrollPosition, anchor: .top)
+                .scrollDisabled(dragAxis == .horizontal || isNavigating)
+            }
+        }
+    }
+
+    /// 너비와 size class 기반으로 열 레이아웃을 결정
+    /// - iPhone 세로 (< 500pt): 1열
+    /// - iPhone 가로 (≥ 500pt): 2열
+    /// - iPad 미니 세로 (< 768pt): 1열
+    /// - iPad 세로 / iPad 미니 가로 (768pt ~ 1099pt): 2열
+    /// - iPad 가로 (≥ 1100pt): 3열
+    private func gridColumns(for width: CGFloat) -> [GridItem] {
+        let count: Int
+        if (horizontalSizeClass ?? .compact) == .compact {
+            count = width >= 500 ? 2 : 1
+        } else {
+            count = width >= 1100 ? 3 : (width >= 768 ? 2 : 1)
+        }
+        return Array(repeating: GridItem(.flexible(), spacing: 16), count: count)
+    }
+}
+
+// MARK: - Screen
 
 struct WeekMealScreen: View {
     @Environment(MealStore.self) private var mealStore
-    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @State private var selectedDate: Date = Calendar.kst.startOfDay(for: Date())
     @State private var isSheetPresented: Bool = false
     /// 주차별 스크롤 위치 (키: 주의 시작일, 값: 뷰포트 상단에 위치한 날짜)
@@ -31,8 +102,6 @@ struct WeekMealScreen: View {
     /// 전환 중 입력된 다음 스와이프 방향 (true: 다음 주, false: 이전 주)
     @State private var pendingNavigation: Bool? = nil
 
-    private enum DragAxis { case horizontal, vertical }
-
     var body: some View {
         NavigationStack {
             GeometryReader { geo in
@@ -40,12 +109,9 @@ struct WeekMealScreen: View {
                 // offset(x: -w) 기준으로 현재 주(item[1])를 화면에 표시
                 // dragOffset이 변함에 따라 인접 pane이 실시간으로 슬라이드됨
                 HStack(spacing: 0) {
-                    weekPane(for: prevPaneDate)
-                        .frame(width: geo.size.width)
-                    weekPane(for: selectedDate)
-                        .frame(width: geo.size.width)
-                    weekPane(for: nextPaneDate)
-                        .frame(width: geo.size.width)
+                    weekPaneView(for: prevPaneDate).frame(width: geo.size.width)
+                    weekPaneView(for: selectedDate).frame(width: geo.size.width)
+                    weekPaneView(for: nextPaneDate).frame(width: geo.size.width)
                 }
                 .offset(x: -geo.size.width + dragOffset)
                 .onAppear { viewWidth = geo.size.width }
@@ -57,22 +123,7 @@ struct WeekMealScreen: View {
             .clipped()
             .background(Color(uiColor: .systemGroupedBackground))
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .title) {
-                    WeekSelectorView(
-                        selectedDate: Binding(
-                            get: { selectedDate },
-                            set: { navigateTo($0) }
-                        ),
-                        availableDates: mealStore.availableDates
-                    )
-                }
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button("날짜 선택", systemImage: "calendar") {
-                        isSheetPresented.toggle()
-                    }
-                }
-            }
+            .toolbar(content: toolbarContent)
             .sheet(isPresented: $isSheetPresented) {
                 WeekDatePickerModal(
                     initialDate: selectedDate,
@@ -137,6 +188,26 @@ struct WeekMealScreen: View {
                         }
                     }
             )
+        }
+    }
+
+    // MARK: Toolbar
+
+    @ToolbarContentBuilder
+    private func toolbarContent() -> some ToolbarContent {
+        ToolbarItem(placement: .title) {
+            WeekSelectorView(
+                selectedDate: Binding(
+                    get: { selectedDate },
+                    set: { navigateTo($0) }
+                ),
+                availableDates: mealStore.availableDates
+            )
+        }
+        ToolbarItem(placement: .topBarTrailing) {
+            Button("날짜 선택", systemImage: "calendar") {
+                isSheetPresented.toggle()
+            }
         }
     }
 }
@@ -245,37 +316,24 @@ private extension WeekMealScreen {
         return days
     }
 
-    /// 너비와 size class 기반으로 열 레이아웃을 결정
-    /// - iPhone 세로 (< 500pt): 1열
-    /// - iPhone 가로 (≥ 500pt): 2열
-    /// - iPad 미니 세로 (< 768pt): 1열
-    /// - iPad 세로 / iPad 미니 가로 (768pt ~ 1099pt): 2열
-    /// - iPad 가로 (≥ 1100pt): 3열
-    func gridColumns(for width: CGFloat) -> [GridItem] {
-        let count: Int
-        if (horizontalSizeClass ?? .compact) == .compact {
-            count = width >= 500 ? 2 : 1
-        } else {
-            count = width >= 1100 ? 3 : (width >= 768 ? 2 : 1)
-        }
-        return Array(repeating: GridItem(.flexible(), spacing: 16), count: count)
+    /// anchorDate 기준 WeekPaneView를 생성한다.
+    /// scrollPositionBinding(for:)을 주입해 스크롤 위치를 주차별로 독립적으로 관리한다.
+    func weekPaneView(for anchorDate: Date) -> some View {
+        WeekPaneView(
+            days: weekDays(for: anchorDate),
+            scrollPosition: scrollPositionBinding(for: anchorDate),
+            dragAxis: dragAxis,
+            isNavigating: isNavigating
+        )
     }
-}
 
-// MARK: - Layout
-
-private extension WeekMealScreen {
-    /// anchorDate 기준 한 주의 콘텐츠 pane. 주차별 스크롤 위치 자동 기억·복원.
-    @ViewBuilder
-    func weekPane(for anchorDate: Date) -> some View {
+    /// 주차별 스크롤 위치 Binding을 반환한다.
+    /// - get: 저장된 날짜, 없으면 weekStart(월요일)를 fallback으로 반환
+    /// - set: center pane(현재 선택된 주차)의 이벤트만 저장해 off-screen 덮어쓰기를 방지
+    func scrollPositionBinding(for anchorDate: Date) -> Binding<Date?> {
         let weekStartDate = weekStart(for: anchorDate)
         let days = weekDays(for: anchorDate)
-        // get: 저장된 날짜 반환. 없으면 첫 날(월요일)로 이동.
-        //      nil을 반환하면 ScrollView가 이전 주의 offset을 그대로 유지(scroll bleeding)하므로
-        //      미방문 주차도 명시적으로 첫 날을 지정해 최상단을 보장한다.
-        // set: center pane(현재 선택된 주차)이고 유효한 날짜인 경우만 저장.
-        //      off-screen pane의 SET 이벤트도 차단해 기존 저장 위치 덮어쓰기 방지.
-        let positionIDBinding = Binding<Date?>(
+        return Binding<Date?>(
             get: { scrollPositions[weekStartDate] ?? days.first },
             set: { newDate in
                 guard let d = newDate else { return }
@@ -283,42 +341,6 @@ private extension WeekMealScreen {
                 scrollPositions[weekStartDate] = d
             }
         )
-        if days.isEmpty {
-            ContentUnavailableView(
-                "식단 정보 없음",
-                systemImage: "fork.knife",
-                description: Text("해당 주의 식단 정보가 없습니다.")
-            )
-        } else {
-            GeometryReader { geometry in
-                let outerColumns = gridColumns(for: geometry.size.width).count
-                ScrollView {
-                    LazyVGrid(columns: gridColumns(for: geometry.size.width), spacing: 16) {
-                        ForEach(days, id: \.self) { date in
-                            dayContent(for: date, outerColumns: outerColumns)
-                                .id(date)
-                        }
-                    }
-                    .scrollTargetLayout()
-                    .padding()
-                }
-                // positionIDBinding.get이 days.first를 fallback으로 반환하므로
-                // .id(weekStartDate)로 강제 재생성 없이도 scroll bleeding이 발생하지 않는다
-                .scrollPosition(id: positionIDBinding, anchor: .top)
-                .scrollDisabled(dragAxis == .horizontal || isNavigating)
-            }
-        }
-    }
-
-    @ViewBuilder
-    func dayContent(for date: Date, outerColumns: Int = 1) -> some View {
-        let day = Calendar.kst.startOfDay(for: date)
-        DayMealCard(
-            date: day,
-            dayMeal: mealStore.meal(for: day),
-            preferredColumns: outerColumns >= 2 ? 1 : nil
-        )
-        .frame(maxHeight: .infinity, alignment: .top)
     }
 }
 

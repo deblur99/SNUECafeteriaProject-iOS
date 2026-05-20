@@ -16,11 +16,12 @@ enum AppTab: Hashable {
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var selectedTab: AppTab = .today
+    @State private var todayPage: ShowingMeal = .today
 
     var body: some View {
         TabView(selection: $selectedTab) {
             Tab("오늘", systemImage: "sun.max", value: AppTab.today) {
-                TodayMealScreen()
+                TodayMealScreen(showingMeal: $todayPage)
             }
 
             Tab("주간", systemImage: "calendar", value: AppTab.week) {
@@ -41,6 +42,19 @@ struct ContentView: View {
         }
         .onReceive(NotificationCenter.default.publisher(for: .openTodayTab)) { _ in
             selectedTab = .today
+        }
+        .onOpenURL { url in
+            guard url.scheme == "snuecafeteria" else { return }
+            switch url.host {
+            case "today":
+                selectedTab = .today
+                todayPage = .today
+            case "tomorrow":
+                selectedTab = .today
+                todayPage = .tomorrow
+            default:
+                break
+            }
         }
     }
 }

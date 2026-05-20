@@ -8,121 +8,58 @@
 import SwiftData
 import SwiftUI
 
-struct TodayMealScreen: View {
-    @Environment(MealStore.self) private var mealStore
+// MARK: - Supporting Types
+
+enum ShowingMeal: CaseIterable {
+    case today, tomorrow
+
+    var title: LocalizedStringKey {
+        switch self {
+        case .today: "오늘의 식단"
+        case .tomorrow: "내일의 식단"
+        }
+    }
+
+    var dayPrefix: String {
+        switch self {
+        case .today: "오늘"
+        case .tomorrow: "내일"
+        }
+    }
+
+    func meal(from store: MealStore) -> DayMeal? {
+        switch self {
+        case .today: store.todayMeal
+        case .tomorrow: store.tomorrowMeal
+        }
+    }
+}
+
+/// UIImage는 Identifiable이 아니므로 sheet(item:) 사용을 위한 래퍼
+private struct ShareableImage: Identifiable {
+    let id = UUID()
+    let uiImage: UIImage
+    let shareDate: Date
+
+    /// 파일 형식은 SNUECafeteria_Menu_yyyyMMdd.png
+    var filename: String {
+        "SNUECafeteria_Menu_\(DateFormatter.kstCompact.string(from: shareDate)).png"
+    }
+}
+
+// MARK: - Page Content View
+
+/// 오늘 / 내일 탭 하나의 콘텐츠 페이지
+private struct TodayMealPageView: View {
+    let page: ShowingMeal
+    let meal: DayMeal?
+
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
-    private enum ShowingMeal: CaseIterable {
-        case today, tomorrow
-
-        var title: LocalizedStringKey {
-            switch self {
-            case .today: "오늘의 식단"
-            case .tomorrow: "내일의 식단"
-            }
-        }
-        
-        var dayPrefix: String {
-            switch self {
-            case .today: "오늘"
-            case .tomorrow: "내일"
-            }
-        }
-
-        func meal(from store: MealStore) -> DayMeal? {
-            switch self {
-            case .today: store.todayMeal
-            case .tomorrow: store.tomorrowMeal
-            }
-        }
-    }
-
-    /// UIImage는 Identifiable이 아니므로 sheet(item:) 사용을 위한 래퍼
-    private struct ShareableImage: Identifiable {
-        let id = UUID()
-        let uiImage: UIImage
-    }
-
-    @State private var showingMeal: ShowingMeal = .today
-    @State private var shareableImage: ShareableImage?
-
     var body: some View {
-        NavigationStack {
-            // TabView를 사용하여 좌우 스크롤 페이지 구현
-            TabView(selection: $showingMeal) {
-                ForEach(ShowingMeal.allCases, id: \.self) { meal in
-                    contentView(meal).tag(meal)
-                }
-            }
-            .tabViewStyle(.page(indexDisplayMode: .never))
-            .background(Color(uiColor: .systemGroupedBackground))
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .principal) {
-                    Picker("", selection: $showingMeal) {
-                        ForEach(ShowingMeal.allCases, id: \.self) { meal in
-                            Text(meal.title).tag(meal)
-                        }
-                    }
-                    .pickerStyle(.segmented)
-                    .frame(width: 230)
-                    .onAppear {
-                        // .pickerStyle(.segmented)은 UISegmentedControl로 렌더링되므로
-                        // SwiftUI Text modifier가 적용되지 않음 → UIKit appearance API 사용
-                        UISegmentedControl.appearance().setTitleTextAttributes(
-                            [.font: UIFont.systemFont(ofSize: 15, weight: .semibold)],
-                            for: .selected
-                        )
-                        UISegmentedControl.appearance().setTitleTextAttributes(
-                            [.font: UIFont.systemFont(ofSize: 15, weight: .regular)],
-                            for: .normal
-                        )
-                    }
-                }
-
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button("공유", systemImage: "square.and.arrow.up") {
-                        let meal = showingMeal.meal(from: mealStore)
-                        guard let meal, !meal.isHoliday else { return }
-
-                        let renderer = ImageRenderer(
-                            content: MealShareContent(dayMeal: meal)
-                                .environment(mealStore)
-                        )
-                        renderer.scale = 3.0
-                        if let uiImage = renderer.uiImage {
-                            shareableImage = ShareableImage(uiImage: uiImage)
-                        }
-                    }
-                }
-            }
-            .sheet(item: $shareableImage) { item in
-                SharePreviewSheet(image: item.uiImage)
-            }
-        } // NavigationStack
-    }
-
-    /// regular(아이패드 전체화면) 또는 wide compact(아이폰 가로 ≥ 600pt) → 2열
-    /// narrow compact(아이폰 세로, iPad Slide Over) → 1열
-    private func contentColumns(for width: CGFloat) -> Int {
-        (horizontalSizeClass ?? .compact) == .regular || width >= 600 ? 2 : 1
-    }
-
-    @ViewBuilder
-    private func contentView(_ showingMeal: ShowingMeal) -> some View {
-        let meal = showingMeal.meal(from: mealStore)
-
         if let meal {
             if meal.isHoliday || (!meal.hasLunch && !meal.hasDinner) {
-                let title = meal.isHoliday ? "\(showingMeal.dayPrefix)은 휴무일입니다" : "\(showingMeal.dayPrefix)의 식단 없음"
-                let image = meal.isHoliday ? "moon.zzz" : "fork.knife"
-                let description = meal.isHoliday ? "식당 운영을 하지 않습니다." : "등록된 식단 정보가 없습니다."
-                
-                ContentUnavailableView(
-                    title,
-                    systemImage: image,
-                    description: Text(description)
-                )
+                unavailableView(for: meal)
             } else {
                 GeometryReader { geometry in
                     ScrollView {
@@ -137,25 +74,125 @@ struct TodayMealScreen: View {
             }
         } else {
             ContentUnavailableView(
-                "\(showingMeal.dayPrefix)의 식단 없음",
+                "\(page.dayPrefix)의 식단 없음",
                 systemImage: "fork.knife",
                 description: Text("등록된 식단 정보가 없습니다.")
             )
         }
     }
+
+    @ViewBuilder
+    private func unavailableView(for meal: DayMeal) -> some View {
+        if meal.isHoliday {
+            ContentUnavailableView(
+                "\(page.dayPrefix)은 휴무일입니다",
+                systemImage: "moon.zzz",
+                description: Text("식당 운영을 하지 않습니다.")
+            )
+        } else {
+            ContentUnavailableView(
+                "\(page.dayPrefix)의 식단 없음",
+                systemImage: "fork.knife",
+                description: Text("등록된 식단 정보가 없습니다.")
+            )
+        }
+    }
+
+    /// regular(아이패드 전체화면) 또는 wide compact(아이폰 가로 ≥ 600pt) → 2열
+    /// narrow compact(아이폰 세로, iPad Slide Over) → 1열
+    private func contentColumns(for width: CGFloat) -> Int {
+        (horizontalSizeClass ?? .compact) == .regular || width >= 600 ? 2 : 1
+    }
 }
 
+// MARK: - Screen
+
+struct TodayMealScreen: View {
+    @Environment(MealStore.self) private var mealStore
+
+    @Binding var showingMeal: ShowingMeal
+    @State private var shareableImage: ShareableImage?
+
+    var body: some View {
+        NavigationStack {
+            TabView(selection: $showingMeal) {
+                ForEach(ShowingMeal.allCases, id: \.self) { page in
+                    TodayMealPageView(page: page, meal: page.meal(from: mealStore))
+                        .tag(page)
+                }
+            }
+            .tabViewStyle(.page(indexDisplayMode: .never))
+            .background(Color(uiColor: .systemGroupedBackground))
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar(content: toolbarContent)
+            .sheet(item: $shareableImage) { item in
+                SharePreviewSheet(image: item.uiImage, fileName: item.filename)
+            }
+        }
+    }
+
+    // MARK: Toolbar
+
+    @ToolbarContentBuilder
+    private func toolbarContent() -> some ToolbarContent {
+        ToolbarItem(placement: .principal) {
+            Picker("", selection: $showingMeal) {
+                ForEach(ShowingMeal.allCases, id: \.self) { meal in
+                    Text(meal.title).tag(meal)
+                }
+            }
+            .pickerStyle(.segmented)
+            .frame(width: 230)
+            .onAppear { configureSegmentedAppearance() }
+        }
+
+        ToolbarItem(placement: .topBarTrailing) {
+            Button("공유", systemImage: "square.and.arrow.up") {
+                shareCurrentMeal()
+            }
+        }
+    }
+
+    // MARK: Helpers
+
+    /// .pickerStyle(.segmented)은 UISegmentedControl로 렌더링되므로
+    /// SwiftUI Text modifier가 적용되지 않음 → UIKit appearance API 사용
+    private func configureSegmentedAppearance() {
+        UISegmentedControl.appearance().setTitleTextAttributes(
+            [.font: UIFont.systemFont(ofSize: 15, weight: .semibold)],
+            for: .selected
+        )
+        UISegmentedControl.appearance().setTitleTextAttributes(
+            [.font: UIFont.systemFont(ofSize: 15, weight: .regular)],
+            for: .normal
+        )
+    }
+
+    private func shareCurrentMeal() {
+        guard let meal = showingMeal.meal(from: mealStore), !meal.isHoliday else { return }
+        let renderer = ImageRenderer(
+            content: MealShareContent(dayMeal: meal).environment(mealStore)
+        )
+        renderer.scale = 3.0
+        if let uiImage = renderer.uiImage {
+            shareableImage = ShareableImage(uiImage: uiImage, shareDate: meal.date)
+        }
+    }
+}
+
+// MARK: - Previews
+
 #Preview("Sample Data") {
-    TodayMealScreen()
+    TodayMealScreen(showingMeal: .constant(.today))
         .modifier(DayMealPreviewModifier(type: .normal))
 }
 
 #Preview("No Data") {
-    TodayMealScreen()
+    TodayMealScreen(showingMeal: .constant(.today))
         .modifier(DayMealPreviewModifier(type: .empty))
 }
 
 #Preview("Holiday Data") {
-    TodayMealScreen()
+    TodayMealScreen(showingMeal: .constant(.today))
         .modifier(DayMealPreviewModifier(type: .holiday))
 }

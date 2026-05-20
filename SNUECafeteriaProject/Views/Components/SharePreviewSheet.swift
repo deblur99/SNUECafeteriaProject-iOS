@@ -12,6 +12,7 @@ import UniformTypeIdentifiers
 struct SharePreviewSheet: View {
     @Environment(\.dismiss) private var dismiss
     let image: UIImage
+    let fileName: String
 
     var body: some View {
         NavigationStack {
@@ -29,7 +30,7 @@ struct SharePreviewSheet: View {
             .navigationBarTitleDisplayMode(.inline)
             .safeAreaInset(edge: .bottom) {
                 ShareLink(
-                    item: TransferableImage(uiImage: image),
+                    item: TransferableImage(uiImage: image, fileName: fileName),
                     preview: SharePreview(
                         "서울교대 학식 메뉴",
                         image: Image(uiImage: image)
@@ -62,13 +63,17 @@ struct SharePreviewSheet: View {
 /// ShareLink에서 UIImage를 전달하기 위한 Transferable 래퍼
 private struct TransferableImage: Transferable {
     let uiImage: UIImage
-
+    let fileName: String
+    
     static var transferRepresentation: some TransferRepresentation {
         DataRepresentation(exportedContentType: .png) { item in
             guard let data = item.uiImage.pngData() else {
                 throw TransferError.conversionFailed
             }
             return data
+        }  // 여기서 반환하는 타입이 TransferableImage 인스턴스
+        .suggestedFileName { item in
+            return item.fileName  // 생성자로 넘겨받은 파일명을 반환하여 이미지 파일명을 지정
         }
     }
 
@@ -78,5 +83,5 @@ private struct TransferableImage: Transferable {
 }
 
 #Preview {
-    SharePreviewSheet(image: UIImage(named: "today_meal_sample")!)
+    SharePreviewSheet(image: UIImage(named: "today_meal_sample")!, fileName: "today_meal_sample.png")
 }
