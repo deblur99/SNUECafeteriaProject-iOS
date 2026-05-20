@@ -60,6 +60,7 @@ final class DayMeal {
         self.isHoliday = isHoliday
         self.createdAt = createdAt
     }
+    
 }
 
 extension DayMeal {
@@ -104,7 +105,7 @@ extension DayMeal {
                 lunchItems: [
                     MenuItem(name: "우삼겹김치볶음밥", sortIndex: 0),
                     MenuItem(name: "미역국", sortIndex: 1),
-                    MenuItem(name: "레몬에이드", sortIndex: 2),
+                    MenuItem(name: "레몬에이드", sortIndex: 2)
                 ],
                 dinnerItems: [],
                 isHoliday: false

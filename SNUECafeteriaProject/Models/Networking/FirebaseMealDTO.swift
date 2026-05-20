@@ -40,6 +40,17 @@ nonisolated struct FirestoreMealDTO: Codable, Sendable {
             createdAt: createdAt.dateValue()
         )
     }
+
+    /// FirestoreMealDTO -> App Groups 캐시용 CachedDayMeal 변환
+    func toCachedModel() -> CachedDayMeal {
+        CachedDayMeal(
+            date: date.dateValue(),
+            lunchItems: lunch.enumerated().map { CachedMenuItem(name: $0.element.name, sortIndex: $0.offset) },
+            dinnerItems: dinner.enumerated().map { CachedMenuItem(name: $0.element.name, sortIndex: $0.offset) },
+            isHoliday: isHoliday,
+            createdAt: createdAt.dateValue()
+        )
+    }
 }
 
 nonisolated struct FirestoreMenuItemDTO: Codable {

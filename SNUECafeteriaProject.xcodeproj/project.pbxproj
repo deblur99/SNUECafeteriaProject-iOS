@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		61C3BF622FBADF42005C6C3B /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 61C3BF432FB717B0005C6C3B /* WidgetKit.framework */; };
+		61C3BF632FBADF42005C6C3B /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 61C3BF452FB717B0005C6C3B /* SwiftUI.framework */; };
+		61C3BF6E2FBADF43005C6C3B /* SNUECafeteriaWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 61C3BF612FBADF42005C6C3B /* SNUECafeteriaWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		61F8BA032FA19C490061EA46 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 61F8BA022FA19C490061EA46 /* FirebaseAnalytics */; };
 		61F8BA052FA19C490061EA46 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 61F8BA042FA19C490061EA46 /* FirebaseCore */; };
 		61F8BA072FA19C490061EA46 /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = 61F8BA062FA19C490061EA46 /* FirebaseCrashlytics */; };
@@ -29,12 +32,37 @@
 			remoteGlobalIDString = 61A7897E2F9F3DA000F135BB;
 			remoteInfo = SNUECafeteriaProject;
 		};
+		61C3BF6C2FBADF43005C6C3B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 61A789772F9F3DA000F135BB /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 61C3BF602FBADF42005C6C3B;
+			remoteInfo = SNUECafeteriaWidgetExtension;
+		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		61C3BF572FB717B2005C6C3B /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				61C3BF6E2FBADF43005C6C3B /* SNUECafeteriaWidgetExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		61A7897F2F9F3DA000F135BB /* SNUECafeteriaProject.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SNUECafeteriaProject.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		61A7898E2F9F3DA300F135BB /* SNUECafeteriaProjectTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SNUECafeteriaProjectTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		61A789982F9F3DA300F135BB /* SNUECafeteriaProjectUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SNUECafeteriaProjectUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		61C3BF432FB717B0005C6C3B /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		61C3BF452FB717B0005C6C3B /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		61C3BF612FBADF42005C6C3B /* SNUECafeteriaWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = SNUECafeteriaWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		61C3BF742FBBF761005C6C3B /* SNUECafeteriaWidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SNUECafeteriaWidgetExtension.entitlements; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -44,6 +72,13 @@
 				Info.plist,
 			);
 			target = 61A7897E2F9F3DA000F135BB /* SNUECafeteriaProject */;
+		};
+		61C3BF722FBADF43005C6C3B /* Exceptions for "SNUECafeteriaWidget" folder in "SNUECafeteriaWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 61C3BF602FBADF42005C6C3B /* SNUECafeteriaWidgetExtension */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
@@ -64,6 +99,19 @@
 		61A7899B2F9F3DA300F135BB /* SNUECafeteriaProjectUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = SNUECafeteriaProjectUITests;
+			sourceTree = "<group>";
+		};
+		61C3BF642FBADF42005C6C3B /* SNUECafeteriaWidget */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				61C3BF722FBADF43005C6C3B /* Exceptions for "SNUECafeteriaWidget" folder in "SNUECafeteriaWidgetExtension" target */,
+			);
+			path = SNUECafeteriaWidget;
+			sourceTree = "<group>";
+		};
+		B96A182864E28FA2C30F4EDC /* Shared */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Shared;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -95,15 +143,28 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		61C3BF5E2FBADF42005C6C3B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				61C3BF632FBADF42005C6C3B /* SwiftUI.framework in Frameworks */,
+				61C3BF622FBADF42005C6C3B /* WidgetKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		61A789762F9F3DA000F135BB = {
 			isa = PBXGroup;
 			children = (
+				61C3BF742FBBF761005C6C3B /* SNUECafeteriaWidgetExtension.entitlements */,
 				61A789812F9F3DA000F135BB /* SNUECafeteriaProject */,
 				61A789912F9F3DA300F135BB /* SNUECafeteriaProjectTests */,
 				61A7899B2F9F3DA300F135BB /* SNUECafeteriaProjectUITests */,
+				61C3BF642FBADF42005C6C3B /* SNUECafeteriaWidget */,
+				B96A182864E28FA2C30F4EDC /* Shared */,
+				61C3BF422FB717B0005C6C3B /* Frameworks */,
 				61A789802F9F3DA000F135BB /* Products */,
 			);
 			sourceTree = "<group>";
@@ -114,8 +175,18 @@
 				61A7897F2F9F3DA000F135BB /* SNUECafeteriaProject.app */,
 				61A7898E2F9F3DA300F135BB /* SNUECafeteriaProjectTests.xctest */,
 				61A789982F9F3DA300F135BB /* SNUECafeteriaProjectUITests.xctest */,
+				61C3BF612FBADF42005C6C3B /* SNUECafeteriaWidgetExtension.appex */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		61C3BF422FB717B0005C6C3B /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				61C3BF432FB717B0005C6C3B /* WidgetKit.framework */,
+				61C3BF452FB717B0005C6C3B /* SwiftUI.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -128,13 +199,16 @@
 				61A7897B2F9F3DA000F135BB /* Sources */,
 				61A7897C2F9F3DA000F135BB /* Frameworks */,
 				61A7897D2F9F3DA000F135BB /* Resources */,
+				61C3BF572FB717B2005C6C3B /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				61C3BF6D2FBADF43005C6C3B /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				61A789812F9F3DA000F135BB /* SNUECafeteriaProject */,
+				B96A182864E28FA2C30F4EDC /* Shared */,
 			);
 			name = SNUECafeteriaProject;
 			packageProductDependencies = (
@@ -165,8 +239,6 @@
 				61A789912F9F3DA300F135BB /* SNUECafeteriaProjectTests */,
 			);
 			name = SNUECafeteriaProjectTests;
-			packageProductDependencies = (
-			);
 			productName = SNUECafeteriaProjectTests;
 			productReference = 61A7898E2F9F3DA300F135BB /* SNUECafeteriaProjectTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
@@ -188,11 +260,30 @@
 				61A7899B2F9F3DA300F135BB /* SNUECafeteriaProjectUITests */,
 			);
 			name = SNUECafeteriaProjectUITests;
-			packageProductDependencies = (
-			);
 			productName = SNUECafeteriaProjectUITests;
 			productReference = 61A789982F9F3DA300F135BB /* SNUECafeteriaProjectUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+		61C3BF602FBADF42005C6C3B /* SNUECafeteriaWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 61C3BF6F2FBADF43005C6C3B /* Build configuration list for PBXNativeTarget "SNUECafeteriaWidgetExtension" */;
+			buildPhases = (
+				61C3BF5D2FBADF42005C6C3B /* Sources */,
+				61C3BF5E2FBADF42005C6C3B /* Frameworks */,
+				61C3BF5F2FBADF42005C6C3B /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				61C3BF642FBADF42005C6C3B /* SNUECafeteriaWidget */,
+				B96A182864E28FA2C30F4EDC /* Shared */,
+			);
+			name = SNUECafeteriaWidgetExtension;
+			productName = SNUECafeteriaWidgetExtension;
+			productReference = 61C3BF612FBADF42005C6C3B /* SNUECafeteriaWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
 
@@ -214,6 +305,9 @@
 					61A789972F9F3DA300F135BB = {
 						CreatedOnToolsVersion = 26.4.1;
 						TestTargetID = 61A7897E2F9F3DA000F135BB;
+					};
+					61C3BF602FBADF42005C6C3B = {
+						CreatedOnToolsVersion = 26.4.1;
 					};
 				};
 			};
@@ -237,6 +331,7 @@
 				61A7897E2F9F3DA000F135BB /* SNUECafeteriaProject */,
 				61A7898D2F9F3DA200F135BB /* SNUECafeteriaProjectTests */,
 				61A789972F9F3DA300F135BB /* SNUECafeteriaProjectUITests */,
+				61C3BF602FBADF42005C6C3B /* SNUECafeteriaWidgetExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -257,6 +352,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		61A789962F9F3DA300F135BB /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		61C3BF5F2FBADF42005C6C3B /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -287,6 +389,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		61C3BF5D2FBADF42005C6C3B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -299,6 +408,11 @@
 			isa = PBXTargetDependency;
 			target = 61A7897E2F9F3DA000F135BB /* SNUECafeteriaProject */;
 			targetProxy = 61A789992F9F3DA300F135BB /* PBXContainerItemProxy */;
+		};
+		61C3BF6D2FBADF43005C6C3B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 61C3BF602FBADF42005C6C3B /* SNUECafeteriaWidgetExtension */;
+			targetProxy = 61C3BF6C2FBADF43005C6C3B /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -429,6 +543,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = SNUECafeteriaProject/SNUECafeteriaProject.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 44HRTG996V;
@@ -467,6 +582,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = SNUECafeteriaProject/SNUECafeteriaProject.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 44HRTG996V;
@@ -584,6 +700,68 @@
 			};
 			name = Release;
 		};
+		61C3BF702FBADF43005C6C3B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = SNUECafeteriaWidgetExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 44HRTG996V;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = SNUECafeteriaWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = SNUECafeteriaWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.deblurlab.SNUECafeteriaProject.SNUECafeteriaWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		61C3BF712FBADF43005C6C3B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = SNUECafeteriaWidgetExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 44HRTG996V;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = SNUECafeteriaWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = SNUECafeteriaWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.deblurlab.SNUECafeteriaProject.SNUECafeteriaWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -619,6 +797,15 @@
 			buildConfigurations = (
 				61A789A92F9F3DA300F135BB /* Debug */,
 				61A789AA2F9F3DA300F135BB /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		61C3BF6F2FBADF43005C6C3B /* Build configuration list for PBXNativeTarget "SNUECafeteriaWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				61C3BF702FBADF43005C6C3B /* Debug */,
+				61C3BF712FBADF43005C6C3B /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
