@@ -7,6 +7,20 @@
 
 import SwiftUI
 
+// MARK: - Shareable Image
+
+/// UIImage는 Identifiable이 아니므로 sheet(item:) 사용을 위한 래퍼
+struct ShareableImage: Identifiable {
+    let id = UUID()
+    let uiImage: UIImage
+    let shareDate: Date
+
+    /// 파일 형식은 SNUECafeteria_Menu_yyyyMMdd.png
+    var filename: String {
+        "SNUECafeteria_Menu_\(DateFormatter.kstCompact.string(from: shareDate)).png"
+    }
+}
+
 /// 한 끼 메뉴를 표시하는 카드 뷰
 /// - 뷰의 크기는 여기에 임의의 .frame을 지정해서 정해도 되고, 외부 컨테이너에 맞춰도 된다.
 /// - `isForExport`: true이면 이미지 내보내기용 축소 크기(배지·텍스트·여백)를 적용한다.
@@ -180,12 +194,35 @@ private struct DayMealCardsView: View {
 struct DayMealCard: View {
     let date: Date
     let dayMeal: DayMeal?
+    var isShareButtonContained: Bool
     var preferredColumns: Int? = nil
+
+    @Environment(MealStore.self) private var mealStore
+    @State private var shareableImage: ShareableImage?
+
+    private var canShare: Bool {
+        guard let meal = dayMeal else { return false }
+        return !meal.isHoliday
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            DateLabelText(date: date)
-                .padding(.horizontal, 4)
+            Group {
+                if isShareButtonContained {
+                    HStack {
+                        DateLabelText(date: date)
+                            .padding(.horizontal, 4)
+                        Spacer()
+                        Button("공유", systemImage: "square.and.arrow.up") {
+                            shareDay()
+                        }
+                        .disabled(!canShare)
+                    }
+                } else {
+                    DateLabelText(date: date)
+                        .padding(.horizontal, 4)
+                }
+            }
 
             Divider()
 
@@ -196,6 +233,20 @@ struct DayMealCard: View {
             Color(uiColor: .secondarySystemGroupedBackground),
             in: RoundedRectangle(cornerRadius: 20)
         )
+        .sheet(item: $shareableImage) { item in
+            SharePreviewSheet(image: item.uiImage, fileName: item.filename)
+        }
+    }
+
+    private func shareDay() {
+        guard let meal = dayMeal, !meal.isHoliday else { return }
+        let renderer = ImageRenderer(
+            content: MealShareContent(dayMeal: meal).environment(mealStore)
+        )
+        renderer.scale = 3.0
+        if let uiImage = renderer.uiImage {
+            shareableImage = ShareableImage(uiImage: uiImage, shareDate: meal.date)
+        }
     }
 }
 

@@ -46,7 +46,8 @@ private struct WeekPaneView: View {
                             DayMealCard(
                                 date: day,
                                 dayMeal: mealStore.meal(for: day),
-                                preferredColumns: columns.count >= 2 ? 1 : nil
+                                isShareButtonContained: true,
+                                preferredColumns: columns.count >= 2 ? 1 : nil,
                             )
                             .frame(maxHeight: .infinity, alignment: .top)
                             .id(date)

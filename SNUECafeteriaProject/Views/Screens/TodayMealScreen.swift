@@ -35,18 +35,6 @@ enum ShowingMeal: CaseIterable {
     }
 }
 
-/// UIImage는 Identifiable이 아니므로 sheet(item:) 사용을 위한 래퍼
-private struct ShareableImage: Identifiable {
-    let id = UUID()
-    let uiImage: UIImage
-    let shareDate: Date
-
-    /// 파일 형식은 SNUECafeteria_Menu_yyyyMMdd.png
-    var filename: String {
-        "SNUECafeteria_Menu_\(DateFormatter.kstCompact.string(from: shareDate)).png"
-    }
-}
-
 // MARK: - Page Content View
 
 /// 오늘 / 내일 탭 하나의 콘텐츠 페이지
@@ -66,6 +54,7 @@ private struct TodayMealPageView: View {
                         DayMealCard(
                             date: meal.date,
                             dayMeal: meal,
+                            isShareButtonContained: false,
                             preferredColumns: contentColumns(for: geometry.size.width)
                         )
                         .padding()
