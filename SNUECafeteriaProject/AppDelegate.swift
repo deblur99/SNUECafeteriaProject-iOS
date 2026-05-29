@@ -5,6 +5,7 @@
 //  Created by 한현민 on 4/29/26.
 //
 
+import AppIntents
 import FirebaseCore
 import FirebaseFirestore
 import UIKit
@@ -28,12 +29,23 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
         FirebaseApp.configure()
         UNUserNotificationCenter.current().delegate = self
 
-        setupMealListener()
+        // Background 실행(App Intents 트리거 등)에서는 기존 캐시를 보존하기 위해 리스너 설정 건너뜀
+        if application.applicationState != .background {
+            setupMealListener()
+        }
+        MealShortcutsProvider.updateAppShortcutParameters()
 
         return true
     }
 
+    func applicationWillEnterForeground(_ application: UIApplication) {
+        // Background → Foreground 전환 시 리스너 재설정하여 캐시 최신화
+        setupMealListener()
+    }
+
     private func setupMealListener() {
+        mealListenerRegistration?.remove()
+
         let db = Firestore.firestore()
 
         // 오늘부터 7일치 메뉴를 실시간으로 감시
@@ -73,6 +85,12 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
                             print("❌ 디코딩 실패: \(doc.documentID) - \(error)")
                             return nil
                         }
+                    }
+
+                    // Firestore 로컬 캐시 미스 등으로 빈 응답이 오면 기존 캐시를 덮어쓰지 않음
+                    guard !meals.isEmpty else {
+                        print("⚠️ Firestore 빈 데이터 — 기존 App Groups 캐시 유지")
+                        return
                     }
 
                     let mealsData = try JSONEncoder().encode(meals)

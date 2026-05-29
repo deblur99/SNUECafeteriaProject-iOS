@@ -7,11 +7,15 @@
 
 import Foundation
 
-enum AppGroupsConfig {
+nonisolated enum AppGroupsConfig {
     static let groupIdentifier = "group.com.deblurlab.SNUECafeteriaProject"
     
-    enum UserDefaultsKeys {
+    nonisolated enum UserDefaultsKeys {
         static let cachedMeals = "cachedMeals"
         static let lastUpdated = "lastUpdated"
+    }
+
+    nonisolated enum NavigationKeys {
+        static let pendingNavigationTab = "pendingNavigationTab"
     }
 }

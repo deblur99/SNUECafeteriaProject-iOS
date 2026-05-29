@@ -7,12 +7,12 @@
 
 import Foundation
 
-struct CachedMenuItem: Codable {
+nonisolated struct CachedMenuItem: Codable {
     let name: String
     let sortIndex: Int
 }
 
-struct CachedDayMeal: Codable {
+nonisolated struct CachedDayMeal: Codable {
     let date: Date
     let lunchItems: [CachedMenuItem]
     let dinnerItems: [CachedMenuItem]

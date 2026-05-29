@@ -1,0 +1,55 @@
+//
+//  AppGroupMealCache.swift
+//  SNUECafeteriaProject
+//
+//  Created by 한현민 on 5/29/26.
+//
+
+import Foundation
+
+/// App Groups UserDefaults에서 `[CachedDayMeal]`을 읽어오는 헬퍼
+nonisolated enum AppGroupMealCache {
+    static func load() -> [CachedDayMeal] {
+        guard let data = UserDefaults(suiteName: AppGroupsConfig.groupIdentifier)?
+            .data(forKey: AppGroupsConfig.UserDefaultsKeys.cachedMeals)
+        else { return [] }
+        return (try? JSONDecoder().decode([CachedDayMeal].self, from: data)) ?? []
+    }
+
+    /// 현재 시각 기준으로 오늘 중식 또는 석식 중 가장 가까운 식단을 반환한다.
+    /// 식사 시간대가 아니거나 데이터가 없으면 nil을 반환한다.
+    static func nearestMeal(from now: Date = .now) -> (meal: CachedDayMeal, type: MealType)? {
+        let meals = load()
+        guard let todayMeal = meals.first(where: { Calendar.kst.isDateInToday($0.date) }) else {
+            return nil
+        }
+
+        guard !Calendar.kst.isDateInWeekend(now) else { return nil }
+
+        if todayMeal.hasLunch {
+            let start = Calendar.kst.date(bySettingHour: 9, minute: 0, second: 0, of: now)!
+            let end = Calendar.kst.date(bySettingHour: 13, minute: 20, second: 0, of: now)!
+            if (start ... end).contains(now) { return (todayMeal, .lunch) }
+        }
+
+        if todayMeal.hasDinner {
+            let start = Calendar.kst.date(bySettingHour: 13, minute: 21, second: 0, of: now)!
+            let end = Calendar.kst.date(bySettingHour: 18, minute: 0, second: 0, of: now)!
+            if (start ... end).contains(now) { return (todayMeal, .dinner) }
+        }
+
+        return nil
+    }
+}
+
+nonisolated enum AppIntentError: LocalizedError {
+    case noMealFound
+    case invalidDateRange
+
+    var errorDescription: String? {
+        switch self {
+        case .noMealFound: "해당 날짜의 식단 정보를 찾을 수 없습니다. 앱을 한 번 열어 데이터를 동기화해 주세요."
+        case .invalidDateRange: "시작 날짜가 종료 날짜보다 늦을 수 없습니다."
+        }
+    }
+}

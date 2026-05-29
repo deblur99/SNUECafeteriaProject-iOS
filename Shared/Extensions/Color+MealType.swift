@@ -7,6 +7,12 @@
 
 import SwiftUI
 
-extension MealType {
-    
+extension Color {
+    static func mealColor(for mealType: MealType) -> Color {
+        switch mealType {
+        case .lunch: return .orange
+        case .dinner: return .indigo
+        }
+    }
 }
+
