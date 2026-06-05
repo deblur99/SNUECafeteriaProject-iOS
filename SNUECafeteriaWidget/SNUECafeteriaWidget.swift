@@ -63,6 +63,7 @@ struct Provider: TimelineProvider {
 
     func getTimeline(in context: Context, completion: @escaping (Timeline<MealEntry>) -> ()) {
         let currentDate = Date()
+        let calendar = Calendar.kst
 
         guard let meals = loadCachedMeals() else {
             // 앱이 아직 실행되지 않아 캐시 없음: 샘플 데이터 + isPlaceholder로 스켈레톤 표시
@@ -74,21 +75,23 @@ struct Provider: TimelineProvider {
                 tomorrowMeal: samples.last,
                 isPlaceholder: true
             )
-            let retry = Calendar.kst.date(byAdding: .minute, value: 15, to: currentDate)!
+            let retry = calendar.date(byAdding: .minute, value: 15, to: currentDate)!
             completion(Timeline(entries: [entry], policy: .after(retry)))
             return
         }
 
-        let todayMeal = meals.first { Calendar.kst.isDateInToday($0.date) }
-        let tomorrow = Calendar.kst.date(byAdding: .day, value: 1, to: currentDate)!
-        let tomorrowMeal = meals.first { Calendar.kst.isDate($0.date, inSameDayAs: tomorrow) }
+        // toCachedModel()에서 KST 자정으로 정규화된 날짜이므로 isDateInToday/isDate(inSameDayAs:) 비교 가능
+        let tomorrowDate = calendar.date(byAdding: .day, value: 1, to: currentDate)!
+        let todayMeal = meals.first { calendar.isDateInToday($0.date) }
+        let tomorrowMeal = meals.first { calendar.isDate($0.date, inSameDayAs: tomorrowDate) }
+        print("📅 [Widget] 오늘: \(todayMeal == nil ? "없음" : "있음"), 내일: \(tomorrowMeal == nil ? "없음" : "있음")")
 
         let entries = (0 ..< 24).map { offset -> MealEntry in
-            let entryDate = Calendar.kst.date(byAdding: .hour, value: offset, to: currentDate)!
+            let entryDate = calendar.date(byAdding: .hour, value: offset, to: currentDate)!
             return MealEntry(date: entryDate, todayMeal: todayMeal, tomorrowMeal: tomorrowMeal)
         }
 
-        let nextRefresh = Calendar.kst.date(byAdding: .hour, value: 1, to: currentDate)!
+        let nextRefresh = calendar.date(byAdding: .hour, value: 1, to: currentDate)!
         completion(Timeline(entries: entries, policy: .after(nextRefresh)))
     }
 
@@ -100,7 +103,11 @@ struct Provider: TimelineProvider {
         }
         do {
             let meals = try JSONDecoder().decode([CachedDayMeal].self, from: data)
-            print("✅ [Widget] 캐시 로드 성공: \(meals.count)개")
+            let formatter = DateFormatter()
+            formatter.dateFormat = "yyyy-MM-dd"
+            formatter.timeZone = Calendar.kst.timeZone
+            let dates = meals.map { formatter.string(from: $0.date) }.joined(separator: ", ")
+            print("✅ [Widget] 캐시 로드 성공: \(meals.count)개 [\(dates)]")
             return meals
         } catch {
             print("❌ [Widget] 캐시 디코딩 실패: \(error)")
@@ -306,10 +313,10 @@ private struct WidgetDaySection: View {
                 Text("데이터 없음")
                     .font(.system(size: metrics.itemFontSize))
                     .foregroundStyle(.secondary)
-                    .frame(maxWidth: .infinity, alignment: .center)
-                    .padding(.vertical, 12)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
             }
         }
+        .frame(maxHeight: .infinity, alignment: .top)
     }
 }
 

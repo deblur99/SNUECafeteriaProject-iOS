@@ -43,8 +43,10 @@ nonisolated struct FirestoreMealDTO: Codable, Sendable {
 
     /// FirestoreMealDTO -> App Groups 캐시용 CachedDayMeal 변환
     func toCachedModel() -> CachedDayMeal {
-        CachedDayMeal(
-            date: date.dateValue(),
+        // KST 자정으로 정규화: Firestore Timestamp의 UTC 값에 관계없이 날짜 비교가 항상 일치하도록 보장
+        let normalizedDate = Calendar.kst.startOfDay(for: date.dateValue())
+        return CachedDayMeal(
+            date: normalizedDate,
             lunchItems: lunch.enumerated().map { CachedMenuItem(name: $0.element.name, sortIndex: $0.offset) },
             dinnerItems: dinner.enumerated().map { CachedMenuItem(name: $0.element.name, sortIndex: $0.offset) },
             isHoliday: isHoliday,

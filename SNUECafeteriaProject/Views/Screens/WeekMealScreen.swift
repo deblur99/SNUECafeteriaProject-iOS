@@ -26,7 +26,7 @@ private struct WeekPaneView: View {
     var dragAxis: DragAxis?
     var isNavigating: Bool
 
-    @Environment(MealStore.self) private var mealStore
+    @Environment(MealRepository.self) private var mealRepository
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
     var body: some View {
@@ -45,7 +45,7 @@ private struct WeekPaneView: View {
                             let day = Calendar.kst.startOfDay(for: date)
                             DayMealCard(
                                 date: day,
-                                dayMeal: mealStore.meal(for: day),
+                                dayMeal: mealRepository.meal(for: day),
                                 isShareButtonContained: true,
                                 preferredColumns: columns.count >= 2 ? 1 : nil,
                             )
@@ -84,7 +84,7 @@ private struct WeekPaneView: View {
 // MARK: - Screen
 
 struct WeekMealScreen: View {
-    @Environment(MealStore.self) private var mealStore
+    @Environment(MealRepository.self) private var mealRepository
     @State private var selectedDate: Date = Calendar.kst.startOfDay(for: Date())
     @State private var isSheetPresented: Bool = false
     /// 주차별 스크롤 위치 (키: 주의 시작일, 값: 뷰포트 상단에 위치한 날짜)
@@ -128,7 +128,7 @@ struct WeekMealScreen: View {
             .sheet(isPresented: $isSheetPresented) {
                 WeekDatePickerModal(
                     initialDate: selectedDate,
-                    availableDates: mealStore.availableDates
+                    availableDates: mealRepository.availableDates
                 ) { date in
                     let newDate = Calendar.kst.startOfDay(for: date)
                     // 목적지 주의 스크롤 위치를 해당 날짜 카드로 미리 지정
@@ -202,7 +202,7 @@ struct WeekMealScreen: View {
                     get: { selectedDate },
                     set: { navigateTo($0) }
                 ),
-                availableDates: mealStore.availableDates
+                availableDates: mealRepository.availableDates
             )
         }
         ToolbarItem(placement: .topBarTrailing) {
@@ -219,13 +219,13 @@ private extension WeekMealScreen {
     /// 현재 주보다 이전 주 중 데이터가 있는 가장 가까운 날짜
     var nearestPrevDate: Date? {
         guard let interval = Calendar.kstWeekInterval(for: selectedDate) else { return nil }
-        return mealStore.availableDates.filter { $0 < interval.start }.max()
+        return mealRepository.availableDates.filter { $0 < interval.start }.max()
     }
 
     /// 현재 주보다 이후 주 중 데이터가 있는 가장 가까운 날짜
     var nearestNextDate: Date? {
         guard let interval = Calendar.kstWeekInterval(for: selectedDate) else { return nil }
-        return mealStore.availableDates.filter { $0 >= interval.end }.min()
+        return mealRepository.availableDates.filter { $0 >= interval.end }.min()
     }
 
     /// 이전 pane에 표시할 날짜: 툴바/시트 전환 시 목적지가 이전 주이면 해당 날짜를 사용
@@ -348,14 +348,14 @@ private extension WeekMealScreen {
 // MARK: - Preview
 
 #Preview {
-    @Previewable @State var mealStore = MealStore()
+    @Previewable @State var mealRepository = MealRepository()
     let container = DayMealPreviewHelper.previewContainer(type: .normal)
 
     WeekMealScreen()
-        .environment(mealStore)
+        .environment(mealRepository)
         .onAppear {
             do {
-                try mealStore.load(modelContext: ModelContext(container))
+                try mealRepository.load(modelContext: ModelContext(container))
             } catch {
                 print("Failed to load preview data: \(error)")
             }

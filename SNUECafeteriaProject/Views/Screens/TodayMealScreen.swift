@@ -27,7 +27,7 @@ enum ShowingMeal: CaseIterable {
         }
     }
 
-    func meal(from store: MealStore) -> DayMeal? {
+    func meal(from store: MealRepository) -> DayMeal? {
         switch self {
         case .today: store.todayMeal
         case .tomorrow: store.tomorrowMeal
@@ -97,7 +97,7 @@ private struct TodayMealPageView: View {
 // MARK: - Screen
 
 struct TodayMealScreen: View {
-    @Environment(MealStore.self) private var mealStore
+    @Environment(MealRepository.self) private var mealRepository
 
     @Binding var showingMeal: ShowingMeal
     @State private var shareableImage: ShareableImage?
@@ -106,7 +106,7 @@ struct TodayMealScreen: View {
         NavigationStack {
             TabView(selection: $showingMeal) {
                 ForEach(ShowingMeal.allCases, id: \.self) { page in
-                    TodayMealPageView(page: page, meal: page.meal(from: mealStore))
+                    TodayMealPageView(page: page, meal: page.meal(from: mealRepository))
                         .tag(page)
                 }
             }
@@ -158,9 +158,9 @@ struct TodayMealScreen: View {
     }
 
     private func shareCurrentMeal() {
-        guard let meal = showingMeal.meal(from: mealStore), !meal.isHoliday else { return }
+        guard let meal = showingMeal.meal(from: mealRepository), !meal.isHoliday else { return }
         let renderer = ImageRenderer(
-            content: MealShareContent(dayMeal: meal).environment(mealStore)
+            content: MealShareContent(dayMeal: meal).environment(mealRepository)
         )
         renderer.scale = 3.0
         if let uiImage = renderer.uiImage {

@@ -115,7 +115,8 @@ struct SettingsScreen: View {
     @AppStorage("dinnerNotificationStatus") private var dinnerTimeNotificationStatus: TimeNotificationStatus = .dinnerDefault
     @AppStorage("weeklyNotificationEnabled") private var isOnWeekMealUpdateNotification: Bool = false
 
-    @Environment(MealStore.self) private var mealStore
+    @Environment(MealRepository.self) private var mealRepository
+    @Environment(ServiceContainer.self) private var services
 
     @State private var showLunchTimePicker = false
     @State private var showDinnerTimePicker = false
@@ -157,7 +158,7 @@ struct SettingsScreen: View {
                         Toggle(isOn: $lunchTimeNotificationStatus.isEnabled) {}
                             .onChange(of: lunchTimeNotificationStatus.isEnabled) { _, isOn in
                                 guard isOn else {
-                                    Task { await NotificationService.shared.cancel(for: .lunch) }
+                                    Task { await services.notification.cancel(for: .lunch) }
                                     return
                                 }
                                 Task { await handleNotificationToggle(for: .lunch) }
@@ -191,7 +192,7 @@ struct SettingsScreen: View {
                         Toggle(isOn: $dinnerTimeNotificationStatus.isEnabled) {}
                             .onChange(of: dinnerTimeNotificationStatus.isEnabled) { _, isOn in
                                 guard isOn else {
-                                    Task { await NotificationService.shared.cancel(for: .dinner) }
+                                    Task { await services.notification.cancel(for: .dinner) }
                                     return
                                 }
                                 Task { await handleNotificationToggle(for: .dinner) }
@@ -216,7 +217,7 @@ struct SettingsScreen: View {
                         Toggle(isOn: $isOnWeekMealUpdateNotification) {}
                             .onChange(of: isOnWeekMealUpdateNotification) { _, isOn in
                                 guard isOn else {
-                                    NotificationService.shared.cancelWeekly()
+                                    services.notification.cancelWeekly()
                                     return
                                 }
                                 Task { await handleWeeklyNotificationToggle() }
@@ -264,7 +265,7 @@ struct SettingsScreen: View {
                     lunchTimeNotificationStatus.notificationTime = selectedTime
                     if lunchTimeNotificationStatus.isEnabled {
                         Task {
-                            await NotificationService.shared.schedule(for: .lunch, at: selectedTime, meals: mealStore.meals)
+                            await services.notification.schedule(for: .lunch, at: selectedTime, meals: mealRepository.meals)
                         }
                     }
                 }
@@ -277,7 +278,7 @@ struct SettingsScreen: View {
                     dinnerTimeNotificationStatus.notificationTime = selectedTime
                     if dinnerTimeNotificationStatus.isEnabled {
                         Task {
-                            await NotificationService.shared.schedule(for: .dinner, at: selectedTime, meals: mealStore.meals)
+                            await services.notification.schedule(for: .dinner, at: selectedTime, meals: mealRepository.meals)
                         }
                     }
                 }
@@ -293,13 +294,13 @@ struct SettingsScreen: View {
                                 : dinnerTimeNotificationStatus.notificationTime
                             if let time {
                                 Task {
-                                    await NotificationService.shared.schedule(for: type, at: time, meals: mealStore.meals)
+                                    await services.notification.schedule(for: type, at: time, meals: mealRepository.meals)
                                 }
                             }
                             pendingMealType = nil
                         }
                         if pendingWeekly {
-                            NotificationService.shared.scheduleWeekly()
+                            services.notification.scheduleWeekly()
                             pendingWeekly = false
                         }
                     },
@@ -329,14 +330,14 @@ struct SettingsScreen: View {
     // MARK: - Helpers
 
     private func handleNotificationToggle(for type: TimeNotificationStatus.MealTimeType) async {
-        let status = await NotificationService.shared.authorizationStatus
+        let status = await services.notification.authorizationStatus
         switch status {
         case .authorized:
             let time = type == .lunch
                 ? lunchTimeNotificationStatus.notificationTime
                 : dinnerTimeNotificationStatus.notificationTime
             if let time {
-                await NotificationService.shared.schedule(for: type, at: time, meals: mealStore.meals)
+                await services.notification.schedule(for: type, at: time, meals: mealRepository.meals)
             }
         case .denied:
             pendingMealType = type
@@ -350,10 +351,10 @@ struct SettingsScreen: View {
     }
 
     private func handleWeeklyNotificationToggle() async {
-        let status = await NotificationService.shared.authorizationStatus
+        let status = await services.notification.authorizationStatus
         switch status {
         case .authorized:
-            NotificationService.shared.scheduleWeekly()
+            services.notification.scheduleWeekly()
         case .denied:
             pendingWeekly = true
             notificationPermissionMode = .denied
@@ -366,7 +367,7 @@ struct SettingsScreen: View {
     }
 
     private func syncPermissionState() async {
-        let status = await NotificationService.shared.authorizationStatus
+        let status = await services.notification.authorizationStatus
         guard status == .authorized else {
             lunchTimeNotificationStatus.isEnabled = false
             dinnerTimeNotificationStatus.isEnabled = false
@@ -375,18 +376,19 @@ struct SettingsScreen: View {
         }
         // 권한이 있으면 활성화된 알림 재등록 (설정 앱에서 권한 복원 시 포함)
         if lunchTimeNotificationStatus.isEnabled, let time = lunchTimeNotificationStatus.notificationTime {
-            await NotificationService.shared.schedule(for: .lunch, at: time, meals: mealStore.meals)
+            await services.notification.schedule(for: .lunch, at: time, meals: mealRepository.meals)
         }
         if dinnerTimeNotificationStatus.isEnabled, let time = dinnerTimeNotificationStatus.notificationTime {
-            await NotificationService.shared.schedule(for: .dinner, at: time, meals: mealStore.meals)
+            await services.notification.schedule(for: .dinner, at: time, meals: mealRepository.meals)
         }
         if isOnWeekMealUpdateNotification {
-            NotificationService.shared.scheduleWeekly()
+            services.notification.scheduleWeekly()
         }
     }
 }
 
 #Preview {
     SettingsScreen()
-        .environment(MealStore())
+        .environment(MealRepository())
+        .environment(ServiceContainer())
 }

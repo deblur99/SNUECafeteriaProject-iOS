@@ -43,12 +43,13 @@ struct DayMealPreviewModifier: ViewModifier {
     let type: DayMealPreviewHelper.SampleType
     
     private let container: ModelContainer
-    private let store: MealStore
+    private let store: MealRepository
     
+    @MainActor
     init(type: DayMealPreviewHelper.SampleType) {
         self.type = type
         let container = DayMealPreviewHelper.previewContainer(type: type)
-        let store = MealStore()
+        let store = MealRepository()
         try? store.load(modelContext: ModelContext(container))
         self.container = container
         self.store = store

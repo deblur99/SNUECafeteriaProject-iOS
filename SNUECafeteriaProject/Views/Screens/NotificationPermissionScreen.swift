@@ -15,6 +15,7 @@ struct NotificationPermissionScreen: View {
     }
 
     @Environment(\.dismiss) private var dismiss
+    @Environment(ServiceContainer.self) private var services
 
     @State private var currentMode: Mode
 
@@ -58,7 +59,7 @@ struct NotificationPermissionScreen: View {
                 if currentMode == .request {
                     Button {
                         Task {
-                            let granted = await NotificationService.shared.requestPermission()
+                            let granted = await services.notification.requestPermission()
                             if granted {
                                 onPermissionGranted()
                                 dismiss()

@@ -9,9 +9,6 @@ import UserNotifications
 
 @MainActor
 final class NotificationService {
-    static let shared = NotificationService()
-    private init() {}
-
     /// 알림 권한 요청. 이미 결정된 경우 기존 결과를 반환.
     func requestPermission() async -> Bool {
         let center = UNUserNotificationCenter.current()

@@ -64,6 +64,19 @@ final class DayMeal {
 }
 
 extension DayMeal {
+    /// DayMeal(SwiftData) → CachedDayMeal(App Groups/위젯용) 변환
+    func toCachedModel() -> CachedDayMeal {
+        CachedDayMeal(
+            date: Calendar.kst.startOfDay(for: date),
+            lunchItems: sortedLunchItems.map { CachedMenuItem(name: $0.name, sortIndex: $0.sortIndex) },
+            dinnerItems: sortedDinnerItems.map { CachedMenuItem(name: $0.name, sortIndex: $0.sortIndex) },
+            isHoliday: isHoliday,
+            createdAt: createdAt
+        )
+    }
+}
+
+extension DayMeal {
     static func sample() -> [DayMeal] {
         [
             DayMeal(

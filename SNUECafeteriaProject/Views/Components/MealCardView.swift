@@ -25,7 +25,7 @@ struct ShareableImage: Identifiable {
 /// - 뷰의 크기는 여기에 임의의 .frame을 지정해서 정해도 되고, 외부 컨테이너에 맞춰도 된다.
 /// - `isForExport`: true이면 이미지 내보내기용 축소 크기(배지·텍스트·여백)를 적용한다.
 private struct MealCardView: View {
-    @Environment(MealStore.self) private var mealStore
+    @Environment(MealRepository.self) private var mealRepository
 
     let dayMeal: DayMeal
     let mealType: MealType
@@ -46,7 +46,7 @@ private struct MealCardView: View {
     }
 
     private var willBeServedSoon: Bool {
-        guard let mealForNow = mealStore.mealForNow else {
+        guard let mealForNow = mealRepository.mealForNow else {
             return false
         }
 
@@ -197,7 +197,7 @@ struct DayMealCard: View {
     var isShareButtonContained: Bool
     var preferredColumns: Int? = nil
 
-    @Environment(MealStore.self) private var mealStore
+    @Environment(MealRepository.self) private var mealRepository
     @State private var shareableImage: ShareableImage?
 
     private var canShare: Bool {
@@ -241,7 +241,7 @@ struct DayMealCard: View {
     private func shareDay() {
         guard let meal = dayMeal, !meal.isHoliday else { return }
         let renderer = ImageRenderer(
-            content: MealShareContent(dayMeal: meal).environment(mealStore)
+            content: MealShareContent(dayMeal: meal).environment(mealRepository)
         )
         renderer.scale = 3.0
         if let uiImage = renderer.uiImage {

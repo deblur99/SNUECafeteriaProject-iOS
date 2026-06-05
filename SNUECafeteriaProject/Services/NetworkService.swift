@@ -10,8 +10,6 @@ import Network
 import os
 
 nonisolated final class NetworkService: Sendable {
-    static let shared = NetworkService()
-
     private let monitor = NWPathMonitor()
     private let monitorQueue = DispatchQueue(label: "com.snuecafeteria.network-monitor")
 
@@ -20,7 +18,7 @@ nonisolated final class NetworkService: Sendable {
     /// 마지막으로 평가된 경로 상태
     private let _isConnected: OSAllocatedUnfairLock<Bool> = .init(initialState: false)
 
-    private init() {
+    init() {
         monitor.pathUpdateHandler = { [_isReady, _isConnected] path in
             _isConnected.withLock { $0 = path.status == .satisfied }
             _isReady.withLock { $0 = true }
