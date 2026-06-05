@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-nonisolated enum MealType: Codable {
+nonisolated enum MealType: String, Codable, CaseIterable {
     case lunch
     case dinner
 
@@ -15,4 +15,3 @@ nonisolated enum MealType: Codable {
     
     var color: Color { self == .lunch ? .orange : .indigo }
 }
-

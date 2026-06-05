@@ -7,7 +7,6 @@
 
 import AppIntents
 import Foundation
-import SwiftUI
 
 struct FetchMealsForPeriodIntent: AppIntent {
     static let title: LocalizedStringResource = "기간별 식단 조회"
@@ -23,7 +22,7 @@ struct FetchMealsForPeriodIntent: AppIntent {
         Summary("\(\.$startDate)부터 \(\.$endDate)까지 식단 조회")
     }
 
-    func perform() async throws -> some ReturnsValue<[MealEntity]> & ProvidesDialog & ShowsSnippetView {
+    func perform() async throws -> some ReturnsValue<[MealEntity]> & ProvidesDialog {
         let start = Calendar.kst.startOfDay(for: startDate)
         let end = Calendar.kst.startOfDay(for: endDate)
         guard start <= end else { throw AppIntentError.invalidDateRange }
@@ -40,8 +39,6 @@ struct FetchMealsForPeriodIntent: AppIntent {
 
         let startStr = DateFormatter.longDateLabel.string(from: start)
         let endStr = DateFormatter.longDateLabel.string(from: end)
-        return .result(value: entities, dialog: "\(startStr)부터 \(endStr)까지 \(entities.count)일치 식단을 가져왔습니다.") {
-            PeriodMealsSnippetView(entities: entities)
-        }
+        return .result(value: entities, dialog: "\(startStr)부터 \(endStr)까지 \(entities.count)일치 식단을 가져왔습니다.")
     }
 }

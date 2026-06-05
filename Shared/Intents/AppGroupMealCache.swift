@@ -40,16 +40,49 @@ nonisolated enum AppGroupMealCache {
 
         return nil
     }
+
+    static func resolveNearestMeal(from now: Date = .now) throws(AppIntentError) -> (meal: CachedDayMeal, type: MealType) {
+        if let result = nearestMeal(from: now) {
+            return result
+        }
+
+        let meals = load()
+        guard let todayMeal = meals.first(where: { Calendar.kst.isDateInToday($0.date) }) else {
+            throw .noMealFound
+        }
+
+        guard hasRemainingScheduleToday(todayMeal: todayMeal, now: now) else {
+            throw .noRemainingMealToday
+        }
+
+        throw .noMealFound
+    }
+
+    private static func hasRemainingScheduleToday(todayMeal: CachedDayMeal, now: Date) -> Bool {
+        guard !Calendar.kst.isDateInWeekend(now) else { return false }
+        guard todayMeal.hasLunch || todayMeal.hasDinner else { return false }
+
+        let lunchEnd = Calendar.kst.date(bySettingHour: 13, minute: 20, second: 0, of: now)!
+        let dinnerEnd = Calendar.kst.date(bySettingHour: 18, minute: 0, second: 0, of: now)!
+
+        if todayMeal.hasLunch, now <= lunchEnd { return true }
+        if todayMeal.hasDinner, now <= dinnerEnd { return true }
+        return false
+    }
 }
 
 nonisolated enum AppIntentError: LocalizedError {
     case noMealFound
+    case noRemainingMealToday
     case invalidDateRange
+    case renderFailed
 
     var errorDescription: String? {
         switch self {
         case .noMealFound: "해당 날짜의 식단 정보를 찾을 수 없습니다. 앱을 한 번 열어 데이터를 동기화해 주세요."
+        case .noRemainingMealToday: "오늘은 남은 식단이 없습니다."
         case .invalidDateRange: "시작 날짜가 종료 날짜보다 늦을 수 없습니다."
+        case .renderFailed: "식단 정보를 이미지로 변환하는 데 실패했습니다. 잠시 후 다시 시도해 주세요."
         }
     }
 }

@@ -9,9 +9,9 @@ import AppIntents
 import Foundation
 import SwiftUI
 
-struct FetchMealForDateIntent: AppIntent {
-    static let title: LocalizedStringResource = "특정 날짜 식단 조회"
-    static let description = IntentDescription("특정 날짜의 식단 메뉴를 가져옵니다.")
+struct FetchMealForDateImageIntent: AppIntent {
+    static let title: LocalizedStringResource = "특정 날짜 식단 조회 (이미지)"
+    static let description = IntentDescription("특정 날짜의 식단 메뉴를 이미지로 가져옵니다.")
 
     @Parameter(title: "날짜", requestValueDialog: "어느 날짜의 식단을 알려드릴까요?")
     var date: Date
