@@ -37,18 +37,13 @@ struct TimeDatePickerModal: View {
             .navigationBarTitleDisplayMode(.inline)
             .presentationDetents([.medium])
             .toolbar {
-                // 좌측 취소 버튼: 실수로 들어온 경우를 대비해 안정감을 줍니다.
-                ToolbarItem(placement: .topBarLeading) {
-                    Button(role: .cancel) {
-                        dismiss()
-                    }
+                CancelToolbarButton {
+                    dismiss()
                 }
 
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button(role: .confirm) {
-                        onSelectedTime(selectedTime)
-                        dismiss()
-                    }
+                ConfirmToolbarButton {
+                    onSelectedTime(selectedTime)
+                    dismiss()
                 }
 
                 ToolbarItem(placement: .title) {

@@ -47,10 +47,6 @@ struct MealEntry: TimelineEntry {
 // MARK: - Timeline Provider
 
 struct Provider: TimelineProvider {
-    private let appGroupsDefaults = UserDefaults(
-        suiteName: AppGroupsConfig.groupIdentifier
-    )!
-
     func placeholder(in context: Context) -> MealEntry {
         let samples = CachedDayMeal.sample()
         return MealEntry(date: Date(), todayMeal: samples.first, tomorrowMeal: samples.last)
@@ -97,22 +93,17 @@ struct Provider: TimelineProvider {
 
     /// App Groups의 UserDefaults에서 캐시된 식단 데이터를 불러온다. 앱이 아직 실행되지 않아 데이터가 없거나, 디코딩에 실패하면 nil을 반환한다.
     private func loadCachedMeals() -> [CachedDayMeal]? {
-        guard let data = appGroupsDefaults.data(forKey: AppGroupsConfig.UserDefaultsKeys.cachedMeals) else {
+        let meals = AppGroupMealCache.load()
+        guard !meals.isEmpty else {
             print("⚠️ [Widget] App Groups 캐시 없음 — 앱이 아직 한 번도 실행되지 않은 것으로 추정")
             return nil
         }
-        do {
-            let meals = try JSONDecoder().decode([CachedDayMeal].self, from: data)
-            let formatter = DateFormatter()
-            formatter.dateFormat = "yyyy-MM-dd"
-            formatter.timeZone = Calendar.kst.timeZone
-            let dates = meals.map { formatter.string(from: $0.date) }.joined(separator: ", ")
-            print("✅ [Widget] 캐시 로드 성공: \(meals.count)개 [\(dates)]")
-            return meals
-        } catch {
-            print("❌ [Widget] 캐시 디코딩 실패: \(error)")
-            return nil
-        }
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        formatter.timeZone = Calendar.kst.timeZone
+        let dates = meals.map { formatter.string(from: $0.date) }.joined(separator: ", ")
+        print("✅ [Widget] 캐시 로드 성공: \(meals.count)개 [\(dates)]")
+        return meals
     }
 }
 

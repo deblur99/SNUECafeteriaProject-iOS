@@ -42,7 +42,7 @@ struct WeekSelectorView: View {
             } label: {
                 Image(systemName: "chevron.left")
             }
-            .buttonStyle(.glass)
+            .glassCompatButtonStyle()
             .disabled(!canGoPrev)
             
             Text(dateRangeString)
@@ -54,7 +54,7 @@ struct WeekSelectorView: View {
             } label: {
                 Image(systemName: "chevron.right")
             }
-            .buttonStyle(.glass)
+            .glassCompatButtonStyle()
             .disabled(!canGoNext)
         }
     }

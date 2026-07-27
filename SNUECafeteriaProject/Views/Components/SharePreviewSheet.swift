@@ -42,7 +42,7 @@ struct SharePreviewSheet: View {
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 10)
                 }
-                .buttonStyle(.glassProminent)
+                .glassCompatButtonStyle(prominent: true)
                 .frame(maxWidth: 320)
                 .padding(.horizontal, 20)
                 .padding(.top, 8)
@@ -50,10 +50,8 @@ struct SharePreviewSheet: View {
                 .frame(maxWidth: .infinity)
             }
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button(role: .cancel) {
-                        dismiss()
-                    }
+                CancelToolbarButton {
+                    dismiss()
                 }
             }
         }

@@ -15,9 +15,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "61A7897E2F9F3DA000F135BB"
-               BuildableName = "SNUECafeteriaProject.app"
-               BlueprintName = "SNUECafeteriaProject"
+               BlueprintIdentifier = "6154C7EE2FD6BA5D002B6F51"
+               BuildableName = "SNUECafeteriaWatch.app"
+               BlueprintName = "SNUECafeteriaProjectWatchApp Watch App"
                ReferencedContainer = "container:SNUECafeteriaProject.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -29,9 +29,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "6154C7EE2FD6BA5D002B6F51"
-               BuildableName = "SNUECafeteriaWatch.app"
-               BlueprintName = "SNUECafeteriaProjectWatchApp Watch App"
+               BlueprintIdentifier = "61A7897E2F9F3DA000F135BB"
+               BuildableName = "SNUECafeteriaProject.app"
+               BlueprintName = "SNUECafeteriaProject"
                ReferencedContainer = "container:SNUECafeteriaProject.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -49,9 +49,9 @@
             parallelizable = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "61A7898D2F9F3DA200F135BB"
-               BuildableName = "SNUECafeteriaProjectTests.xctest"
-               BlueprintName = "SNUECafeteriaProjectTests"
+               BlueprintIdentifier = "6154C7FA2FD6BA5E002B6F51"
+               BuildableName = "SNUECafeteriaProjectWatchApp Watch AppTests.xctest"
+               BlueprintName = "SNUECafeteriaProjectWatchApp Watch AppTests"
                ReferencedContainer = "container:SNUECafeteriaProject.xcodeproj">
             </BuildableReference>
          </TestableReference>
@@ -60,16 +60,16 @@
             parallelizable = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "61A789972F9F3DA300F135BB"
-               BuildableName = "SNUECafeteriaProjectUITests.xctest"
-               BlueprintName = "SNUECafeteriaProjectUITests"
+               BlueprintIdentifier = "6154C8042FD6BA5F002B6F51"
+               BuildableName = "SNUECafeteriaProjectWatchApp Watch AppUITests.xctest"
+               BlueprintName = "SNUECafeteriaProjectWatchApp Watch AppUITests"
                ReferencedContainer = "container:SNUECafeteriaProject.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction
-      buildConfiguration = "Release"
+      buildConfiguration = "Debug"
       selectedDebuggerIdentifier = ""
       selectedLauncherIdentifier = "Xcode.IDEFoundation.Launcher.PosixSpawn"
       launchStyle = "0"
@@ -83,9 +83,8 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "61A7897E2F9F3DA000F135BB"
-            BuildableName = "SNUECafeteriaProject.app"
-            BlueprintName = "SNUECafeteriaProject"
+            BlueprintIdentifier = "6154C7EE2FD6BA5D002B6F51"
+            BuildableName = "SNUECafeteriaWatch.app"
             ReferencedContainer = "container:SNUECafeteriaProject.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -100,9 +99,8 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "61A7897E2F9F3DA000F135BB"
-            BuildableName = "SNUECafeteriaProject.app"
-            BlueprintName = "SNUECafeteriaProject"
+            BlueprintIdentifier = "6154C7EE2FD6BA5D002B6F51"
+            BuildableName = "SNUECafeteriaWatch.app"
             ReferencedContainer = "container:SNUECafeteriaProject.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>

@@ -7,13 +7,50 @@
 
 import Foundation
 
-/// App Groups UserDefaults에서 `[CachedDayMeal]`을 읽어오는 헬퍼
+/// App Groups UserDefaults에서 `[CachedDayMeal]`을 읽고 쓰는 헬퍼
+/// App Group 컨테이너는 기기(iPhone / Watch)마다 별도이다.
 nonisolated enum AppGroupMealCache {
+    private static let lock = NSLock()
+    private static nonisolated(unsafe) var cachedDefaults: UserDefaults?
+
+    private static var defaults: UserDefaults? {
+        lock.lock()
+        defer { lock.unlock() }
+        if cachedDefaults == nil {
+            cachedDefaults = UserDefaults(suiteName: AppGroupsConfig.groupIdentifier)
+        }
+        return cachedDefaults
+    }
+
     static func load() -> [CachedDayMeal] {
-        guard let data = UserDefaults(suiteName: AppGroupsConfig.groupIdentifier)?
-            .data(forKey: AppGroupsConfig.UserDefaultsKeys.cachedMeals)
+        guard let data = defaults?.data(forKey: AppGroupsConfig.UserDefaultsKeys.cachedMeals)
         else { return [] }
         return (try? JSONDecoder().decode([CachedDayMeal].self, from: data)) ?? []
+    }
+
+    @discardableResult
+    static func save(_ meals: [CachedDayMeal]) -> Bool {
+        guard !meals.isEmpty,
+              let data = try? JSONEncoder().encode(meals),
+              let defaults
+        else { return false }
+        defaults.set(data, forKey: AppGroupsConfig.UserDefaultsKeys.cachedMeals)
+        defaults.set(Date(), forKey: AppGroupsConfig.UserDefaultsKeys.lastUpdated)
+        return true
+    }
+
+    /// 오늘(KST) 기준으로 원격 동기화가 필요한지 판별한다.
+    static func shouldRefreshToday() -> Bool {
+        let meals = load()
+        guard !meals.isEmpty else { return true }
+
+        if let lastUpdated = defaults?.object(forKey: AppGroupsConfig.UserDefaultsKeys.lastUpdated) as? Date,
+           Calendar.kst.isDateInToday(lastUpdated) {
+            return false
+        }
+
+        guard let latestCreatedAt = meals.map(\.createdAt).max() else { return true }
+        return !Calendar.kst.isDateInToday(latestCreatedAt)
     }
 
     /// 현재 시각 기준으로 오늘 중식 또는 석식 중 가장 가까운 식단을 반환한다.

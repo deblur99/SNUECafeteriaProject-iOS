@@ -1,26 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
    LastUpgradeVersion = "2640"
-   version = "1.7">
+   version = "2.0">
    <BuildAction
       parallelizeBuildables = "YES"
       buildImplicitDependencies = "YES"
       buildArchitectures = "Automatic">
       <BuildActionEntries>
-         <BuildActionEntry
-            buildForTesting = "YES"
-            buildForRunning = "YES"
-            buildForProfiling = "YES"
-            buildForArchiving = "YES"
-            buildForAnalyzing = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "61A7897E2F9F3DA000F135BB"
-               BuildableName = "SNUECafeteriaProject.app"
-               BlueprintName = "SNUECafeteriaProject"
-               ReferencedContainer = "container:SNUECafeteriaProject.xcodeproj">
-            </BuildableReference>
-         </BuildActionEntry>
          <BuildActionEntry
             buildForTesting = "YES"
             buildForRunning = "YES"
@@ -35,6 +21,20 @@
                ReferencedContainer = "container:SNUECafeteriaProject.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "61A7897E2F9F3DA000F135BB"
+               BuildableName = "SNUECafeteriaProject.app"
+               BlueprintName = "SNUECafeteriaProject"
+               ReferencedContainer = "container:SNUECafeteriaProject.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
       </BuildActionEntries>
    </BuildAction>
    <TestAction
@@ -43,49 +43,25 @@
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       shouldUseLaunchSchemeArgsEnv = "YES"
       shouldAutocreateTestPlan = "YES">
-      <Testables>
-         <TestableReference
-            skipped = "NO"
-            parallelizable = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "61A7898D2F9F3DA200F135BB"
-               BuildableName = "SNUECafeteriaProjectTests.xctest"
-               BlueprintName = "SNUECafeteriaProjectTests"
-               ReferencedContainer = "container:SNUECafeteriaProject.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
-         <TestableReference
-            skipped = "NO"
-            parallelizable = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "61A789972F9F3DA300F135BB"
-               BuildableName = "SNUECafeteriaProjectUITests.xctest"
-               BlueprintName = "SNUECafeteriaProjectUITests"
-               ReferencedContainer = "container:SNUECafeteriaProject.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
-      </Testables>
    </TestAction>
    <LaunchAction
-      buildConfiguration = "Release"
-      selectedDebuggerIdentifier = ""
-      selectedLauncherIdentifier = "Xcode.IDEFoundation.Launcher.PosixSpawn"
+      buildConfiguration = "Debug"
+      selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
+      selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       launchStyle = "0"
       useCustomWorkingDirectory = "NO"
       ignoresPersistentStateOnLaunch = "NO"
       debugDocumentVersioning = "YES"
       debugServiceExtension = "internal"
       allowLocationSimulation = "YES"
+      launchAutomaticallySubstyle = "8"
       queueDebuggingEnableBacktraceRecording = "Yes">
       <BuildableProductRunnable
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "61A7897E2F9F3DA000F135BB"
-            BuildableName = "SNUECafeteriaProject.app"
-            BlueprintName = "SNUECafeteriaProject"
+            BlueprintIdentifier = "6154C7EE2FD6BA5D002B6F51"
+            BuildableName = "SNUECafeteriaWatch.app"
             ReferencedContainer = "container:SNUECafeteriaProject.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -95,14 +71,14 @@
       shouldUseLaunchSchemeArgsEnv = "YES"
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
-      debugDocumentVersioning = "YES">
+      debugDocumentVersioning = "YES"
+      launchAutomaticallySubstyle = "8">
       <BuildableProductRunnable
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "61A7897E2F9F3DA000F135BB"
-            BuildableName = "SNUECafeteriaProject.app"
-            BlueprintName = "SNUECafeteriaProject"
+            BlueprintIdentifier = "6154C7EE2FD6BA5D002B6F51"
+            BuildableName = "SNUECafeteriaWatch.app"
             ReferencedContainer = "container:SNUECafeteriaProject.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>

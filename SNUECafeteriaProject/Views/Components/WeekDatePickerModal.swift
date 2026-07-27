@@ -58,10 +58,8 @@ struct WeekDatePickerModal: View {
             .navigationBarTitleDisplayMode(.inline)
             .presentationDetents([.height(450)])
             .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button(role: .confirm) {
-                        dismiss()
-                    }
+                ConfirmToolbarButton {
+                    dismiss()
                 }
             }
         }

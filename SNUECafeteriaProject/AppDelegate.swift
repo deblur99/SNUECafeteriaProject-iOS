@@ -19,11 +19,7 @@ extension Notification.Name {
 final class AppDelegate: NSObject, UIApplicationDelegate {
     /// 킬 상태에서 알림 탭으로 진입했을 때 오늘 탭 이동 대기 플래그
     var pendingOpenTodayTab = false
-    // App Group 관련
     private var mealListenerRegistration: ListenerRegistration?
-    private let appGroupsDefaults = UserDefaults(
-        suiteName: AppGroupsConfig.groupIdentifier
-    )!
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
         FirebaseApp.configure()
@@ -36,6 +32,11 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
         MealShortcutsProvider.updateAppShortcutParameters()
 
         return true
+    }
+
+    func applicationDidBecomeActive(_ application: UIApplication) {
+        // 런치 직후 즉시 activate하면 WatchConnectivity 내부 크래시가 날 수 있어 지연 스케줄한다.
+        PhoneWatchMealSyncService.shared.scheduleActivationAndPush()
     }
 
     func applicationWillEnterForeground(_ application: UIApplication) {
@@ -73,38 +74,31 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
                     print(firstDoc.data())
                 }
 
-                do {
-                    // 문서 -> FirestoreMealDTO -> CachedDayMeal -> JSON 변환 후 App Group에 저장
-                    let meals = documents.compactMap { doc -> CachedDayMeal? in
-                        do {
-                            let dto = try doc.data(as: FirestoreMealDTO.self)
-                            let meal = dto.toCachedModel()
-                            print("✅ \(DateFormatter.longDateLabel.string(from: meal.date)): 중식 \(meal.lunchItems.count)개, 석식 \(meal.dinnerItems.count)개")
-                            return meal
-                        } catch {
-                            print("❌ 디코딩 실패: \(doc.documentID) - \(error)")
-                            return nil
-                        }
+                // 문서 -> FirestoreMealDTO -> CachedDayMeal -> JSON 변환 후 App Group에 저장
+                let meals = documents.compactMap { doc -> CachedDayMeal? in
+                    do {
+                        let dto = try doc.data(as: FirestoreMealDTO.self)
+                        let meal = dto.toCachedModel()
+                        print("✅ \(DateFormatter.longDateLabel.string(from: meal.date)): 중식 \(meal.lunchItems.count)개, 석식 \(meal.dinnerItems.count)개")
+                        return meal
+                    } catch {
+                        print("❌ 디코딩 실패: \(doc.documentID) - \(error)")
+                        return nil
                     }
+                }
 
-                    // Firestore 로컬 캐시 미스 등으로 빈 응답이 오면 기존 캐시를 덮어쓰지 않음
-                    guard !meals.isEmpty else {
-                        print("⚠️ Firestore 빈 데이터 — 기존 App Groups 캐시 유지")
-                        return
-                    }
+                // Firestore 로컬 캐시 미스 등으로 빈 응답이 오면 기존 캐시를 덮어쓰지 않음
+                guard !meals.isEmpty else {
+                    print("⚠️ Firestore 빈 데이터 — 기존 App Groups 캐시 유지")
+                    return
+                }
 
-                    let mealsData = try JSONEncoder().encode(meals)
-                    self.appGroupsDefaults.set(mealsData, forKey: AppGroupsConfig.UserDefaultsKeys.cachedMeals)
-                    // 위젯 익스텐션은 별도 프로세스 — 리로드 전에 디스크 flush를 강제해야 위젯이 최신 데이터를 읽음
-                    self.appGroupsDefaults.synchronize()
-                    print("✅ App Groups 캐시 업데이트: \(meals.count)개 메뉴")
-                    // 0.3초 딜레이: 실기기 파일 쓰기 완전 완료 후 위젯이 UserDefaults를 읽도록 보장
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                        print("🔄 위젯 타임라인 갱신 요청")
-                        WidgetCenter.shared.reloadAllTimelines()
-                    }
-                } catch {
-                    print("❌ JSON 인코딩 실패: \(error)")
+                guard AppGroupMealCache.save(meals) else { return }
+                PhoneWatchMealSyncService.shared.push(meals)
+                print("✅ App Groups 캐시 업데이트: \(meals.count)개 메뉴")
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                    print("🔄 위젯 타임라인 갱신 요청")
+                    WidgetCenter.shared.reloadAllTimelines()
                 }
             }
     }

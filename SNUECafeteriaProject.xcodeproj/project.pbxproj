@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		6154C80F2FD6BA5F002B6F51 /* SNUECafeteriaProjectWatchApp Watch App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 6154C7EF2FD6BA5D002B6F51 /* SNUECafeteriaProjectWatchApp Watch App.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		6154C80F2FD6BA5F002B6F51 /* SNUECafeteriaWatch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 6154C7EF2FD6BA5D002B6F51 /* SNUECafeteriaWatch.app */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		61C3BF622FBADF42005C6C3B /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 61C3BF432FB717B0005C6C3B /* WidgetKit.framework */; };
 		61C3BF632FBADF42005C6C3B /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 61C3BF452FB717B0005C6C3B /* SwiftUI.framework */; };
 		61C3BF6E2FBADF43005C6C3B /* SNUECafeteriaWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 61C3BF612FBADF42005C6C3B /* SNUECafeteriaWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -66,11 +66,11 @@
 /* Begin PBXCopyFilesBuildPhase section */
 		6154C7E12FD6BA0C002B6F51 /* Embed Watch Content */ = {
 			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
+			buildActionMask = 12;
 			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
 			dstSubfolderSpec = 16;
 			files = (
-				6154C80F2FD6BA5F002B6F51 /* SNUECafeteriaProjectWatchApp Watch App.app in Embed Watch Content */,
+				6154C80F2FD6BA5F002B6F51 /* SNUECafeteriaWatch.app in Embed Watch Content */,
 			);
 			name = "Embed Watch Content";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -89,7 +89,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		6154C7EF2FD6BA5D002B6F51 /* SNUECafeteriaProjectWatchApp Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "SNUECafeteriaProjectWatchApp Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		6154C7EF2FD6BA5D002B6F51 /* SNUECafeteriaWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SNUECafeteriaWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6154C7FB2FD6BA5E002B6F51 /* SNUECafeteriaProjectWatchApp Watch AppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "SNUECafeteriaProjectWatchApp Watch AppTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		6154C8052FD6BA5F002B6F51 /* SNUECafeteriaProjectWatchApp Watch AppUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "SNUECafeteriaProjectWatchApp Watch AppUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		61A7897F2F9F3DA000F135BB /* SNUECafeteriaProject.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SNUECafeteriaProject.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -102,6 +102,34 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		6154C8212FD6BA60002B6F51 /* Exceptions for "Shared" folder in "SNUECafeteriaProjectWatchApp Watch App" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				AppIcon.icon,
+				Intents/FetchMealForDateIntent.swift,
+				Intents/FetchMealForDateListIntent.swift,
+				Intents/FetchMealsForPeriodIntent.swift,
+				Intents/FetchNearestMealIntent.swift,
+				Intents/FetchNearestMealListIntent.swift,
+				Intents/MealEntity.swift,
+				Intents/MealEntityQuery.swift,
+				Intents/MealIntentImageRenderer.swift,
+				Intents/MealIntentSnippetView.swift,
+				Intents/MealShortcutsProvider.swift,
+				Intents/MealTypeAppEnum.swift,
+				Intents/OpenAppIntent.swift,
+			);
+			target = 6154C7EE2FD6BA5D002B6F51 /* SNUECafeteriaProjectWatchApp Watch App */;
+		};
+		6154CB432FD7A3F3002B6F51 /* Exceptions for "Shared" folder in "SNUECafeteriaWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				AppIcon.icon,
+				Services/NetworkService.swift,
+				WatchConnectivity/WatchCompanionAvailability.swift,
+			);
+			target = 61C3BF602FBADF42005C6C3B /* SNUECafeteriaWidgetExtension */;
+		};
 		61A789BE2F9F43F700F135BB /* Exceptions for "SNUECafeteriaProject" folder in "SNUECafeteriaProject" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -162,6 +190,10 @@
 		};
 		B96A182864E28FA2C30F4EDC /* Shared */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				6154CB432FD7A3F3002B6F51 /* Exceptions for "Shared" folder in "SNUECafeteriaWidgetExtension" target */,
+				6154C8212FD6BA60002B6F51 /* Exceptions for "Shared" folder in "SNUECafeteriaProjectWatchApp Watch App" target */,
+			);
 			path = Shared;
 			sourceTree = "<group>";
 		};
@@ -251,7 +283,7 @@
 				61A7898E2F9F3DA300F135BB /* SNUECafeteriaProjectTests.xctest */,
 				61A789982F9F3DA300F135BB /* SNUECafeteriaProjectUITests.xctest */,
 				61C3BF612FBADF42005C6C3B /* SNUECafeteriaWidgetExtension.appex */,
-				6154C7EF2FD6BA5D002B6F51 /* SNUECafeteriaProjectWatchApp Watch App.app */,
+				6154C7EF2FD6BA5D002B6F51 /* SNUECafeteriaWatch.app */,
 				6154C7FB2FD6BA5E002B6F51 /* SNUECafeteriaProjectWatchApp Watch AppTests.xctest */,
 				6154C8052FD6BA5F002B6F51 /* SNUECafeteriaProjectWatchApp Watch AppUITests.xctest */,
 			);
@@ -276,6 +308,7 @@
 			buildPhases = (
 				6154C7EB2FD6BA5D002B6F51 /* Sources */,
 				6154C7EC2FD6BA5D002B6F51 /* Frameworks */,
+				6154C8A32FD7B100002B6F51 /* Copy GoogleService-Info.plist */,
 				6154C7ED2FD6BA5D002B6F51 /* Resources */,
 			);
 			buildRules = (
@@ -284,12 +317,13 @@
 			);
 			fileSystemSynchronizedGroups = (
 				6154C7F02FD6BA5D002B6F51 /* SNUECafeteriaProjectWatchApp Watch App */,
+				B96A182864E28FA2C30F4EDC /* Shared */,
 			);
 			name = "SNUECafeteriaProjectWatchApp Watch App";
 			packageProductDependencies = (
 			);
 			productName = "SNUECafeteriaProjectWatchApp Watch App";
-			productReference = 6154C7EF2FD6BA5D002B6F51 /* SNUECafeteriaProjectWatchApp Watch App.app */;
+			productReference = 6154C7EF2FD6BA5D002B6F51 /* SNUECafeteriaWatch.app */;
 			productType = "com.apple.product-type.application";
 		};
 		6154C7FA2FD6BA5E002B6F51 /* SNUECafeteriaProjectWatchApp Watch AppTests */ = {
@@ -550,6 +584,25 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		6154C8A32FD7B100002B6F51 /* Copy GoogleService-Info.plist */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"$(SRCROOT)/SNUECafeteriaProject/GoogleService-Info.plist",
+			);
+			name = "Copy GoogleService-Info.plist";
+			outputPaths = (
+				"$(TARGET_BUILD_DIR)/$(WRAPPER_NAME)/GoogleService-Info.plist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if [ -f \"${SRCROOT}/SNUECafeteriaProject/GoogleService-Info.plist\" ]; then\n  cp \"${SRCROOT}/SNUECafeteriaProject/GoogleService-Info.plist\" \"${TARGET_BUILD_DIR}/${WRAPPER_NAME}/GoogleService-Info.plist\"\nelse\n  echo \"warning: GoogleService-Info.plist not found for Watch target\"\nfi\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		6154C7EB2FD6BA5D002B6F51 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -641,12 +694,15 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "SNUECafeteriaProjectWatchApp Watch App/SNUECafeteriaProjectWatchApp.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 44HRTG996V;
+				ENABLE_DEBUG_DYLIB = NO;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = SNUECafeteriaProjectWatchApp;
+				INFOPLIST_KEY_CFBundleDisplayName = "교대학식";
+				INFOPLIST_KEY_CFBundleIconName = AppIcon;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.deblurlab.SNUECafeteriaProject;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -655,7 +711,7 @@
 				);
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.deblurlab.SNUECafeteriaProject.watchkitapp;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = SNUECafeteriaWatch;
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -665,7 +721,7 @@
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
-				WATCHOS_DEPLOYMENT_TARGET = 26.4;
+				WATCHOS_DEPLOYMENT_TARGET = 11.0;
 			};
 			name = Debug;
 		};
@@ -674,12 +730,15 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "SNUECafeteriaProjectWatchApp Watch App/SNUECafeteriaProjectWatchApp.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 44HRTG996V;
+				ENABLE_DEBUG_DYLIB = NO;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = SNUECafeteriaProjectWatchApp;
+				INFOPLIST_KEY_CFBundleDisplayName = "교대학식";
+				INFOPLIST_KEY_CFBundleIconName = AppIcon;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.deblurlab.SNUECafeteriaProject;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -688,7 +747,7 @@
 				);
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.deblurlab.SNUECafeteriaProject.watchkitapp;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = SNUECafeteriaWatch;
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -698,7 +757,7 @@
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
-				WATCHOS_DEPLOYMENT_TARGET = 26.4;
+				WATCHOS_DEPLOYMENT_TARGET = 11.0;
 			};
 			name = Release;
 		};
@@ -720,7 +779,7 @@
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/SNUECafeteriaProjectWatchApp Watch App.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/SNUECafeteriaProjectWatchApp Watch App";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/SNUECafeteriaWatch.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/SNUECafeteriaWatch";
 				WATCHOS_DEPLOYMENT_TARGET = 26.4;
 			};
 			name = Debug;
@@ -743,7 +802,7 @@
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/SNUECafeteriaProjectWatchApp Watch App.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/SNUECafeteriaProjectWatchApp Watch App";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/SNUECafeteriaWatch.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/SNUECafeteriaWatch";
 				WATCHOS_DEPLOYMENT_TARGET = 26.4;
 			};
 			name = Release;
@@ -933,7 +992,7 @@
 				INFOPLIST_KEY_UILaunchStoryboardName = "";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -972,7 +1031,7 @@
 				INFOPLIST_KEY_UILaunchStoryboardName = "";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

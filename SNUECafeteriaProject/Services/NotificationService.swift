@@ -61,6 +61,10 @@ final class NotificationService {
                 content.body = "오늘 석식 시간입니다 🍽️"
             }
             content.sound = .default
+            content.userInfo = NotificationPayload.mealInfo(
+                date: meal.date,
+                mealType: type == .lunch ? .lunch : .dinner
+            )
 
             // KST 기준 년·월·일 + 사용자가 설정한 시:분 조합
             var components = Calendar.kst.dateComponents([.year, .month, .day], from: meal.date)
@@ -102,6 +106,7 @@ final class NotificationService {
         content.title = "이번 주 식단 업데이트"
         content.body = "이번 주 식단이 업데이트됐어요 🗓️"
         content.sound = .default
+        content.userInfo = NotificationPayload.weeklyUpdateInfo()
 
         // 매주 월요일(weekday=2) 09:00 반복
         var components = DateComponents()
