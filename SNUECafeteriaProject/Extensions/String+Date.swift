@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SNUECafeteriaShared
 
 extension String {
     static func shortDateLabel(from date: Date) -> String {

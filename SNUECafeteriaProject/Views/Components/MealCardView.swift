@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SNUECafeteriaShared
 
 // MARK: - Shareable Image
 
@@ -87,7 +88,11 @@ private struct MealCardView: View {
                             .font(isForExport ? .system(size: 12) : .footnote)
                     }
                     .foregroundStyle(.secondary)
-                    .frame(maxWidth: .infinity)
+                    .frame(
+                        maxWidth: .infinity,
+                        maxHeight: .infinity,
+                        alignment: .center
+                    )
                 } else {
                     VStack(alignment: .leading, spacing: isForExport ? 4 : 6) {
                         ForEach(menuItems, id: \.name) { item in

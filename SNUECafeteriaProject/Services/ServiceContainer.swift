@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SNUECafeteriaShared
 
 /// 앱 계층에서 생성하여 SwiftUI 환경에 주입하는 의존성 컨테이너.
 /// 뷰는 @Environment(ServiceContainer.self)로 필요한 서비스에 접근한다.

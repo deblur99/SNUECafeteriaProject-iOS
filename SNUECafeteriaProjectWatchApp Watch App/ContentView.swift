@@ -6,6 +6,8 @@
 //
 
 import SwiftUI
+import WatchConnectivityKit
+import SNUECafeteriaShared
 
 struct ContentView: View {
     @Environment(\.scenePhase) private var scenePhase
@@ -43,7 +45,7 @@ struct ContentView: View {
             .navigationBarTitleDisplayMode(.inline)
         }
         .task {
-            WatchMealSyncService.shared.onMealsUpdated = { @MainActor in
+            WatchCompanionSyncService.shared.onPayloadUpdated = { @MainActor in
                 store.reload()
             }
             await WatchMealDataCoordinator.shared.sync(store: store)

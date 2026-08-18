@@ -4,6 +4,7 @@
 //
 
 import Foundation
+import SNUECafeteriaShared
 
 /// watchOS는 Firebase SDK Firestore를 지원하지 않아 REST API로 `meals` 컬렉션을 가져온다.
 nonisolated enum WatchFirestoreRESTFetcher {

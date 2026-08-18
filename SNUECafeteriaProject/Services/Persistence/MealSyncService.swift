@@ -8,6 +8,7 @@
 import FirebaseCore
 import Foundation
 import SwiftData
+import SNUECafeteriaShared
 
 nonisolated enum MealSyncService {
     // MARK: - Public

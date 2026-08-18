@@ -8,6 +8,15 @@
 
 /* Begin PBXBuildFile section */
 		6154C80F2FD6BA5F002B6F51 /* SNUECafeteriaWatch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 6154C7EF2FD6BA5D002B6F51 /* SNUECafeteriaWatch.app */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		61A7SH102FD9B0010061EA46 /* SNUECafeteriaShared in Frameworks */ = {isa = PBXBuildFile; productRef = 61A7SH032FD9B0010061EA46 /* SNUECafeteriaShared */; };
+		61A7SH112FD9B0010061EA46 /* SNUECafeteriaSharedIntents in Frameworks */ = {isa = PBXBuildFile; productRef = 61A7SH042FD9B0010061EA46 /* SNUECafeteriaSharedIntents */; };
+		61A7SH122FD9B0010061EA46 /* SNUECafeteriaSharedWatchBridge in Frameworks */ = {isa = PBXBuildFile; productRef = 61A7SH052FD9B0010061EA46 /* SNUECafeteriaSharedWatchBridge */; };
+		61A7SH132FD9B0010061EA46 /* SNUECafeteriaShared in Frameworks */ = {isa = PBXBuildFile; productRef = 61A7SH062FD9B0010061EA46 /* SNUECafeteriaShared */; };
+		61A7SH142FD9B0010061EA46 /* SNUECafeteriaSharedWatchBridge in Frameworks */ = {isa = PBXBuildFile; productRef = 61A7SH072FD9B0010061EA46 /* SNUECafeteriaSharedWatchBridge */; };
+		61A7SH152FD9B0010061EA46 /* SNUECafeteriaShared in Frameworks */ = {isa = PBXBuildFile; productRef = 61A7SH082FD9B0010061EA46 /* SNUECafeteriaShared */; };
+		61A7SH162FD9B0010061EA46 /* SNUECafeteriaSharedIntents in Frameworks */ = {isa = PBXBuildFile; productRef = 61A7SH092FD9B0010061EA46 /* SNUECafeteriaSharedIntents */; };
+		61A7WC032FD9A0010061EA46 /* WatchConnectivityKit in Frameworks */ = {isa = PBXBuildFile; productRef = 61A7WC022FD9A0010061EA46 /* WatchConnectivityKit */; };
+		61A7WC042FD9A0010061EA46 /* WatchConnectivityKit in Frameworks */ = {isa = PBXBuildFile; productRef = 61A7WC012FD9A0010061EA46 /* WatchConnectivityKit */; };
 		61C3BF622FBADF42005C6C3B /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 61C3BF432FB717B0005C6C3B /* WidgetKit.framework */; };
 		61C3BF632FBADF42005C6C3B /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 61C3BF452FB717B0005C6C3B /* SwiftUI.framework */; };
 		61C3BF6E2FBADF43005C6C3B /* SNUECafeteriaWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 61C3BF612FBADF42005C6C3B /* SNUECafeteriaWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -102,34 +111,6 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		6154C8212FD6BA60002B6F51 /* Exceptions for "Shared" folder in "SNUECafeteriaProjectWatchApp Watch App" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				AppIcon.icon,
-				Intents/FetchMealForDateIntent.swift,
-				Intents/FetchMealForDateListIntent.swift,
-				Intents/FetchMealsForPeriodIntent.swift,
-				Intents/FetchNearestMealIntent.swift,
-				Intents/FetchNearestMealListIntent.swift,
-				Intents/MealEntity.swift,
-				Intents/MealEntityQuery.swift,
-				Intents/MealIntentImageRenderer.swift,
-				Intents/MealIntentSnippetView.swift,
-				Intents/MealShortcutsProvider.swift,
-				Intents/MealTypeAppEnum.swift,
-				Intents/OpenAppIntent.swift,
-			);
-			target = 6154C7EE2FD6BA5D002B6F51 /* SNUECafeteriaProjectWatchApp Watch App */;
-		};
-		6154CB432FD7A3F3002B6F51 /* Exceptions for "Shared" folder in "SNUECafeteriaWidgetExtension" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				AppIcon.icon,
-				Services/NetworkService.swift,
-				WatchConnectivity/WatchCompanionAvailability.swift,
-			);
-			target = 61C3BF602FBADF42005C6C3B /* SNUECafeteriaWidgetExtension */;
-		};
 		61A789BE2F9F43F700F135BB /* Exceptions for "SNUECafeteriaProject" folder in "SNUECafeteriaProject" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -188,15 +169,6 @@
 			path = SNUECafeteriaWidget;
 			sourceTree = "<group>";
 		};
-		B96A182864E28FA2C30F4EDC /* Shared */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				6154CB432FD7A3F3002B6F51 /* Exceptions for "Shared" folder in "SNUECafeteriaWidgetExtension" target */,
-				6154C8212FD6BA60002B6F51 /* Exceptions for "Shared" folder in "SNUECafeteriaProjectWatchApp Watch App" target */,
-			);
-			path = Shared;
-			sourceTree = "<group>";
-		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -204,6 +176,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				61A7SH132FD9B0010061EA46 /* SNUECafeteriaShared in Frameworks */,
+				61A7SH142FD9B0010061EA46 /* SNUECafeteriaSharedWatchBridge in Frameworks */,
+				61A7WC042FD9A0010061EA46 /* WatchConnectivityKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -225,6 +200,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				61A7SH102FD9B0010061EA46 /* SNUECafeteriaShared in Frameworks */,
+				61A7SH112FD9B0010061EA46 /* SNUECafeteriaSharedIntents in Frameworks */,
+				61A7SH122FD9B0010061EA46 /* SNUECafeteriaSharedWatchBridge in Frameworks */,
+				61A7WC032FD9A0010061EA46 /* WatchConnectivityKit in Frameworks */,
 				61F8BA072FA19C490061EA46 /* FirebaseCrashlytics in Frameworks */,
 				61F8BA092FA19C490061EA46 /* FirebaseFirestore in Frameworks */,
 				61F8BA0B2FA19C490061EA46 /* FirebaseFunctions in Frameworks */,
@@ -251,6 +230,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				61A7SH152FD9B0010061EA46 /* SNUECafeteriaShared in Frameworks */,
+				61A7SH162FD9B0010061EA46 /* SNUECafeteriaSharedIntents in Frameworks */,
 				61C3BF632FBADF42005C6C3B /* SwiftUI.framework in Frameworks */,
 				61C3BF622FBADF42005C6C3B /* WidgetKit.framework in Frameworks */,
 			);
@@ -267,7 +248,6 @@
 				61A789912F9F3DA300F135BB /* SNUECafeteriaProjectTests */,
 				61A7899B2F9F3DA300F135BB /* SNUECafeteriaProjectUITests */,
 				61C3BF642FBADF42005C6C3B /* SNUECafeteriaWidget */,
-				B96A182864E28FA2C30F4EDC /* Shared */,
 				6154C7F02FD6BA5D002B6F51 /* SNUECafeteriaProjectWatchApp Watch App */,
 				6154C7FE2FD6BA5E002B6F51 /* SNUECafeteriaProjectWatchApp Watch AppTests */,
 				6154C8082FD6BA5F002B6F51 /* SNUECafeteriaProjectWatchApp Watch AppUITests */,
@@ -317,10 +297,12 @@
 			);
 			fileSystemSynchronizedGroups = (
 				6154C7F02FD6BA5D002B6F51 /* SNUECafeteriaProjectWatchApp Watch App */,
-				B96A182864E28FA2C30F4EDC /* Shared */,
 			);
 			name = "SNUECafeteriaProjectWatchApp Watch App";
 			packageProductDependencies = (
+				61A7SH062FD9B0010061EA46 /* SNUECafeteriaShared */,
+				61A7SH072FD9B0010061EA46 /* SNUECafeteriaSharedWatchBridge */,
+				61A7WC012FD9A0010061EA46 /* WatchConnectivityKit */,
 			);
 			productName = "SNUECafeteriaProjectWatchApp Watch App";
 			productReference = 6154C7EF2FD6BA5D002B6F51 /* SNUECafeteriaWatch.app */;
@@ -390,7 +372,6 @@
 			);
 			fileSystemSynchronizedGroups = (
 				61A789812F9F3DA000F135BB /* SNUECafeteriaProject */,
-				B96A182864E28FA2C30F4EDC /* Shared */,
 			);
 			name = SNUECafeteriaProject;
 			packageProductDependencies = (
@@ -399,6 +380,10 @@
 				61F8BA062FA19C490061EA46 /* FirebaseCrashlytics */,
 				61F8BA082FA19C490061EA46 /* FirebaseFirestore */,
 				61F8BA0A2FA19C490061EA46 /* FirebaseFunctions */,
+				61A7SH032FD9B0010061EA46 /* SNUECafeteriaShared */,
+				61A7SH042FD9B0010061EA46 /* SNUECafeteriaSharedIntents */,
+				61A7SH052FD9B0010061EA46 /* SNUECafeteriaSharedWatchBridge */,
+				61A7WC022FD9A0010061EA46 /* WatchConnectivityKit */,
 			);
 			productName = SNUECafeteriaProject;
 			productReference = 61A7897F2F9F3DA000F135BB /* SNUECafeteriaProject.app */;
@@ -460,9 +445,12 @@
 			);
 			fileSystemSynchronizedGroups = (
 				61C3BF642FBADF42005C6C3B /* SNUECafeteriaWidget */,
-				B96A182864E28FA2C30F4EDC /* Shared */,
 			);
 			name = SNUECafeteriaWidgetExtension;
+			packageProductDependencies = (
+				61A7SH082FD9B0010061EA46 /* SNUECafeteriaShared */,
+				61A7SH092FD9B0010061EA46 /* SNUECafeteriaSharedIntents */,
+			);
 			productName = SNUECafeteriaWidgetExtension;
 			productReference = 61C3BF612FBADF42005C6C3B /* SNUECafeteriaWidgetExtension.appex */;
 			productType = "com.apple.product-type.app-extension";
@@ -515,6 +503,8 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				61F8BA012FA19C490061EA46 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				61A7WC002FD9A0010061EA46 /* XCRemoteSwiftPackageReference "WatchConnectivityKit" */,
+				61A7SH002FD9B0010061EA46 /* XCLocalSwiftPackageReference "Packages/SNUECafeteriaShared" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 61A789802F9F3DA000F135BB /* Products */;
@@ -1273,7 +1263,22 @@
 		};
 /* End XCConfigurationList section */
 
+/* Begin XCLocalSwiftPackageReference section */
+		61A7SH002FD9B0010061EA46 /* XCLocalSwiftPackageReference "Packages/SNUECafeteriaShared" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/SNUECafeteriaShared;
+		};
+/* End XCLocalSwiftPackageReference section */
+
 /* Begin XCRemoteSwiftPackageReference section */
+		61A7WC002FD9A0010061EA46 /* XCRemoteSwiftPackageReference "WatchConnectivityKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/deblur99/WatchConnectivityKit.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.0;
+			};
+		};
 		61F8BA012FA19C490061EA46 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/firebase/firebase-ios-sdk.git";
@@ -1285,6 +1290,51 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		61A7SH032FD9B0010061EA46 /* SNUECafeteriaShared */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 61A7SH002FD9B0010061EA46 /* XCLocalSwiftPackageReference "Packages/SNUECafeteriaShared" */;
+			productName = SNUECafeteriaShared;
+		};
+		61A7SH042FD9B0010061EA46 /* SNUECafeteriaSharedIntents */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 61A7SH002FD9B0010061EA46 /* XCLocalSwiftPackageReference "Packages/SNUECafeteriaShared" */;
+			productName = SNUECafeteriaSharedIntents;
+		};
+		61A7SH052FD9B0010061EA46 /* SNUECafeteriaSharedWatchBridge */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 61A7SH002FD9B0010061EA46 /* XCLocalSwiftPackageReference "Packages/SNUECafeteriaShared" */;
+			productName = SNUECafeteriaSharedWatchBridge;
+		};
+		61A7SH062FD9B0010061EA46 /* SNUECafeteriaShared */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 61A7SH002FD9B0010061EA46 /* XCLocalSwiftPackageReference "Packages/SNUECafeteriaShared" */;
+			productName = SNUECafeteriaShared;
+		};
+		61A7SH072FD9B0010061EA46 /* SNUECafeteriaSharedWatchBridge */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 61A7SH002FD9B0010061EA46 /* XCLocalSwiftPackageReference "Packages/SNUECafeteriaShared" */;
+			productName = SNUECafeteriaSharedWatchBridge;
+		};
+		61A7SH082FD9B0010061EA46 /* SNUECafeteriaShared */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 61A7SH002FD9B0010061EA46 /* XCLocalSwiftPackageReference "Packages/SNUECafeteriaShared" */;
+			productName = SNUECafeteriaShared;
+		};
+		61A7SH092FD9B0010061EA46 /* SNUECafeteriaSharedIntents */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 61A7SH002FD9B0010061EA46 /* XCLocalSwiftPackageReference "Packages/SNUECafeteriaShared" */;
+			productName = SNUECafeteriaSharedIntents;
+		};
+		61A7WC012FD9A0010061EA46 /* WatchConnectivityKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 61A7WC002FD9A0010061EA46 /* XCRemoteSwiftPackageReference "WatchConnectivityKit" */;
+			productName = WatchConnectivityKit;
+		};
+		61A7WC022FD9A0010061EA46 /* WatchConnectivityKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 61A7WC002FD9A0010061EA46 /* XCRemoteSwiftPackageReference "WatchConnectivityKit" */;
+			productName = WatchConnectivityKit;
+		};
 		61F8BA022FA19C490061EA46 /* FirebaseAnalytics */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 61F8BA012FA19C490061EA46 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;

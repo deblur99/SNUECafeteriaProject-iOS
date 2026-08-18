@@ -6,6 +6,7 @@
 //
 
 import UserNotifications
+import SNUECafeteriaShared
 
 @MainActor
 final class NotificationService {

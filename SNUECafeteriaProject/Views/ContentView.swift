@@ -8,6 +8,7 @@
 import SwiftData
 import SwiftUI
 import UIKit
+import SNUECafeteriaSharedIntents
 
 enum AppTab: Hashable {
     case today, week, settings

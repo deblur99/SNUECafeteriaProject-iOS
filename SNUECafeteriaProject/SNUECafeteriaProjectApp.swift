@@ -5,7 +5,9 @@
 //  Created by 한현민 on 4/27/26.
 //
 
+import AppIntents
 import SwiftData
+import SNUECafeteriaSharedIntents
 import SwiftUI
 
 // TODO: 앱 화면 진입할 때마다 아래 작업 수행하기
@@ -87,5 +89,11 @@ extension SNUECafeteriaProjectApp {
                 await services.notification.schedule(for: .dinner, at: time, meals: mealRepository.meals)
             }
         }
+    }
+}
+
+struct SNUECafeteriaAppIntentsPackage: AppIntentsPackage {
+    static var includedPackages: [any AppIntentsPackage.Type] {
+        [SNUECafeteriaSharedIntentsPackage.self]
     }
 }

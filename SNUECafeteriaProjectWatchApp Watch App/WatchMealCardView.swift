@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SNUECafeteriaShared
 
 struct WatchMealCardView: View {
     let mealType: MealType

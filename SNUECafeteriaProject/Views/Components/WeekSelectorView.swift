@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SNUECafeteriaShared
 
 // TODO: 전체 데이터 가져와서 데이터가 없는 주는 선택 못하게 하기
 struct WeekSelectorView: View {

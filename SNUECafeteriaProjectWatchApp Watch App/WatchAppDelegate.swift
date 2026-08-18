@@ -7,11 +7,14 @@
 
 import UserNotifications
 import WatchKit
+import WatchConnectivityKit
+import SNUECafeteriaSharedWatchBridge
 
 final class WatchAppDelegate: NSObject, WKApplicationDelegate, UNUserNotificationCenterDelegate {
     func applicationDidFinishLaunching() {
         UNUserNotificationCenter.current().delegate = self
-        WatchMealSyncService.shared.activate()
+        WatchMealConnectivityBootstrap.configure()
+        WatchCompanionSyncService.shared.activate()
     }
 
     func userNotificationCenter(

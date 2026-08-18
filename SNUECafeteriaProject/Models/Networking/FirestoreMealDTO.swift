@@ -5,6 +5,7 @@
 
 @preconcurrency import FirebaseFirestore
 import Foundation
+import SNUECafeteriaShared
 
 nonisolated struct FirestoreMealDTO: Codable, Sendable {
     let date: Timestamp

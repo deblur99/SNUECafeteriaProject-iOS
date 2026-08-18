@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SNUECafeteriaShared
 
 struct WatchNavigationRequest: Equatable {
     let date: Date

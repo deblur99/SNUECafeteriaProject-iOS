@@ -8,8 +8,11 @@
 import AppIntents
 import FirebaseCore
 import FirebaseFirestore
+import SNUECafeteriaSharedWatchBridge
+import SNUECafeteriaSharedIntents
 import UIKit
 import UserNotifications
+import WatchConnectivityKit
 import WidgetKit
 
 extension Notification.Name {
@@ -24,6 +27,7 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
         FirebaseApp.configure()
         UNUserNotificationCenter.current().delegate = self
+        WatchMealConnectivityBootstrap.configure()
 
         // Background 실행(App Intents 트리거 등)에서는 기존 캐시를 보존하기 위해 리스너 설정 건너뜀
         if application.applicationState != .background {
@@ -36,7 +40,7 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
 
     func applicationDidBecomeActive(_ application: UIApplication) {
         // 런치 직후 즉시 activate하면 WatchConnectivity 내부 크래시가 날 수 있어 지연 스케줄한다.
-        PhoneWatchMealSyncService.shared.scheduleActivationAndPush()
+        PhoneWatchSyncService.shared.scheduleActivationAndPush()
     }
 
     func applicationWillEnterForeground(_ application: UIApplication) {
@@ -94,7 +98,7 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
                 }
 
                 guard AppGroupMealCache.save(meals) else { return }
-                PhoneWatchMealSyncService.shared.push(meals)
+                WatchMealConnectivityBootstrap.pushMeals(meals)
                 print("✅ App Groups 캐시 업데이트: \(meals.count)개 메뉴")
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                     print("🔄 위젯 타임라인 갱신 요청")

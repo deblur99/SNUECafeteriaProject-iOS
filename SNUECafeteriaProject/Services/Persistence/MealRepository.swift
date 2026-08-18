@@ -8,6 +8,8 @@
 import Foundation
 import SwiftData
 import WidgetKit
+import SNUECafeteriaShared
+import SNUECafeteriaSharedWatchBridge
 
 /// 식단 데이터의 단일 진입점.
 /// Firestore 동기화 → SwiftData 저장 → 앱 상태 갱신 → App Groups 동기화 → 위젯 갱신까지
@@ -109,7 +111,7 @@ final class MealRepository {
     private func writeToAppGroups() {
         let cachedMeals = meals.map { $0.toCachedModel() }
         guard AppGroupMealCache.save(cachedMeals) else { return }
-        PhoneWatchMealSyncService.shared.push(cachedMeals)
+        WatchMealConnectivityBootstrap.pushMeals(cachedMeals)
         WidgetCenter.shared.reloadAllTimelines()
         print("✅ App Groups에 식단 데이터 저장 완료 (\(cachedMeals.count)일치)")
     }

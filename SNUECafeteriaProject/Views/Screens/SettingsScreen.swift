@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SNUECafeteriaShared
 
 /// AppStorage 지원을 위한 RawRepresentable 확장
 extension TimeNotificationStatus: RawRepresentable {

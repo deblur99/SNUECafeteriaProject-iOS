@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SNUECafeteriaShared
 
 struct WeekDatePickerModal: View {
     let initialDate: Date

@@ -7,6 +7,7 @@
 
 import SwiftUI
 import WidgetKit
+import SNUECafeteriaShared
 
 // MARK: - Deep Link URLs
 

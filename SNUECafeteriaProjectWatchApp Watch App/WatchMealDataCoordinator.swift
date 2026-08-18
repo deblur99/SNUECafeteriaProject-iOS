@@ -4,6 +4,8 @@
 //
 
 import Foundation
+import WatchConnectivityKit
+import SNUECafeteriaShared
 
 /// Watch 식단 데이터 동기화 전략:
 /// - iPhone 페어링·companion 가능: WatchConnectivity 우선
@@ -24,9 +26,9 @@ final class WatchMealDataCoordinator {
         store.reload()
 
         // 활성화 레이스를 피하기 위해 companion 판별 전 WCSession 준비를 기다린다.
-        let activated = await WatchMealSyncService.shared.waitUntilActivated()
+        let activated = await WatchCompanionSyncService.shared.waitUntilActivated()
         if activated, WatchCompanionAvailability.isPairedCompanionAvailable {
-            await WatchMealSyncService.shared.requestSyncFromCompanion()
+            await WatchCompanionSyncService.shared.requestSyncFromCompanion()
             store.reload()
             if store.hasCachedMeals {
                 print("✅ companion 동기화로 식단 로드 (\(store.meals.count)일)")
