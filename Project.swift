@@ -1,0 +1,166 @@
+import ProjectDescription
+
+private let bundleID = "com.deblurlab.SNUECafeteriaProject"
+private let teamID = "44HRTG996V"
+
+let project = Project(
+    name: "SNUECafeteriaProject",
+    organizationName: "deblurlab",
+    options: .options(
+        automaticSchemesOptions: .enabled(),
+        defaultKnownRegions: ["en", "Base"],
+        developmentRegion: "en"
+    ),
+    packages: [
+        .package(url: "https://github.com/firebase/firebase-ios-sdk", from: "12.12.1"),
+        .package(url: "https://github.com/deblur99/WatchConnectivityKit", from: "1.0.1"),
+    ],
+    settings: .settings(
+        base: [
+            "ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS": "YES",
+            "DEVELOPMENT_TEAM": .string(teamID),
+            "CODE_SIGN_STYLE": "Automatic",
+            "MARKETING_VERSION": "1.0",
+            "CURRENT_PROJECT_VERSION": "1",
+        ]
+    ),
+    targets: [
+        .target(
+            name: "SNUECafeteriaProject",
+            destinations: .iOS,
+            product: .app,
+            bundleId: bundleID,
+            deploymentTargets: .iOS("26.0"),
+            infoPlist: .file(path: "SNUECafeteriaProject/Info.plist"),
+            sources: [
+                "SNUECafeteriaProject/**/*.swift",
+                "Shared/**/*.swift",
+            ],
+            resources: [
+                "SNUECafeteriaProject/Assets.xcassets",
+                "SNUECafeteriaProject/AppIcon.icon",
+                "SNUECafeteriaProject/GoogleService-Info.plist",
+            ],
+            entitlements: "SNUECafeteriaProject/SNUECafeteriaProject.entitlements",
+            dependencies: [
+                .target(name: "SNUECafeteriaWidgetExtension"),
+                .package(product: "WatchConnectivityKit"),
+                .package(product: "FirebaseAnalytics"),
+                .package(product: "FirebaseCore"),
+                .package(product: "FirebaseCrashlytics"),
+                .package(product: "FirebaseFirestore"),
+                .package(product: "FirebaseFunctions"),
+            ],
+            settings: .settings(base: [
+                "ASSETCATALOG_COMPILER_APPICON_NAME": "AppIcon",
+                "ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME": "AccentColor",
+                "ENABLE_PREVIEWS": "YES",
+                "ENABLE_USER_SCRIPT_SANDBOXING": "NO",
+                "GENERATE_INFOPLIST_FILE": "YES",
+                "INFOPLIST_KEY_CFBundleDisplayName": "교대학식",
+                "INFOPLIST_KEY_LSApplicationCategoryType": "public.app-category.lifestyle",
+                "INFOPLIST_KEY_UIApplicationSceneManifest_Generation": "YES",
+                "INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents": "YES",
+                "INFOPLIST_KEY_UILaunchStoryboardName": "",
+                "INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad": "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight",
+                "INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone": "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight",
+                "OTHER_LDFLAGS": "-ObjC",
+                "STRING_CATALOG_GENERATE_SYMBOLS": "YES",
+                "SWIFT_APPROACHABLE_CONCURRENCY": "YES",
+                "SWIFT_DEFAULT_ACTOR_ISOLATION": "MainActor",
+                "SWIFT_EMIT_LOC_STRINGS": "YES",
+                "SWIFT_STRICT_CONCURRENCY": "complete",
+                "SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY": "YES",
+                "SWIFT_VERSION": "6.0",
+                "TARGETED_DEVICE_FAMILY": "1,2",
+            ])
+        ),
+        .target(
+            name: "SNUECafeteriaWidgetExtension",
+            destinations: .iOS,
+            product: .appExtension,
+            bundleId: "\(bundleID).SNUECafeteriaWidget",
+            deploymentTargets: .iOS("26.0"),
+            infoPlist: .extendingDefault(with: [
+                "CFBundleDisplayName": "SNUECafeteriaWidget",
+                "NSExtension": [
+                    "NSExtensionPointIdentifier": "com.apple.widgetkit-extension",
+                ],
+            ]),
+            sources: [
+                "SNUECafeteriaWidget/**/*.swift",
+                "Shared/**/*.swift",
+            ],
+            resources: [
+                "SNUECafeteriaWidget/Assets.xcassets",
+            ],
+            entitlements: "SNUECafeteriaWidgetExtension.entitlements",
+            dependencies: [
+                .sdk(name: "WidgetKit", type: .framework),
+                .sdk(name: "SwiftUI", type: .framework),
+            ],
+            settings: .settings(base: [
+                "ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME": "AccentColor",
+                "ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME": "WidgetBackground",
+                "SKIP_INSTALL": "YES",
+                "STRING_CATALOG_GENERATE_SYMBOLS": "YES",
+                "SWIFT_APPROACHABLE_CONCURRENCY": "YES",
+                "SWIFT_EMIT_LOC_STRINGS": "YES",
+                "SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY": "YES",
+                "SWIFT_VERSION": "5.0",
+                "TARGETED_DEVICE_FAMILY": "1,2",
+            ])
+        ),
+        .target(
+            name: "SNUECafeteriaProjectTests",
+            destinations: .iOS,
+            product: .unitTests,
+            bundleId: "\(bundleID)Tests",
+            deploymentTargets: .iOS("26.4"),
+            infoPlist: .default,
+            sources: ["SNUECafeteriaProjectTests/**/*.swift"],
+            dependencies: [
+                .target(name: "SNUECafeteriaProject"),
+            ],
+            settings: .settings(base: [
+                "GENERATE_INFOPLIST_FILE": "YES",
+                "STRING_CATALOG_GENERATE_SYMBOLS": "NO",
+                "SWIFT_APPROACHABLE_CONCURRENCY": "YES",
+                "SWIFT_EMIT_LOC_STRINGS": "NO",
+                "SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY": "YES",
+                "SWIFT_VERSION": "5.0",
+                "TARGETED_DEVICE_FAMILY": "1,2",
+            ])
+        ),
+        .target(
+            name: "SNUECafeteriaProjectUITests",
+            destinations: .iOS,
+            product: .uiTests,
+            bundleId: "\(bundleID)UITests",
+            infoPlist: .default,
+            sources: ["SNUECafeteriaProjectUITests/**/*.swift"],
+            dependencies: [
+                .target(name: "SNUECafeteriaProject"),
+            ],
+            settings: .settings(base: [
+                "GENERATE_INFOPLIST_FILE": "YES",
+                "STRING_CATALOG_GENERATE_SYMBOLS": "NO",
+                "SWIFT_APPROACHABLE_CONCURRENCY": "YES",
+                "SWIFT_EMIT_LOC_STRINGS": "NO",
+                "SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY": "YES",
+                "SWIFT_VERSION": "5.0",
+                "TARGETED_DEVICE_FAMILY": "1,2",
+            ])
+        ),
+    ],
+    schemes: [
+        .scheme(
+            name: "SNUECafeteriaProject",
+            shared: true,
+            buildAction: .buildAction(targets: ["SNUECafeteriaProject"]),
+            testAction: .targets(["SNUECafeteriaProjectTests", "SNUECafeteriaProjectUITests"]),
+            runAction: .runAction(executable: "SNUECafeteriaProject"),
+            archiveAction: .archiveAction(configuration: .release)
+        ),
+    ]
+)

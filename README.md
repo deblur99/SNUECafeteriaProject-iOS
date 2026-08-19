@@ -65,6 +65,18 @@
 | 알림 | UserNotifications (로컬 알림) |
 | 네트워크 | Network.framework (NWPathMonitor) |
 | 최소 배포 타깃 | iOS 26 |
+| 프로젝트 | Tuist 4.204 |
+
+## 프로젝트 생성
+
+이 저장소는 Xcode 프로젝트를 커밋하지 않습니다. 클론한 뒤 아래를 실행하세요.
+
+```bash
+mise install          # tuist 4.204.0
+tuist generate        # Xcode workspace 생성
+```
+
+Firebase용 `SNUECafeteriaProject/GoogleService-Info.plist`는 저장소에 포함되지 않습니다. 로컬에 두고 `tuist generate`를 실행하세요.
 
 ## 라이선스
 

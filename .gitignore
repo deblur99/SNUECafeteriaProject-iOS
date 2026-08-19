@@ -1,9 +1,9 @@
 # see https://gist.github.com/muhasturk/df28ec9d2cc18bf1cfc8
 # see https://github.com/github/gitignore/blob/master/Swift.gitignore
 
-*.xcodeproj/*
-!*.xcodeproj/project.pbxproj
-!*.xcodeproj/xcshareddata
+# Generated Xcode project (run `tuist install && tuist generate`)
+*.xcodeproj
+*.xcworkspace
 
 #
 # *.lock - this is used and abused by many editors for many different things.
@@ -62,11 +62,14 @@ xcuserdata
 timeline.xctimeline
 playground.xcworkspace
 
-# Swift Package Manager
-#
-# Add this line if you want to avoid checking in source code from Swift Package Manager dependencies.
-Packages/
+# Swift Package Manager / Tuist
 .build/
+Packages/
+Derived/
+Tuist/.build
+Tuist/Dependencies
+graph.png
+graph.dot
 
 # CocoaPods
 #
