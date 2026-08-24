@@ -62,10 +62,17 @@
 - 알림 설정 (중식·석식·주간 알림 ON/OFF, 시각 변경)
 - 오픈소스 라이선스 목록
 
+### Apple Watch
+- 이번 주(월~일) 중식·석식 식단 표시
+- iPhone과 WatchConnectivityKit으로 식단 동기화
+- iPhone 미연결 시 Firestore REST로 독립 동기화 (네트워크 있을 때)
+- 알림 탭 시 해당 날짜·식사로 스크롤
+
 ### 데이터 동기화
 - Firebase Firestore에서 식단 데이터 수신
 - SwiftData로 앱 로컬 캐싱, 네트워크 없이도 최근 데이터 사용 가능
 - App Groups로 위젯·App Intents와 식단 캐시 공유
+- WatchConnectivityKit으로 iPhone ↔ Apple Watch 식단 동기화
 - 앱 포그라운드 진입 시 자동 동기화
 - Firestore 스냅샷 리스너로 위젯 타임라인 갱신
 - 네트워크 미연결 시 오류 안내 후 로컬 데이터 표시
@@ -78,18 +85,20 @@
 | UI | SwiftUI |
 | 로컬 저장 | SwiftData |
 | 위젯 · 단축어 | WidgetKit, App Intents, App Groups |
+| Apple Watch | WatchConnectivityKit |
 | 백엔드 | Firebase Firestore, Analytics, Crashlytics |
 | 알림 | UserNotifications (로컬 알림) |
 | 네트워크 | Network.framework (NWPathMonitor) |
-| 최소 배포 타깃 | iOS 26.0 |
+| 최소 배포 타깃 | iOS 26.0, watchOS 11.0 |
 | 프로젝트 | Tuist 4.204 |
 
 ## 프로젝트 구조
 
 ```
 SNUECafeteriaProject/     iOS 앱 (화면, 동기화, 알림)
+SNUECafeteriaWatchApp/    Apple Watch 앱
 SNUECafeteriaWidget/      홈 화면 위젯
-Shared/                   앱·위젯 공용 모델, App Groups 캐시, App Intents
+Shared/                   앱·워치·위젯 공용 모델, App Groups 캐시, WatchConnectivity, App Intents
 Project.swift             Tuist 프로젝트 정의
 ```
 

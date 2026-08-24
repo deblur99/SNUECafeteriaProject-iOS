@@ -44,6 +44,7 @@ let project = Project(
             entitlements: "SNUECafeteriaProject/SNUECafeteriaProject.entitlements",
             dependencies: [
                 .target(name: "SNUECafeteriaWidgetExtension"),
+                .target(name: "SNUECafeteriaWatchApp"),
                 .package(product: "WatchConnectivityKit"),
                 .package(product: "FirebaseAnalytics"),
                 .package(product: "FirebaseCore"),
@@ -76,6 +77,53 @@ let project = Project(
             ])
         ),
         .target(
+            name: "SNUECafeteriaWatchApp",
+            destinations: [.appleWatch],
+            product: .app,
+            bundleId: "\(bundleID).watchkitapp",
+            deploymentTargets: .watchOS("11.0"),
+            infoPlist: .extendingDefault(with: [
+                "CFBundleDisplayName": "교대학식",
+                "WKCompanionAppBundleIdentifier": .string(bundleID),
+            ]),
+            sources: [
+                "SNUECafeteriaWatchApp/**/*.swift",
+                "Shared/Constants/**/*.swift",
+                "Shared/Extensions/**/*.swift",
+                "Shared/Models/**/*.swift",
+                "Shared/Intents/AppGroupMealCache.swift",
+                "Shared/WatchConnectivity/**/*.swift",
+                "SNUECafeteriaProject/Services/NetworkService.swift",
+            ],
+            resources: [
+                "SNUECafeteriaWatchApp/Assets.xcassets",
+                "SNUECafeteriaProject/GoogleService-Info.plist",
+            ],
+            entitlements: "SNUECafeteriaWatchApp/SNUECafeteriaWatchApp.entitlements",
+            dependencies: [
+                .package(product: "WatchConnectivityKit"),
+            ],
+            settings: .settings(base: [
+                "ASSETCATALOG_COMPILER_APPICON_NAME": "AppIcon",
+                "ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME": "AccentColor",
+                "ENABLE_DEBUG_DYLIB": "NO",
+                "ENABLE_PREVIEWS": "YES",
+                "GENERATE_INFOPLIST_FILE": "YES",
+                "INFOPLIST_KEY_CFBundleDisplayName": "교대학식",
+                "INFOPLIST_KEY_CFBundleIconName": "AppIcon",
+                "INFOPLIST_KEY_WKCompanionAppBundleIdentifier": .string(bundleID),
+                "PRODUCT_NAME": "SNUECafeteriaWatch",
+                "SKIP_INSTALL": "YES",
+                "STRING_CATALOG_GENERATE_SYMBOLS": "YES",
+                "SWIFT_APPROACHABLE_CONCURRENCY": "YES",
+                "SWIFT_DEFAULT_ACTOR_ISOLATION": "MainActor",
+                "SWIFT_EMIT_LOC_STRINGS": "YES",
+                "SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY": "YES",
+                "SWIFT_VERSION": "6.0",
+                "TARGETED_DEVICE_FAMILY": "4",
+            ])
+        ),
+        .target(
             name: "SNUECafeteriaWidgetExtension",
             destinations: .iOS,
             product: .appExtension,
@@ -88,8 +136,13 @@ let project = Project(
                 ],
             ]),
             sources: [
-                "SNUECafeteriaWidget/**/*.swift",
-                "Shared/**/*.swift",
+                .glob(
+                    "SNUECafeteriaWidget/**/*.swift"
+                ),
+                .glob(
+                    "Shared/**/*.swift",
+                    excluding: ["Shared/WatchConnectivity/**"]
+                ),
             ],
             resources: [
                 "SNUECafeteriaWidget/Assets.xcassets",
@@ -161,6 +214,12 @@ let project = Project(
             testAction: .targets(["SNUECafeteriaProjectTests", "SNUECafeteriaProjectUITests"]),
             runAction: .runAction(executable: "SNUECafeteriaProject"),
             archiveAction: .archiveAction(configuration: .release)
+        ),
+        .scheme(
+            name: "SNUECafeteriaWatchApp",
+            shared: true,
+            buildAction: .buildAction(targets: ["SNUECafeteriaWatchApp"]),
+            runAction: .runAction(executable: "SNUECafeteriaWatchApp")
         ),
     ]
 )

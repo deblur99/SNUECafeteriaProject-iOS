@@ -108,10 +108,8 @@ final class MealRepository {
 
     private func writeToAppGroups() {
         let cachedMeals = meals.map { $0.toCachedModel() }
-        guard !cachedMeals.isEmpty,
-              let data = try? JSONEncoder().encode(cachedMeals),
-              let defaults = UserDefaults(suiteName: AppGroupsConfig.groupIdentifier) else { return }
-        defaults.set(data, forKey: AppGroupsConfig.UserDefaultsKeys.cachedMeals)
+        guard AppGroupMealCache.save(cachedMeals) else { return }
+        WatchMealConnectivityBootstrap.pushMeals(cachedMeals)
         WidgetCenter.shared.reloadAllTimelines()
         print("✅ App Groups에 식단 데이터 저장 완료 (\(cachedMeals.count)일치)")
     }
