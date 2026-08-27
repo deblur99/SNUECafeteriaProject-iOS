@@ -1,6 +1,13 @@
 # 교대학식
 
-서울교육대학교 교내 학생식당의 주간 식단 정보를 제공하는 iOS 앱입니다.
+서울교육대학교 교내 학생식당의 주간 식단 정보를 제공하는 **Apple 멀티플랫폼** 앱입니다.  
+**iOS · iPadOS · watchOS · macOS**를 지원하며, 플랫폼별로 네이티브 SwiftUI 타깃을 둡니다.
+
+| 플랫폼 | 타깃 / 스키마 | 비고 |
+|--------|----------------|------|
+| iPhone · iPad | `SNUECafeteriaProject` | 탭 UI, 위젯, App Intents, Watch 페어링 |
+| Apple Watch | `SNUECafeteriaWatchApp` | 오늘·주간 목록, iPhone 동기화 / 독립 조회 |
+| Mac | `SNUECafeteriaMac` | NavigationSplitView, 단일 창, Mac 위젯 |
 
 ## 중요 안내
 
@@ -38,6 +45,7 @@
 - 날짜별 식단 카드에서 이미지·텍스트 공유 (오늘 탭과 동일 포맷)
 
 ### 홈 화면 위젯
+- iPhone · iPad · Mac 홈 화면에서 사용 (소스는 `SNUECafeteriaWidget` 공유)
 - Small: 현재 시각 기준 활성 식사(중식 09:00–13:20 / 석식 13:21–18:00, `MealSchedule`과 동일)
 - Medium: 오늘 중식·석식
 - Large: 오늘·내일 중식·석식
@@ -45,6 +53,7 @@
 - App Groups 캐시(`AppGroupMealCache`)로 로드, 캐시 없으면 스켈레톤 플레이스홀더
 
 ### 시리 · 단축어 (App Intents)
+- iPhone · iPad에서 사용 (macOS 단축어는 이후 과제)
 - 지금 식단 조회 (이미지 / 텍스트)
 - 특정 날짜 식단 조회 (이미지 / 텍스트 / 중·석식별 텍스트)
 - 기간별 식단 조회
@@ -91,14 +100,15 @@
 - Firebase용 `GoogleService-Info.plist`는 로컬 배치 (콘솔에 Mac 번들 등록 권장)
 
 ### 플랫폼별 네비게이션
-- **iOS 오늘**: `TabView` + `.page` — 끼니 가로 스와이프, 페이지 안 세로 스크롤 유지
-- **iOS 주간**: 3패널 스와이프 + `dragOffset` — 세로 스크롤은 가로 드래그 중에만 잠금
+- **iPhone · iPad 오늘**: `TabView` + `.page` — 끼니 가로 스와이프, 페이지 안 세로 스크롤 유지
+- **iPhone · iPad 주간**: 3패널 스와이프 + `dragOffset` — 세로 스크롤은 가로 드래그 중에만 잠금
 - **macOS 오늘·주간**: 페이드 전환 (스크롤 페이지 전환 없음)
+- **watchOS**: 오늘·내일 / 이번 주 모드 전환 (짧은 페이드)
 
 ### 데이터 동기화
 - Firebase Firestore에서 식단 데이터 수신
 - SwiftData로 앱 로컬 캐싱, 네트워크 없이도 최근 데이터 사용 가능
-- **iOS**: App Groups로 위젯·App Intents·워치와 식단 캐시 공유 (`group.com.deblurlab…`)
+- **iPhone · iPad · Watch**: App Groups로 위젯·App Intents·워치와 식단 캐시 공유 (`group.com.deblurlab…`)
 - **macOS**: Team ID App Group으로 앱↔위젯 캐시 공유 (`44HRTG996V.com.deblurlab…`) · Watch/Intents 없음
 - 중식·석식 시간대는 `MealSchedule`로 앱·위젯·워치·Intents가 공유
 - WatchConnectivityKit으로 iPhone ↔ Apple Watch 식단 동기화
@@ -118,25 +128,28 @@
 | 백엔드 | Firebase Firestore, Analytics, Crashlytics |
 | 알림 | UserNotifications (로컬 알림) |
 | 네트워크 | Network.framework (NWPathMonitor) |
-| 최소 배포 타깃 | iOS 26.0, watchOS 11.0, macOS 26.0 |
+| 최소 배포 타깃 | iOS 26.0 (iPhone·iPad), watchOS 11.0, macOS 26.0 |
 | 프로젝트 | Tuist 4.204 |
+| 플랫폼 | iOS · iPadOS · watchOS · macOS (네이티브 멀티타깃) |
 
 ## 프로젝트 구조
 
 ```
-SNUECafeteriaProjectiOS/  iOS 진입점·Assets·Info·entitlements·Firebase plist
-SNUECafeteriaProject/     iOS·macOS 공유 앱 계층 (화면, 동기화, 알림, 공유)
+SNUECafeteriaProjectiOS/  iPhone·iPad 진입점·Assets·Info·entitlements·Firebase plist
+SNUECafeteriaProject/     iOS·iPadOS·macOS 공유 앱 계층 (화면, 동기화, 알림, 공유)
 SNUECafeteriaMac/         macOS 진입점·Assets·entitlements·Firebase plist
-SNUECafeteriaWidget/      홈 화면 위젯 (iOS·macOS 공유 소스)
+SNUECafeteriaWidget/      홈 화면 위젯 (iPhone·iPad·Mac 공유 소스)
 SNUECafeteriaWatchApp/    Apple Watch 앱
 Shared/
   Models/                 CachedDayMeal, MealType, MealSchedule
   Cache/                  AppGroupMealCache
-  Intents/                App Intents
+  Intents/                App Intents (iPhone·iPad)
   Sharing/                MealShareFormatter, MealShareExportView, CGImagePNGEncoder
   WatchConnectivity/      iPhone ↔ Watch 브릿지
   Constants/, Extensions/
-Project.swift             Tuist 프로젝트 정의
+Project.swift             Tuist 멀티플랫폼 프로젝트 정의
+.github/workflows/        macOS Developer ID 서명·공증·Release
+ci/                       exportOptions 등 CI 보조 파일
 ```
 
 Xcode 프로젝트 파일은 커밋하지 않습니다. `tuist generate`로 생성합니다.
@@ -152,10 +165,28 @@ tuist generate        # Xcode workspace 생성
 
 Firebase용 `GoogleService-Info.plist`는 저장소에 포함되지 않습니다. 로컬에 두고 `tuist generate`를 실행하세요.
 
-- iOS / Watch: `SNUECafeteriaProjectiOS/GoogleService-Info.plist`
+- iPhone · iPad · Watch: `SNUECafeteriaProjectiOS/GoogleService-Info.plist`
 - macOS: `SNUECafeteriaMac/GoogleService-Info.plist` (`BUNDLE_ID` = `com.deblurlab.SNUECafeteriaProject.mac`)
 
 서명·리소스 경로는 Xcode에서 수동 수정하지 말고 `Project.swift`에 둡니다. `tuist generate`가 프로젝트를 덮어씁니다.
+
+## macOS GitHub Release (서명·공증)
+
+태그 `mac-v*` 푸시(또는 Actions 수동 실행) 시 `.github/workflows/macos-release.yml`이 Developer ID 서명 → Notary → Release zip을 만듭니다.
+
+```bash
+git tag mac-v1.0.0
+git push origin mac-v1.0.0
+```
+
+필수 Secrets: `MAC_CERTIFICATE_BASE64`, `MAC_CERTIFICATE_PASSWORD`, `APPLE_TEAM_ID`, `APP_STORE_CONNECT_API_KEY_ID`, `APP_STORE_CONNECT_API_ISSUER_ID`, `APP_STORE_CONNECT_API_KEY_P8`, `GOOGLE_SERVICE_INFO_PLIST_MAC_BASE64`.  
+App Groups용 Developer ID 프로필이 필요하면 `MAC_PROVISION_PROFILE_APP_BASE64` / `MAC_PROVISION_PROFILE_WIDGET_BASE64`도 추가하세요. 상세는 워크플로 파일 상단 주석을 참고하세요.
+
+로컬에서 plist를 base64로 인코딩하는 예:
+
+```bash
+base64 -i SNUECafeteriaMac/GoogleService-Info.plist | pbcopy
+```
 
 ## 라이선스
 
