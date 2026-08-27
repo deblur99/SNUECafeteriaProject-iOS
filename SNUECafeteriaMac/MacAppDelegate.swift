@@ -12,11 +12,31 @@ extension Notification.Name {
 }
 
 final class MacAppDelegate: NSObject, NSApplicationDelegate {
+    static let mainWindowID = "main"
+
     var pendingOpenTodayTab = false
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         FirebaseApp.configure()
         UNUserNotificationCenter.current().delegate = self
+    }
+
+    /// Dock 클릭 시 기존 단일 창만 앞으로 가져온다. (새 창 생성 없음)
+    func applicationShouldHandleReopen(
+        _ sender: NSApplication,
+        hasVisibleWindows flag: Bool
+    ) -> Bool {
+        if let window = sender.windows.first {
+            if window.isMiniaturized {
+                window.deminiaturize(nil)
+            }
+            window.makeKeyAndOrderFront(nil)
+        }
+        return true
+    }
+
+    func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
+        true
     }
 }
 

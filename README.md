@@ -76,14 +76,17 @@
 - 네이티브 SwiftUI 앱 (Catalyst 아님). 스키마: `SNUECafeteriaMac`
 - NavigationSplitView로 오늘 / 주간 / 설정
 - Firestore·SwiftData 동기화, 로컬 알림, 텍스트·이미지 공유
-- **App Groups 미사용** (샌드박스 TCC 회피). Mac은 앱 단독 SwiftData만 사용
+- **단일 창**: `Window` 씬 + 새 창 메뉴 비활성 · Dock 재오픈 시 기존 창만 전면화 · 마지막 창 닫으면 종료
+- **표시 이름**: `CFBundleDisplayName` / `CFBundleName` = `교대학식` · `PRODUCT_NAME`은 ASCII(`SNUECafeteriaMac`) 유지 (한글 PRODUCT_NAME은 CodeSign NFD/NFC 실패)
+- **위젯**: iOS와 동일 UI (`SNUECafeteriaWidget` 소스 공유) · ExtensionKit 타깃 `SNUECafeteriaMacWidgetExtension`
+- **App Groups**: Mac은 Team ID 접두 `44HRTG996V.com.deblurlab.SNUECafeteriaProject` (iOS `group.`과 별도)
 - 오늘·주간 끼니/날짜 전환: **짧은 페이드** (`MealPeriodTransition`)
 - 주간 달력·알림 시각: 팝오버 + 컴팩트 피커
 - 설정 Form 최대 너비·토글 레이아웃 정리, 오픈소스 목록 스크롤 가능
 - 빈 식단: `MealContentUnavailableView` (다크 ContentUnavailable 카드 회피)
 - 공유 미리보기: 저장(`NSSavePanel`) + 하단 `ShareLink`, 클립보드 복사용 `ProxyRepresentation`
 - 알림 재스케줄 시 **이미 지난 시각은 스킵** (포그라운드 재진입 스팸 방지)
-- Watch·홈 위젯·App Intents는 미포함 (이후 과제)
+- Watch·App Intents 단축어는 미포함 (이후 과제)
 - 최소 배포: macOS 26.0 · 번들 ID: `com.deblurlab.SNUECafeteriaProject.mac`
 - Firebase용 `GoogleService-Info.plist`는 로컬 배치 (콘솔에 Mac 번들 등록 권장)
 
@@ -95,12 +98,12 @@
 ### 데이터 동기화
 - Firebase Firestore에서 식단 데이터 수신
 - SwiftData로 앱 로컬 캐싱, 네트워크 없이도 최근 데이터 사용 가능
-- **iOS**: App Groups로 위젯·App Intents·워치와 식단 캐시 공유 (`AppGroupMealCache`)
-- **macOS**: App Groups 없음 · SwiftData만
+- **iOS**: App Groups로 위젯·App Intents·워치와 식단 캐시 공유 (`group.com.deblurlab…`)
+- **macOS**: Team ID App Group으로 앱↔위젯 캐시 공유 (`44HRTG996V.com.deblurlab…`) · Watch/Intents 없음
 - 중식·석식 시간대는 `MealSchedule`로 앱·위젯·워치·Intents가 공유
 - WatchConnectivityKit으로 iPhone ↔ Apple Watch 식단 동기화
 - 앱 포그라운드 진입 시 자동 동기화
-- Firestore 스냅샷 리스너로 위젯 타임라인 갱신
+- Firestore 스냅샷 리스너로 위젯 타임라인 갱신 (`WidgetCenter.reloadAllTimelines`)
 - 네트워크 미연결 시 오류 안내 후 로컬 데이터 표시
 
 ## 기술 스택
@@ -124,8 +127,8 @@
 SNUECafeteriaProjectiOS/  iOS 진입점·Assets·Info·entitlements·Firebase plist
 SNUECafeteriaProject/     iOS·macOS 공유 앱 계층 (화면, 동기화, 알림, 공유)
 SNUECafeteriaMac/         macOS 진입점·Assets·entitlements·Firebase plist
+SNUECafeteriaWidget/      홈 화면 위젯 (iOS·macOS 공유 소스)
 SNUECafeteriaWatchApp/    Apple Watch 앱
-SNUECafeteriaWidget/      홈 화면 위젯
 Shared/
   Models/                 CachedDayMeal, MealType, MealSchedule
   Cache/                  AppGroupMealCache
@@ -137,6 +140,8 @@ Project.swift             Tuist 프로젝트 정의
 ```
 
 Xcode 프로젝트 파일은 커밋하지 않습니다. `tuist generate`로 생성합니다.
+
+macOS 위젯 확장 번들 ID: `com.deblurlab.SNUECafeteriaProject.mac.widget` (ExtensionKit).
 
 ## 프로젝트 생성
 

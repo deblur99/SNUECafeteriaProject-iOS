@@ -174,7 +174,14 @@ let project = Project(
             deploymentTargets: .macOS("26.0"),
             infoPlist: .extendingDefault(with: [
                 "CFBundleDisplayName": "교대학식",
+                "CFBundleName": "교대학식",
                 "LSApplicationCategoryType": "public.app-category.lifestyle",
+                "CFBundleURLTypes": [
+                    [
+                        "CFBundleURLName": "com.deblurlab.SNUECafeteriaProject.mac",
+                        "CFBundleURLSchemes": ["snuecafeteria"],
+                    ],
+                ],
             ]),
             sources: [
                 "SNUECafeteriaMac/**/*.swift",
@@ -191,6 +198,7 @@ let project = Project(
             ],
             entitlements: "SNUECafeteriaMac/SNUECafeteriaMac.entitlements",
             dependencies: [
+                .target(name: "SNUECafeteriaMacWidgetExtension"),
                 .package(product: "FirebaseCore"),
                 .package(product: "FirebaseFirestore"),
             ],
@@ -205,8 +213,11 @@ let project = Project(
                 "ENABLE_PREVIEWS": "YES",
                 "GENERATE_INFOPLIST_FILE": "YES",
                 "INFOPLIST_KEY_CFBundleDisplayName": "교대학식",
+                "INFOPLIST_KEY_CFBundleName": "교대학식",
                 "INFOPLIST_KEY_LSApplicationCategoryType": "public.app-category.lifestyle",
                 "MACOSX_DEPLOYMENT_TARGET": "26.0",
+                // PRODUCT_NAME에 한글을 쓰면 APFS NFD/NFC 정규화로 CodeSign이
+                // Contents/MacOS/<이름>을 못 찾아 실패한다. 표시명은 CFBundle*로만 둔다.
                 "PRODUCT_NAME": "SNUECafeteriaMac",
                 "STRING_CATALOG_GENERATE_SYMBOLS": "YES",
                 "SWIFT_APPROACHABLE_CONCURRENCY": "YES",
@@ -215,6 +226,61 @@ let project = Project(
                 "SWIFT_STRICT_CONCURRENCY": "complete",
                 "SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY": "YES",
                 "SWIFT_VERSION": "6.0",
+            ])
+        ),
+        .target(
+            name: "SNUECafeteriaMacWidgetExtension",
+            destinations: [.mac],
+            product: .extensionKitExtension,
+            bundleId: "\(bundleID).mac.widget",
+            deploymentTargets: .macOS("26.0"),
+            infoPlist: .extendingDefault(with: [
+                "CFBundleDisplayName": "교대학식",
+                "CFBundleName": "교대학식",
+                "EXAppExtensionAttributes": [
+                    "EXExtensionPointIdentifier": "com.apple.widgetkit-extension",
+                ],
+            ]),
+            sources: [
+                .glob("SNUECafeteriaWidget/**/*.swift"),
+                .glob("Shared/Cache/**/*.swift"),
+                .glob("Shared/Constants/**/*.swift"),
+                .glob("Shared/Models/**/*.swift"),
+                .glob(
+                    "Shared/Extensions/**/*.swift",
+                    excluding: [
+                        "Shared/Extensions/View+PlatformChrome.swift",
+                        "Shared/Extensions/MealPeriodTransition.swift",
+                        "Shared/Extensions/Color+GroupedBackground.swift",
+                    ]
+                ),
+            ],
+            resources: [
+                "SNUECafeteriaWidget/Assets.xcassets",
+            ],
+            entitlements: "SNUECafeteriaMacWidgetExtension.entitlements",
+            dependencies: [
+                .sdk(name: "WidgetKit", type: .framework),
+                .sdk(name: "SwiftUI", type: .framework),
+            ],
+            settings: .settings(base: [
+                "ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME": "AccentColor",
+                "ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME": "WidgetBackground",
+                "CODE_SIGN_IDENTITY": "-",
+                "CODE_SIGN_IDENTITY[sdk=macosx*]": "Apple Development",
+                "CODE_SIGN_STYLE": "Automatic",
+                "DEVELOPMENT_TEAM": .string(teamID),
+                "GENERATE_INFOPLIST_FILE": "YES",
+                "INFOPLIST_KEY_CFBundleDisplayName": "교대학식",
+                "INFOPLIST_KEY_CFBundleName": "교대학식",
+                "MACOSX_DEPLOYMENT_TARGET": "26.0",
+                "PRODUCT_NAME": "SNUECafeteriaMacWidgetExtension",
+                "SKIP_INSTALL": "YES",
+                "STRING_CATALOG_GENERATE_SYMBOLS": "YES",
+                "SWIFT_APPROACHABLE_CONCURRENCY": "YES",
+                "SWIFT_EMIT_LOC_STRINGS": "YES",
+                "SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY": "YES",
+                "SWIFT_VERSION": "5.0",
             ])
         ),
         .target(
@@ -277,7 +343,7 @@ let project = Project(
         .scheme(
             name: "SNUECafeteriaMac",
             shared: true,
-            buildAction: .buildAction(targets: ["SNUECafeteriaMac"]),
+            buildAction: .buildAction(targets: ["SNUECafeteriaMac", "SNUECafeteriaMacWidgetExtension"]),
             runAction: .runAction(executable: "SNUECafeteriaMac")
         ),
     ]

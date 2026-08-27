@@ -29,7 +29,8 @@ struct SNUECafeteriaMacApp: App {
     }()
 
     var body: some Scene {
-        WindowGroup {
+        // WindowGroup 대신 Window: 동일 id의 창을 하나만 유지한다.
+        Window("교대학식", id: MacAppDelegate.mainWindowID) {
             ContentView()
                 .environment(mealRepository)
                 .environment(services)
@@ -40,6 +41,9 @@ struct SNUECafeteriaMacApp: App {
         }
         .modelContainer(sharedModelContainer)
         .defaultSize(width: 960, height: 640)
+        .commands {
+            CommandGroup(replacing: .newItem) {}
+        }
         .onChange(of: scenePhase) { _, newPhase in
             syncIfNeeded(newPhase)
         }
