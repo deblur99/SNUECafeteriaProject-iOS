@@ -24,12 +24,15 @@ struct WatchMealDaySectionView: View {
                     isHoliday: isHoliday,
                     isHighlighted: highlightedMealType == .lunch
                 )
+                .id(WatchMealScrollID.meal(date: date, mealType: .lunch))
+
                 WatchMealCardView(
                     mealType: .dinner,
                     items: meal.sortedDinnerItems,
                     isHoliday: isHoliday,
                     isHighlighted: highlightedMealType == .dinner
                 )
+                .id(WatchMealScrollID.meal(date: date, mealType: .dinner))
             } else {
                 Text("식단 없음")
                     .font(.footnote)
@@ -38,5 +41,16 @@ struct WatchMealDaySectionView: View {
                     .padding(.vertical, 8)
             }
         }
+        .id(WatchMealScrollID.day(date: date))
+    }
+}
+
+enum WatchMealScrollID {
+    static func day(date: Date) -> String {
+        DateFormatter.kstDash.string(from: date)
+    }
+
+    static func meal(date: Date, mealType: MealType) -> String {
+        "\(day(date: date))-\(mealType.rawValue)"
     }
 }
