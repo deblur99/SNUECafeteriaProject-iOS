@@ -158,18 +158,11 @@ struct TodayMealScreen: View {
     }
 
     private func shareCurrentMeal() {
-        guard let meal = showingMeal.meal(from: mealRepository), !meal.isHoliday else { return }
-        let renderer = ImageRenderer(
-            content: MealShareContent(dayMeal: meal).environment(mealRepository)
+        guard let meal = showingMeal.meal(from: mealRepository) else { return }
+        shareableImage = MealShareImageFactory.makeShareableImage(
+            for: meal,
+            mealRepository: mealRepository
         )
-        renderer.scale = 3.0
-        if let uiImage = renderer.uiImage {
-            shareableImage = ShareableImage(
-                uiImage: uiImage,
-                shareDate: meal.date,
-                shareText: MealShareFormatter.text(for: meal.toCachedModel())
-            )
-        }
     }
 }
 

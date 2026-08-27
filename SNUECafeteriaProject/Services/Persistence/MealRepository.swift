@@ -32,31 +32,16 @@ final class MealRepository {
         Set(meals.map { Calendar.kst.startOfDay(for: $0.date) })
     }
 
-    /// 현재 시각 또는 곧 다가올 식사 시간에 해당하는 메뉴와 식사 유형을 반환한다.
-    /// 점심시간은 평일 11:20~13:20, 저녁시간은 평일 17:00~18:00로 정의한다.
-    /// 해당 시간대가 아니거나 오늘 메뉴가 없는 경우 nil을 반환한다.
+    /// 현재 활성 식사 시간대에 해당하는 메뉴와 유형을 반환한다.
+    /// 시간대·메뉴가 없으면 nil. 윈도우는 `MealSchedule`과 동일하다.
     var mealForNow: (meal: DayMeal, type: MealType)? {
         guard let todayMeal else { return nil }
-
-        let nowDate = Date.now
-
-        if todayMeal.hasLunch, !Calendar.kst.isDateInWeekend(nowDate) {
-            let lunchStart = Calendar.kst.date(bySettingHour: 9, minute: 0, second: 0, of: nowDate)!
-            let lunchEnd = Calendar.kst.date(bySettingHour: 13, minute: 20, second: 0, of: nowDate)!
-            if nowDate >= lunchStart, nowDate <= lunchEnd {
-                return (todayMeal, .lunch)
-            }
+        guard let type = MealSchedule.activeMealType() else { return nil }
+        switch type {
+        case .lunch where todayMeal.hasLunch: return (todayMeal, .lunch)
+        case .dinner where todayMeal.hasDinner: return (todayMeal, .dinner)
+        default: return nil
         }
-
-        if todayMeal.hasDinner, !Calendar.kst.isDateInWeekend(nowDate) {
-            let dinnerStart = Calendar.kst.date(bySettingHour: 13, minute: 21, second: 0, of: nowDate)!
-            let dinnerEnd = Calendar.kst.date(bySettingHour: 18, minute: 0, second: 0, of: nowDate)!
-            if nowDate >= dinnerStart, nowDate <= dinnerEnd {
-                return (todayMeal, .dinner)
-            }
-        }
-
-        return nil
     }
 
     /// 특정 날짜의 메뉴를 반환한다. 해당 날짜의 메뉴가 없으면 nil을 반환한다.

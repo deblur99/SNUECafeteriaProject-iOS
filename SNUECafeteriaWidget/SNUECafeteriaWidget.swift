@@ -26,9 +26,9 @@ struct MealEntry: TimelineEntry {
     /// true면 캐시 없음 — 실제 데이터 대신 샘플로 렌더링하고 .redacted 스켈레톤 표시
     var isPlaceholder: Bool = false
 
-    /// 현재 시간 기준으로 가장 가까운 식사 유형 (14시 이전은 중식, 이후는 석식)
+    /// 현재 시간 기준으로 표시할 식사 유형 (`MealSchedule`과 동일)
     var mealType: MealType {
-        Calendar.kst.component(.hour, from: date) < 14 ? .lunch : .dinner
+        MealSchedule.displayMealType(at: date)
     }
 
     /// Small 위젯 배지용 레이블 ("오늘 중식" / "오늘 석식")
@@ -47,10 +47,6 @@ struct MealEntry: TimelineEntry {
 // MARK: - Timeline Provider
 
 struct Provider: TimelineProvider {
-    private let appGroupsDefaults = UserDefaults(
-        suiteName: AppGroupsConfig.groupIdentifier
-    )!
-
     func placeholder(in context: Context) -> MealEntry {
         let samples = CachedDayMeal.sample()
         return MealEntry(date: Date(), todayMeal: samples.first, tomorrowMeal: samples.last)
@@ -64,10 +60,10 @@ struct Provider: TimelineProvider {
     func getTimeline(in context: Context, completion: @escaping (Timeline<MealEntry>) -> ()) {
         let currentDate = Date()
         let calendar = Calendar.kst
+        let meals = AppGroupMealCache.load()
 
-        guard let meals = loadCachedMeals() else {
+        guard !meals.isEmpty else {
             // 앱이 아직 실행되지 않아 캐시 없음: 샘플 데이터 + isPlaceholder로 스켈레톤 표시
-            // 앱 실행 후 reloadAllTimelines()가 호출되면 실제 데이터로 즉시 갱신됨
             let samples = CachedDayMeal.sample()
             let entry = MealEntry(
                 date: currentDate,
@@ -80,11 +76,9 @@ struct Provider: TimelineProvider {
             return
         }
 
-        // toCachedModel()에서 KST 자정으로 정규화된 날짜이므로 isDateInToday/isDate(inSameDayAs:) 비교 가능
         let tomorrowDate = calendar.date(byAdding: .day, value: 1, to: currentDate)!
         let todayMeal = meals.first { calendar.isDateInToday($0.date) }
         let tomorrowMeal = meals.first { calendar.isDate($0.date, inSameDayAs: tomorrowDate) }
-        print("📅 [Widget] 오늘: \(todayMeal == nil ? "없음" : "있음"), 내일: \(tomorrowMeal == nil ? "없음" : "있음")")
 
         let entries = (0 ..< 24).map { offset -> MealEntry in
             let entryDate = calendar.date(byAdding: .hour, value: offset, to: currentDate)!
@@ -93,26 +87,6 @@ struct Provider: TimelineProvider {
 
         let nextRefresh = calendar.date(byAdding: .hour, value: 1, to: currentDate)!
         completion(Timeline(entries: entries, policy: .after(nextRefresh)))
-    }
-
-    /// App Groups의 UserDefaults에서 캐시된 식단 데이터를 불러온다. 앱이 아직 실행되지 않아 데이터가 없거나, 디코딩에 실패하면 nil을 반환한다.
-    private func loadCachedMeals() -> [CachedDayMeal]? {
-        guard let data = appGroupsDefaults.data(forKey: AppGroupsConfig.UserDefaultsKeys.cachedMeals) else {
-            print("⚠️ [Widget] App Groups 캐시 없음 — 앱이 아직 한 번도 실행되지 않은 것으로 추정")
-            return nil
-        }
-        do {
-            let meals = try JSONDecoder().decode([CachedDayMeal].self, from: data)
-            let formatter = DateFormatter()
-            formatter.dateFormat = "yyyy-MM-dd"
-            formatter.timeZone = Calendar.kst.timeZone
-            let dates = meals.map { formatter.string(from: $0.date) }.joined(separator: ", ")
-            print("✅ [Widget] 캐시 로드 성공: \(meals.count)개 [\(dates)]")
-            return meals
-        } catch {
-            print("❌ [Widget] 캐시 디코딩 실패: \(error)")
-            return nil
-        }
     }
 }
 

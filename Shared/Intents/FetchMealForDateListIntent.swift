@@ -23,12 +23,7 @@ struct FetchMealForDateListIntent: AppIntent {
     }
 
     func perform() async throws -> some ReturnsValue<String> & ProvidesDialog {
-        let targetDay = Calendar.kst.startOfDay(for: date)
-        guard let cached = AppGroupMealCache.load()
-            .first(where: { Calendar.kst.startOfDay(for: $0.date) == targetDay })
-        else {
-            throw AppIntentError.noMealFound
-        }
+        let cached = try AppGroupMealCache.meal(on: date)
         let type = mealType.mealType
         let text = MealShareFormatter.text(for: cached, mealType: type)
         let dateStr = DateFormatter.longDateLabel.string(from: cached.date)

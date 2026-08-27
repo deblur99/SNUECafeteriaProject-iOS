@@ -54,29 +54,29 @@ nonisolated enum AppGroupMealCache {
         return !Calendar.kst.isDateInToday(latestCreatedAt)
     }
 
-    /// 현재 시각 기준으로 오늘 중식 또는 석식 중 가장 가까운 식단을 반환한다.
+    /// 특정 날짜(KST 자정 기준)의 식단을 반환한다. 없으면 `noMealFound`.
+    static func meal(on date: Date) throws(AppIntentError) -> CachedDayMeal {
+        let targetDay = Calendar.kst.startOfDay(for: date)
+        guard let cached = load().first(where: { Calendar.kst.startOfDay(for: $0.date) == targetDay })
+        else {
+            throw .noMealFound
+        }
+        return cached
+    }
+
+    /// 현재 시각 기준으로 오늘 중식 또는 석식 중 활성 시간대의 식단을 반환한다.
     /// 식사 시간대가 아니거나 데이터가 없으면 nil을 반환한다.
     static func nearestMeal(from now: Date = .now) -> (meal: CachedDayMeal, type: MealType)? {
+        guard let type = MealSchedule.activeMealType(at: now) else { return nil }
         let meals = load()
         guard let todayMeal = meals.first(where: { Calendar.kst.isDateInToday($0.date) }) else {
             return nil
         }
-
-        guard !Calendar.kst.isDateInWeekend(now) else { return nil }
-
-        if todayMeal.hasLunch {
-            let start = Calendar.kst.date(bySettingHour: 9, minute: 0, second: 0, of: now)!
-            let end = Calendar.kst.date(bySettingHour: 13, minute: 20, second: 0, of: now)!
-            if (start ... end).contains(now) { return (todayMeal, .lunch) }
+        switch type {
+        case .lunch where todayMeal.hasLunch: return (todayMeal, .lunch)
+        case .dinner where todayMeal.hasDinner: return (todayMeal, .dinner)
+        default: return nil
         }
-
-        if todayMeal.hasDinner {
-            let start = Calendar.kst.date(bySettingHour: 13, minute: 21, second: 0, of: now)!
-            let end = Calendar.kst.date(bySettingHour: 18, minute: 0, second: 0, of: now)!
-            if (start ... end).contains(now) { return (todayMeal, .dinner) }
-        }
-
-        return nil
     }
 
     static func resolveNearestMeal(from now: Date = .now) throws(AppIntentError) -> (meal: CachedDayMeal, type: MealType) {
@@ -89,23 +89,15 @@ nonisolated enum AppGroupMealCache {
             throw .noMealFound
         }
 
-        guard hasRemainingScheduleToday(todayMeal: todayMeal, now: now) else {
+        guard MealSchedule.hasRemainingSchedule(
+            hasLunch: todayMeal.hasLunch,
+            hasDinner: todayMeal.hasDinner,
+            at: now
+        ) else {
             throw .noRemainingMealToday
         }
 
         throw .noMealFound
-    }
-
-    private static func hasRemainingScheduleToday(todayMeal: CachedDayMeal, now: Date) -> Bool {
-        guard !Calendar.kst.isDateInWeekend(now) else { return false }
-        guard todayMeal.hasLunch || todayMeal.hasDinner else { return false }
-
-        let lunchEnd = Calendar.kst.date(bySettingHour: 13, minute: 20, second: 0, of: now)!
-        let dinnerEnd = Calendar.kst.date(bySettingHour: 18, minute: 0, second: 0, of: now)!
-
-        if todayMeal.hasLunch, now <= lunchEnd { return true }
-        if todayMeal.hasDinner, now <= dinnerEnd { return true }
-        return false
     }
 }
 

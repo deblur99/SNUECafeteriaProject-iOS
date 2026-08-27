@@ -27,27 +27,29 @@
 ### 오늘 탭
 - 오늘과 내일의 중식·석식 메뉴를 카드 형태로 표시
 - 휴무일, 식단 미등록일에 대한 빈 상태 처리
-- 현재 보고 있는 날짜의 식단을 이미지로 공유
+- 현재 보고 있는 날짜의 식단을 **이미지 또는 텍스트**로 공유 (미리보기에서 모드 전환)
+- 공유 파일명: `SNUECafeteria_Menu_yyyyMMdd.png` / `.txt`
 
 ### 주간 탭
 - 이번 주(월~금) 전체 식단 표시
 - 주차 이동(이전/다음 주) 및 스와이프 전환
 - 달력으로 원하는 주차 직접 선택
 - 데이터 없는 날짜는 달력에서 선택 불가 처리
-- 날짜별 식단 카드에서 이미지 공유
+- 날짜별 식단 카드에서 이미지·텍스트 공유 (오늘 탭과 동일 포맷)
 
 ### 홈 화면 위젯
-- Small: 현재 시각 기준 가장 가까운 오늘 중식 또는 석식
+- Small: 현재 시각 기준 활성 식사(중식 09:00–13:20 / 석식 13:21–18:00, `MealSchedule`과 동일)
 - Medium: 오늘 중식·석식
 - Large: 오늘·내일 중식·석식
 - 위젯 탭 시 앱의 오늘/내일 화면으로 이동 (`snuecafeteria://`)
-- 앱이 아직 실행되지 않아 캐시가 없으면 스켈레톤 플레이스홀더 표시
+- App Groups 캐시(`AppGroupMealCache`)로 로드, 캐시 없으면 스켈레톤 플레이스홀더
 
 ### 시리 · 단축어 (App Intents)
-- 지금 식단 조회 (이미지 / 메뉴 목록)
-- 특정 날짜 식단 조회 (이미지 / 메뉴 목록)
+- 지금 식단 조회 (이미지 / 텍스트)
+- 특정 날짜 식단 조회 (이미지 / 텍스트 / 중·석식별 텍스트)
 - 기간별 식단 조회
 - 선택한 탭으로 앱 열기
+- 텍스트·이미지 포맷은 앱 공유(`MealShareFormatter` / `MealShareExportView`)와 동일
 
 ### 알림 기능
 - **중식 알림**: 식단이 있는 날짜에만 지정 시각 로컬 푸시 (기본 11:30)
@@ -63,15 +65,18 @@
 - 오픈소스 라이선스 목록
 
 ### Apple Watch
-- 이번 주(월~일) 중식·석식 식단 표시
+- **오늘·내일** / **이번 주(월~일)** 목록 모드 전환 (짧은 페이드, 스크롤 애니메이션 없음)
+- 현재 식사로 스크롤 (대상 없으면 오늘 중·석식 glow 폴백)
 - iPhone과 WatchConnectivityKit으로 식단 동기화
-- iPhone 미연결 시 Firestore REST로 독립 동기화 (네트워크 있을 때)
+- iPhone 미연결 시 Firestore REST `runQuery`로 이번 주만 독립 조회
 - 알림 탭 시 해당 날짜·식사로 스크롤
+- Accent color: system blue
 
 ### 데이터 동기화
 - Firebase Firestore에서 식단 데이터 수신
 - SwiftData로 앱 로컬 캐싱, 네트워크 없이도 최근 데이터 사용 가능
-- App Groups로 위젯·App Intents와 식단 캐시 공유
+- App Groups로 위젯·App Intents·워치와 식단 캐시 공유 (`AppGroupMealCache`)
+- 중식·석식 시간대는 `MealSchedule`로 앱·위젯·워치·Intents가 공유
 - WatchConnectivityKit으로 iPhone ↔ Apple Watch 식단 동기화
 - 앱 포그라운드 진입 시 자동 동기화
 - Firestore 스냅샷 리스너로 위젯 타임라인 갱신
@@ -95,10 +100,15 @@
 ## 프로젝트 구조
 
 ```
-SNUECafeteriaProject/     iOS 앱 (화면, 동기화, 알림)
+SNUECafeteriaProject/     iOS 앱 (화면, 동기화, 알림, 공유)
 SNUECafeteriaWatchApp/    Apple Watch 앱
 SNUECafeteriaWidget/      홈 화면 위젯
-Shared/                   앱·워치·위젯 공용 모델, App Groups 캐시, WatchConnectivity, App Intents
+Shared/
+  Models/                 CachedDayMeal, MealType, MealSchedule
+  Intents/                App Intents, AppGroupMealCache
+  Sharing/                MealShareFormatter, MealShareExportView
+  WatchConnectivity/      iPhone ↔ Watch 브릿지
+  Constants/, Extensions/
 Project.swift             Tuist 프로젝트 정의
 ```
 

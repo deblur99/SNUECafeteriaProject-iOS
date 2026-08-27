@@ -21,22 +21,12 @@ struct FetchMealForDateImageIntent: AppIntent {
     }
 
     func perform() async throws -> some ReturnsValue<MealEntity> & ProvidesDialog & ShowsSnippetView {
-        let cached = try cachedMeal(for: date)
+        let cached = try AppGroupMealCache.meal(on: date)
         let entity = MealEntity(from: cached)
         let dateStr = DateFormatter.longDateLabel.string(from: entity.date)
         return .result(value: entity, dialog: "\(dateStr) 식단을 가져왔습니다.") {
             MealShareExportView(meal: cached)
         }
-    }
-
-    private func cachedMeal(for date: Date) throws(AppIntentError) -> CachedDayMeal {
-        let targetDay = Calendar.kst.startOfDay(for: date)
-        guard let cached = AppGroupMealCache.load()
-            .first(where: { Calendar.kst.startOfDay(for: $0.date) == targetDay })
-        else {
-            throw .noMealFound
-        }
-        return cached
     }
 }
 
@@ -52,12 +42,7 @@ struct FetchMealForDateTextIntent: AppIntent {
     }
 
     func perform() async throws -> some ReturnsValue<String> & ProvidesDialog {
-        let targetDay = Calendar.kst.startOfDay(for: date)
-        guard let cached = AppGroupMealCache.load()
-            .first(where: { Calendar.kst.startOfDay(for: $0.date) == targetDay })
-        else {
-            throw AppIntentError.noMealFound
-        }
+        let cached = try AppGroupMealCache.meal(on: date)
         let text = MealShareFormatter.text(for: cached)
         let dateStr = DateFormatter.longDateLabel.string(from: cached.date)
         return .result(value: text, dialog: "\(dateStr) 식단을 가져왔습니다.")

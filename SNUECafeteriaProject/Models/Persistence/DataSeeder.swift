@@ -34,18 +34,14 @@ enum DataSeeder {
     // MARK: - Helpers
 
     private static func seoulDayKey(_ date: Date) -> Int {
-        var cal = Calendar(identifier: .gregorian)
-        cal.timeZone = TimeZone(identifier: "Asia/Seoul")!
-        let c = cal.dateComponents([.year, .month, .day], from: date)
+        let c = Calendar.kst.dateComponents([.year, .month, .day], from: date)
         return (c.year! * 10000) + (c.month! * 100) + c.day!
     }
 
     private static func makeDate(_ year: Int, _ month: Int, _ day: Int) -> Date {
         var c = DateComponents()
         c.year = year; c.month = month; c.day = day
-        var cal = Calendar(identifier: .gregorian)
-        cal.timeZone = TimeZone(identifier: "Asia/Seoul")!
-        return cal.date(from: c)!
+        return Calendar.kst.date(from: c)!
     }
 
     private static func items(_ names: String...) -> [MenuItem] {

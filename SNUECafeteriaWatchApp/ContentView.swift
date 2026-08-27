@@ -210,27 +210,12 @@ struct ContentView: View {
             return WatchNavigationRequest(date: today, mealType: nil)
         }
 
-        if todayMeal.hasLunch {
-            let lunchEnd = Calendar.kst.date(bySettingHour: 13, minute: 20, second: 0, of: now)!
-            if now <= lunchEnd {
-                return WatchNavigationRequest(date: today, mealType: .lunch)
-            }
-        }
-
-        if todayMeal.hasDinner {
-            let dinnerEnd = Calendar.kst.date(bySettingHour: 18, minute: 0, second: 0, of: now)!
-            if now <= dinnerEnd {
-                return WatchNavigationRequest(date: today, mealType: .dinner)
-            }
-        }
-
-        if todayMeal.hasLunch {
-            return WatchNavigationRequest(date: today, mealType: .lunch)
-        }
-        if todayMeal.hasDinner {
-            return WatchNavigationRequest(date: today, mealType: .dinner)
-        }
-        return WatchNavigationRequest(date: today, mealType: nil)
+        let fallback = MealSchedule.fallbackMealType(
+            hasLunch: todayMeal.hasLunch,
+            hasDinner: todayMeal.hasDinner,
+            at: now
+        )
+        return WatchNavigationRequest(date: today, mealType: fallback)
     }
 
     private func scroll(

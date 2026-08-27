@@ -12,6 +12,6 @@ nonisolated enum MealType: String, Codable, CaseIterable {
     case dinner
 
     var label: String { self == .lunch ? "중식" : "석식" }
-    
-    var color: Color { self == .lunch ? .orange : .indigo }
+
+    var color: Color { .mealColor(for: self) }
 }
