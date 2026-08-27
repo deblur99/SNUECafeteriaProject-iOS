@@ -36,6 +36,8 @@ struct SharePreviewSheet: View {
     @Environment(\.dismiss) private var dismiss
     let content: ShareableImage
     @State private var previewMode: SharePreviewMode = .image
+    /// 텍스트 공유용 임시 파일. ShareLink(item: URL)은 경로의 파일명을 그대로 쓴다.
+    @State private var textShareURL: URL?
 
     var body: some View {
         NavigationStack {
@@ -86,6 +88,12 @@ struct SharePreviewSheet: View {
                     .accessibilityLabel(previewMode.toolbarAccessibilityLabel)
                 }
             }
+            .task(id: content.id) {
+                textShareURL = try? TextShareFileWriter.write(
+                    text: content.shareText,
+                    fileName: content.textFilename
+                )
+            }
         }
     }
 
@@ -104,13 +112,19 @@ struct SharePreviewSheet: View {
             }
             .buttonStyle(.glassProminent)
         case .text:
-            ShareLink(
-                item: TransferableTextFile(text: content.shareText, fileName: content.textFilename),
-                preview: SharePreview("서울교대 학식 메뉴")
-            ) {
+            if let textShareURL {
+                ShareLink(
+                    item: textShareURL,
+                    preview: SharePreview("서울교대 학식 메뉴")
+                ) {
+                    shareLabel
+                }
+                .buttonStyle(.glassProminent)
+            } else {
                 shareLabel
+                    .frame(maxWidth: .infinity)
+                    .opacity(0.4)
             }
-            .buttonStyle(.glassProminent)
         }
     }
 
@@ -145,18 +159,15 @@ private struct TransferableImage: Transferable {
     }
 }
 
-/// ShareLink에서 텍스트 파일을 전달하기 위한 Transferable 래퍼
-private struct TransferableTextFile: Transferable {
-    let text: String
-    let fileName: String
-
-    static var transferRepresentation: some TransferRepresentation {
-        DataRepresentation(exportedContentType: .plainText) { item in
-            Data(item.text.utf8)
+private enum TextShareFileWriter {
+    static func write(text: String, fileName: String) throws -> URL {
+        let fileURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent(fileName, isDirectory: false)
+        if FileManager.default.fileExists(atPath: fileURL.path) {
+            try FileManager.default.removeItem(at: fileURL)
         }
-        .suggestedFileName { item in
-            item.fileName
-        }
+        try Data(text.utf8).write(to: fileURL, options: .atomic)
+        return fileURL
     }
 }
 

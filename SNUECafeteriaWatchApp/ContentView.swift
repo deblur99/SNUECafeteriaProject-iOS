@@ -27,6 +27,18 @@ private enum WatchMealListMode {
         case .weekly: "오늘 내일 목록 보기"
         }
     }
+
+    var navigationTitle: String {
+        switch self {
+        case .todayTomorrow: "오늘의 식단"
+        case .weekly: "이번 주 식단"
+        }
+    }
+}
+
+private enum WatchListModeTransition {
+    static let fadeOut: TimeInterval = 0.12
+    static let fadeIn: TimeInterval = 0.16
 }
 
 struct ContentView: View {
@@ -34,20 +46,25 @@ struct ContentView: View {
     @State private var store = WatchMealStore()
     @State private var navigation = WatchNavigationState.shared
     @State private var listMode: WatchMealListMode = .todayTomorrow
+    @State private var listContentOpacity = 1.0
+    @State private var isModeTransitioning = false
 
     var body: some View {
         NavigationStack {
             ScrollViewReader { proxy in
                 ScrollView {
-                    if store.hasCachedMeals {
-                        WatchMealListView(
-                            dates: displayDates,
-                            store: store,
-                            highlightedMealType: highlightedMealType(for:)
-                        )
-                    } else {
-                        WatchMealEmptyStateView()
+                    Group {
+                        if store.hasCachedMeals {
+                            WatchMealListView(
+                                dates: displayDates,
+                                store: store,
+                                highlightedMealType: highlightedMealType(for:)
+                            )
+                        } else {
+                            WatchMealEmptyStateView()
+                        }
                     }
+                    .opacity(listContentOpacity)
                 }
                 .onChange(of: navigation.scrollToken) { _, _ in
                     guard let request = navigation.pendingScrollRequest else { return }
@@ -72,15 +89,16 @@ struct ContentView: View {
                     }
                     ToolbarItem(placement: .topBarTrailing) {
                         Button {
-                            toggleListModePreservingScroll()
+                            toggleListModePreservingScroll(proxy: proxy)
                         } label: {
                             Image(systemName: listMode.toolbarSystemImage)
                         }
                         .accessibilityLabel(listMode.toolbarAccessibilityLabel)
+                        .disabled(isModeTransitioning)
                     }
                 }
             }
-            .navigationTitle("식단")
+            .navigationTitle(listMode.navigationTitle)
             .navigationBarTitleDisplayMode(.inline)
         }
         .task {
@@ -121,15 +139,28 @@ struct ContentView: View {
         }
     }
 
-    /// 목록 모드를 바꾼 뒤, 가능하면 이전 스크롤 대상을 유지하고
-    /// 새 목록에 ID가 없으면 오늘 중식/석식(glow)으로 폴백한다.
-    private func toggleListModePreservingScroll() {
+    /// 목록 모드를 바꾼 뒤 짧은 페이드로 전환하고 glow 대상으로 즉시 스크롤한다.
+    private func toggleListModePreservingScroll(proxy: ScrollViewProxy) {
+        guard !isModeTransitioning else { return }
+        isModeTransitioning = true
         let previousHighlight = navigation.highlightRequest
-        listMode.toggle()
+
+        withAnimation(.easeOut(duration: WatchListModeTransition.fadeOut)) {
+            listContentOpacity = 0
+        }
+
         Task { @MainActor in
-            await Task.yield()
+            try? await Task.sleep(for: .milliseconds(Int(WatchListModeTransition.fadeOut * 1000)))
+            listMode.toggle()
             let target = resolvedScrollRequest(preferring: previousHighlight)
-            navigation.openMeal(on: target.date, mealType: target.mealType)
+            navigation.updateHighlight(on: target.date, mealType: target.mealType)
+            await Task.yield()
+            scroll(to: target, proxy: proxy, animated: false)
+            withAnimation(.easeIn(duration: WatchListModeTransition.fadeIn)) {
+                listContentOpacity = 1
+            }
+            try? await Task.sleep(for: .milliseconds(Int(WatchListModeTransition.fadeIn * 1000)))
+            isModeTransitioning = false
         }
     }
 
@@ -202,7 +233,11 @@ struct ContentView: View {
         return WatchNavigationRequest(date: today, mealType: nil)
     }
 
-    private func scroll(to request: WatchNavigationRequest, proxy: ScrollViewProxy) {
+    private func scroll(
+        to request: WatchNavigationRequest,
+        proxy: ScrollViewProxy,
+        animated: Bool = true
+    ) {
         let target = resolvedScrollRequest(preferring: request)
         if target != request {
             navigation.updateHighlight(on: target.date, mealType: target.mealType)
@@ -216,10 +251,15 @@ struct ContentView: View {
             targetID = dayID
         }
 
-        // 날짜 섹션을 먼저 맞춘 뒤 식사 카드로 이동하면 레이아웃이 더 안정적이다.
-        proxy.scrollTo(dayID, anchor: .top)
-        withAnimation {
+        let scroll = {
+            proxy.scrollTo(dayID, anchor: .top)
             proxy.scrollTo(targetID, anchor: .top)
+        }
+
+        if animated {
+            withAnimation { scroll() }
+        } else {
+            scroll()
         }
     }
 }
