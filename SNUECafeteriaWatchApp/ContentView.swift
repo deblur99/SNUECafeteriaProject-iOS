@@ -72,7 +72,7 @@ struct ContentView: View {
                     }
                     ToolbarItem(placement: .topBarTrailing) {
                         Button {
-                            listMode.toggle()
+                            toggleListModePreservingScroll()
                         } label: {
                             Image(systemName: listMode.toolbarSystemImage)
                         }
@@ -121,9 +121,47 @@ struct ContentView: View {
         }
     }
 
+    /// 목록 모드를 바꾼 뒤, 가능하면 이전 스크롤 대상을 유지하고
+    /// 새 목록에 ID가 없으면 오늘 중식/석식(glow)으로 폴백한다.
+    private func toggleListModePreservingScroll() {
+        let previousHighlight = navigation.highlightRequest
+        listMode.toggle()
+        Task { @MainActor in
+            await Task.yield()
+            let target = resolvedScrollRequest(preferring: previousHighlight)
+            navigation.openMeal(on: target.date, mealType: target.mealType)
+        }
+    }
+
     private func scrollToCurrentMeal() {
         guard let request = currentMealRequest() else { return }
         navigation.openMeal(on: request.date, mealType: request.mealType)
+    }
+
+    /// 선호 대상의 스크롤 ID를 현재 목록에서 찾을 수 없으면 오늘 중식/석식으로 대체한다.
+    private func resolvedScrollRequest(
+        preferring preferred: WatchNavigationRequest?
+    ) -> WatchNavigationRequest {
+        if let preferred, isScrollTargetAvailable(preferred) {
+            return preferred
+        }
+        if let current = currentMealRequest() {
+            return current
+        }
+        let today = Calendar.kst.startOfDay(for: .now)
+        return WatchNavigationRequest(date: today, mealType: .lunch)
+    }
+
+    /// 현재 표시 목록에 해당 날짜(및 식사 카드) 스크롤 ID가 존재하는지 판별한다.
+    private func isScrollTargetAvailable(_ request: WatchNavigationRequest) -> Bool {
+        guard displayDates.contains(where: { Calendar.kst.isDate($0, inSameDayAs: request.date) }) else {
+            return false
+        }
+        // 식사 카드 ID는 meal 데이터가 있을 때만 뷰에 붙는다.
+        if request.mealType != nil {
+            return store.meal(for: request.date) != nil
+        }
+        return true
     }
 
     /// 현재 시점의 오늘 중식/석식 대상으로 스크롤 요청을 만든다.
@@ -165,10 +203,15 @@ struct ContentView: View {
     }
 
     private func scroll(to request: WatchNavigationRequest, proxy: ScrollViewProxy) {
-        let dayID = WatchMealScrollID.day(date: request.date)
+        let target = resolvedScrollRequest(preferring: request)
+        if target != request {
+            navigation.updateHighlight(on: target.date, mealType: target.mealType)
+        }
+
+        let dayID = WatchMealScrollID.day(date: target.date)
         let targetID: String
-        if let mealType = request.mealType {
-            targetID = WatchMealScrollID.meal(date: request.date, mealType: mealType)
+        if let mealType = target.mealType, store.meal(for: target.date) != nil {
+            targetID = WatchMealScrollID.meal(date: target.date, mealType: mealType)
         } else {
             targetID = dayID
         }

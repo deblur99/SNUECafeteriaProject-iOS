@@ -28,6 +28,12 @@ final class WatchNavigationState {
         scrollToken &+= 1
     }
 
+    /// 스크롤을 다시 걸지 않고 하이라이트(glow)만 갱신한다.
+    func updateHighlight(on date: Date, mealType: MealType?) {
+        let normalizedDate = Calendar.kst.startOfDay(for: date)
+        highlightRequest = WatchNavigationRequest(date: normalizedDate, mealType: mealType)
+    }
+
     func openWeeklyUpdate() {
         openMeal(on: .now, mealType: nil)
     }

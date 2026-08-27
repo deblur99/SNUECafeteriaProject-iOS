@@ -5,7 +5,8 @@
 
 import Foundation
 
-/// watchOS는 Firebase SDK Firestore를 지원하지 않아 REST API로 `meals` 컬렉션을 가져온다.
+/// watchOS는 Firebase SDK Firestore를 지원하지 않아 REST API로 `meals`를 가져온다.
+/// 독립 모드에서는 워치에 필요한 이번 주(월~일, KST) 문서만 `runQuery`로 요청한다.
 nonisolated enum WatchFirestoreRESTFetcher {
     enum FetchError: Error {
         case missingConfiguration
@@ -13,19 +14,34 @@ nonisolated enum WatchFirestoreRESTFetcher {
         case requestFailed(Int)
     }
 
-    static func fetchCachedMeals() async throws -> [CachedDayMeal] {
+    static func fetchCachedMeals(for referenceDate: Date = .now) async throws -> [CachedDayMeal] {
         guard let config = loadConfiguration() else { throw FetchError.missingConfiguration }
+        guard let weekInterval = Calendar.kstWeekInterval(for: referenceDate) else {
+            throw FetchError.invalidResponse
+        }
 
-        var components = URLComponents(string: "https://firestore.googleapis.com/v1/projects/\(config.projectID)/databases/(default)/documents/meals")!
+        var components = URLComponents(
+            string: "https://firestore.googleapis.com/v1/projects/\(config.projectID)/databases/(default)/documents:runQuery"
+        )!
         components.queryItems = [URLQueryItem(name: "key", value: config.apiKey)]
         guard let url = components.url else { throw FetchError.invalidResponse }
 
-        let (data, response) = try await URLSession.shared.data(from: url)
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try JSONEncoder().encode(
+            RunQueryRequest.weekRange(from: weekInterval.start, until: weekInterval.end)
+        )
+
+        let (data, response) = try await URLSession.shared.data(for: request)
         guard let http = response as? HTTPURLResponse else { throw FetchError.invalidResponse }
         guard (200 ... 299).contains(http.statusCode) else { throw FetchError.requestFailed(http.statusCode) }
 
-        let decoded = try JSONDecoder().decode(FirestoreDocumentsResponse.self, from: data)
-        let meals = (decoded.documents ?? []).compactMap(parseMeal(document:))
+        let rows = try JSONDecoder().decode([FirestoreRunQueryRow].self, from: data)
+        let meals = rows.compactMap { row -> CachedDayMeal? in
+            guard let document = row.document else { return nil }
+            return parseMeal(document: document)
+        }
         return meals.sorted { $0.date < $1.date }
     }
 
@@ -75,8 +91,117 @@ nonisolated enum WatchFirestoreRESTFetcher {
     }
 }
 
-private nonisolated struct FirestoreDocumentsResponse: Decodable {
-    let documents: [FirestoreRESTDocument]?
+// MARK: - Request
+
+private nonisolated struct RunQueryRequest: Encodable {
+    let structuredQuery: StructuredQuery
+
+    static func weekRange(from start: Date, until endExclusive: Date) -> RunQueryRequest {
+        RunQueryRequest(
+            structuredQuery: StructuredQuery(
+                from: [CollectionSelector(collectionId: "meals")],
+                where: CompositeWhere(
+                    compositeFilter: CompositeFilter(
+                        op: "AND",
+                        filters: [
+                            .field(
+                                path: "date",
+                                op: "GREATER_THAN_OR_EQUAL",
+                                timestamp: WatchFirestoreRESTFetcherTimestamp.string(start)
+                            ),
+                            .field(
+                                path: "date",
+                                op: "LESS_THAN",
+                                timestamp: WatchFirestoreRESTFetcherTimestamp.string(endExclusive)
+                            ),
+                        ]
+                    )
+                ),
+                orderBy: [
+                    OrderBy(
+                        field: FieldReference(fieldPath: "date"),
+                        direction: "ASCENDING"
+                    ),
+                ]
+            )
+        )
+    }
+}
+
+/// `ISO8601DateFormatter`를 요청 인코딩 경로에서 재사용하기 위한 헬퍼.
+private nonisolated enum WatchFirestoreRESTFetcherTimestamp {
+    static func string(_ date: Date) -> String {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime]
+        return formatter.string(from: date)
+    }
+}
+
+private nonisolated struct StructuredQuery: Encodable {
+    let from: [CollectionSelector]
+    let `where`: CompositeWhere
+    let orderBy: [OrderBy]
+}
+
+private nonisolated struct CollectionSelector: Encodable {
+    let collectionId: String
+}
+
+private nonisolated struct CompositeWhere: Encodable {
+    let compositeFilter: CompositeFilter
+}
+
+private nonisolated struct CompositeFilter: Encodable {
+    let op: String
+    let filters: [QueryFilter]
+}
+
+private nonisolated enum QueryFilter: Encodable {
+    case field(path: String, op: String, timestamp: String)
+
+    private enum CodingKeys: String, CodingKey {
+        case fieldFilter
+    }
+
+    private struct FieldFilterBody: Encodable {
+        let field: FieldReference
+        let op: String
+        let value: TimestampValue
+    }
+
+    private struct TimestampValue: Encodable {
+        let timestampValue: String
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        switch self {
+        case let .field(path, op, timestamp):
+            try container.encode(
+                FieldFilterBody(
+                    field: FieldReference(fieldPath: path),
+                    op: op,
+                    value: TimestampValue(timestampValue: timestamp)
+                ),
+                forKey: .fieldFilter
+            )
+        }
+    }
+}
+
+private nonisolated struct FieldReference: Encodable {
+    let fieldPath: String
+}
+
+private nonisolated struct OrderBy: Encodable {
+    let field: FieldReference
+    let direction: String
+}
+
+// MARK: - Response
+
+private nonisolated struct FirestoreRunQueryRow: Decodable {
+    let document: FirestoreRESTDocument?
 }
 
 private nonisolated struct FirestoreRESTDocument: Decodable {

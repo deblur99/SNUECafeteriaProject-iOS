@@ -8,7 +8,7 @@ import WatchConnectivityKit
 
 /// Watch 식단 데이터 동기화 전략:
 /// - iPhone 페어링·companion 가능: WatchConnectivity 우선
-/// - 페어링 끊김 + 네트워크: Firestore에서 직접 가져와 App Group 저장
+/// - 페어링 끊김 + 네트워크: Firestore REST로 이번 주(월~일)만 조회 후 App Group 저장
 /// - 페어링 끊김 + 오프라인: App Group 로컬 캐시 사용
 @MainActor
 final class WatchMealDataCoordinator {
