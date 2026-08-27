@@ -31,10 +31,10 @@ private struct WeekPaneView: View {
 
     var body: some View {
         if days.isEmpty {
-            ContentUnavailableView(
-                "식단 정보 없음",
+            MealContentUnavailableView(
+                title: "식단 정보 없음",
                 systemImage: "fork.knife",
-                description: Text("해당 주의 식단 정보가 없습니다.")
+                description: "해당 주의 식단 정보가 없습니다."
             )
         } else {
             GeometryReader { geometry in
@@ -59,6 +59,9 @@ private struct WeekPaneView: View {
                 // scrollPosition.get이 days.first를 fallback으로 반환하므로
                 // .id(weekStartDate)로 강제 재생성 없이도 scroll bleeding이 발생하지 않는다
                 .scrollPosition(id: $scrollPosition, anchor: .top)
+                #if os(macOS)
+                .transaction { $0.animation = nil }
+                #endif
                 .scrollDisabled(dragAxis == .horizontal || isNavigating)
             }
         }
@@ -88,115 +91,120 @@ struct WeekMealScreen: View {
     @State private var selectedDate: Date = Calendar.kst.startOfDay(for: Date())
     @State private var isSheetPresented: Bool = false
     /// 주차별 스크롤 위치 (키: 주의 시작일, 값: 뷰포트 상단에 위치한 날짜)
-    /// - 사용자 스크롤: LazyVGrid에 scrollTargetLayout()를 달면 partial-visible 카드도 추적
-    /// - 시트/툴바 이동: 해당 날짜를 직접 저장 → scrollPosition(id:anchor:)로 이동
     @State private var scrollPositions: [Date: Date] = [:]
-    /// 드래그 또는 애니메이션 전환 중인 수평 오프셋
+    /// 드래그 또는 애니메이션 전환 중인 수평 오프셋 (iOS 3-pane)
     @State private var dragOffset: CGFloat = 0
-    /// GeometryReader에서 측정한 뷰 너비 (초기값: iPhone 기본 너비)
     @State private var viewWidth: CGFloat = 390
     @State private var isNavigating: Bool = false
-    /// 스크롤 중 방향 가져와서 ScrollView의 스크롤을 방지하며 좌우 전환하도록 해주는 상태 변수
     @State private var dragAxis: DragAxis? = nil
-    /// 툴바/시트 전환 시 인접 pane에 표시할 임시 목적지 날짜
+    /// 툴바/시트 전환 시 인접 pane에 표시할 임시 목적지 날짜 (iOS)
     @State private var transitionDate: Date? = nil
-    /// 전환 중 입력된 다음 스와이프 방향 (true: 다음 주, false: 이전 주)
     @State private var pendingNavigation: Bool? = nil
+    #if os(macOS)
+    @State private var contentOpacity = 1.0
+    #endif
 
     var body: some View {
         NavigationStack {
-            GeometryReader { geo in
-                // 3-pane HStack: [이전 주 | 현재 주 | 다음 주]
-                // offset(x: -w) 기준으로 현재 주(item[1])를 화면에 표시
-                // dragOffset이 변함에 따라 인접 pane이 실시간으로 슬라이드됨
-                HStack(spacing: 0) {
-                    weekPaneView(for: prevPaneDate).frame(width: geo.size.width)
-                    weekPaneView(for: selectedDate).frame(width: geo.size.width)
-                    weekPaneView(for: nextPaneDate).frame(width: geo.size.width)
-                }
-                .offset(x: -geo.size.width + dragOffset)
+            weekContent
+                .clipped()
+                .background(Color.groupedBackground)
+                .inlineNavigationTitle()
+                .toolbar(content: toolbarContent)
+                .modifier(WeekDatePickerPresentation(
+                    isPresented: $isSheetPresented,
+                    selectedDate: selectedDate,
+                    availableDates: mealRepository.availableDates,
+                    onSelect: applyDatePickerSelection
+                ))
+                .simultaneousGesture(weekSwipeGesture)
+        }
+    }
+
+    @ViewBuilder
+    private var weekContent: some View {
+        #if os(iOS)
+        GeometryReader { geo in
+            // iOS: 3-pane 슬라이드 — 세로 ScrollView와 축 분리로 기존 스크롤 유지
+            HStack(spacing: 0) {
+                weekPaneView(for: prevPaneDate).frame(width: geo.size.width)
+                weekPaneView(for: selectedDate).frame(width: geo.size.width)
+                weekPaneView(for: nextPaneDate).frame(width: geo.size.width)
+            }
+            .offset(x: -geo.size.width + dragOffset)
+            .onAppear { viewWidth = geo.size.width }
+            .onChange(of: geo.size.width) { _, new in
+                viewWidth = new
+                dragOffset = 0
+            }
+        }
+        #else
+        GeometryReader { geo in
+            weekPaneView(for: selectedDate)
+                .id(weekStart(for: selectedDate))
+                .animation(nil, value: weekStart(for: selectedDate))
+                .frame(width: geo.size.width)
+                .opacity(contentOpacity)
                 .onAppear { viewWidth = geo.size.width }
                 .onChange(of: geo.size.width) { _, new in
                     viewWidth = new
-                    dragOffset = 0
                 }
-            }
-            .clipped()
-            .background(Color(uiColor: .systemGroupedBackground))
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar(content: toolbarContent)
-            .sheet(isPresented: $isSheetPresented) {
-                WeekDatePickerModal(
-                    initialDate: selectedDate,
-                    availableDates: mealRepository.availableDates
-                ) { date in
-                    let newDate = Calendar.kst.startOfDay(for: date)
-                    // 목적지 주의 스크롤 위치를 해당 날짜 카드로 미리 지정
-                    scrollPositions[weekStart(for: newDate)] = newDate
-                    navigateTo(newDate)
-                }
-            }
-            .simultaneousGesture(
-                DragGesture(minimumDistance: 20)
-                    .onChanged { value in
-                        // 첫 이벤트: 방향만 결정하고 offset은 아직 건드리지 않음
-                        // isNavigating 여부와 관계없이 항상 축을 결정해야
-                        // 두 번째 제스처의 onEnded에서 축 정보가 nil이 되는 문제를 방지
-                        if dragAxis == nil {
-                            let h = abs(value.translation.width)
-                            let v = abs(value.translation.height)
-                            dragAxis = h > v ? .horizontal : .vertical
-                            print("Drag started. Axis: \(dragAxis!), translation: \(value.translation)")
-                            return
-                        }
-                        guard !isNavigating else { return }
-                        guard dragAxis == .horizontal else { return }
-                        let dx = value.translation.width
-                        // 해당 방향에 데이터가 없으면 드래그 차단
-                        if dx > 0 && nearestPrevDate == nil { return }
-                        if dx < 0 && nearestNextDate == nil { return }
-                        dragOffset = dx
-                        print("Dragging. Axis: \(dragAxis!), translation: \(value.translation), offset: \(dragOffset)")
-                    }
-                    .onEnded { value in
-                        print("Drag ended. translation: \(value.translation), velocity: \(value.velocity)")
-                        let axis = dragAxis
-                        dragAxis = nil
-
-                        let translation = value.translation.width
-                        let velocity = value.velocity.width
-                        let posThreshold = viewWidth * 0.35
-                        let velThreshold: CGFloat = 500
-                        let shouldGoForward = axis == .horizontal && (translation < -posThreshold || velocity < -velThreshold)
-                        let shouldGoBackward = axis == .horizontal && (translation > posThreshold || velocity > velThreshold)
-
-                        if isNavigating {
-                            // 전환 중 발생한 스와이프는 큐에 저장해 전환 완료 후 즉시 실행
-                            if shouldGoForward { pendingNavigation = true }
-                            else if shouldGoBackward { pendingNavigation = false }
-                            return
-                        }
-
-                        if shouldGoForward {
-                            commitNavigation(forward: true)
-                            print("Commit navigation forward. translation: \(translation), velocity: \(velocity)")
-                        } else if shouldGoBackward {
-                            commitNavigation(forward: false)
-                            print("Commit navigation backward. translation: \(translation), velocity: \(velocity)")
-                        } else {
-                            withAnimation(.spring(bounce: 0)) { dragOffset = 0 }
-                            print("Snap back. translation: \(translation), velocity: \(velocity)")
-                        }
-                    }
-            )
         }
+        #endif
+    }
+
+    private var weekSwipeGesture: some Gesture {
+        DragGesture(minimumDistance: 20)
+            .onChanged { value in
+                if dragAxis == nil {
+                    let h = abs(value.translation.width)
+                    let v = abs(value.translation.height)
+                    dragAxis = h > v ? .horizontal : .vertical
+                    return
+                }
+                #if os(iOS)
+                guard !isNavigating else { return }
+                guard dragAxis == .horizontal else { return }
+                let dx = value.translation.width
+                if dx > 0 && nearestPrevDate == nil { return }
+                if dx < 0 && nearestNextDate == nil { return }
+                dragOffset = dx
+                #endif
+            }
+            .onEnded { value in
+                let axis = dragAxis
+                dragAxis = nil
+
+                let translation = value.translation.width
+                let velocity = value.velocity.width
+                let posThreshold = viewWidth * 0.35
+                let velThreshold: CGFloat = 500
+                let shouldGoForward = axis == .horizontal && (translation < -posThreshold || velocity < -velThreshold)
+                let shouldGoBackward = axis == .horizontal && (translation > posThreshold || velocity > velThreshold)
+
+                if isNavigating {
+                    if shouldGoForward { pendingNavigation = true }
+                    else if shouldGoBackward { pendingNavigation = false }
+                    return
+                }
+
+                if shouldGoForward {
+                    commitNavigation(forward: true)
+                } else if shouldGoBackward {
+                    commitNavigation(forward: false)
+                } else {
+                    #if os(iOS)
+                    withAnimation(.spring(bounce: 0)) { dragOffset = 0 }
+                    #endif
+                }
+            }
     }
 
     // MARK: Toolbar
 
     @ToolbarContentBuilder
     private func toolbarContent() -> some ToolbarContent {
-        ToolbarItem(placement: .title) {
+        ToolbarItem(placement: .principal) {
             WeekSelectorView(
                 selectedDate: Binding(
                     get: { selectedDate },
@@ -204,12 +212,67 @@ struct WeekMealScreen: View {
                 ),
                 availableDates: mealRepository.availableDates
             )
+            .disabled(isNavigating)
         }
-        ToolbarItem(placement: .topBarTrailing) {
-            Button("날짜 선택", systemImage: "calendar") {
-                isSheetPresented.toggle()
-            }
+        ToolbarItem(placement: .primaryAction) {
+            WeekDatePickerToolbarButton(
+                isPresented: $isSheetPresented,
+                selectedDate: selectedDate,
+                availableDates: mealRepository.availableDates,
+                onSelect: applyDatePickerSelection
+            )
+            .disabled(isNavigating)
         }
+    }
+
+    private func applyDatePickerSelection(_ date: Date) {
+        let newDate = Calendar.kst.startOfDay(for: date)
+        scrollPositions[weekStart(for: newDate)] = newDate
+        navigateTo(newDate)
+    }
+}
+
+private struct WeekDatePickerToolbarButton: View {
+    @Binding var isPresented: Bool
+    let selectedDate: Date
+    let availableDates: Set<Date>
+    let onSelect: (Date) -> Void
+
+    var body: some View {
+        Button("날짜 선택", systemImage: "calendar") {
+            isPresented.toggle()
+        }
+        #if os(macOS)
+        .popover(isPresented: $isPresented, arrowEdge: .bottom) {
+            WeekDatePickerModal(
+                initialDate: selectedDate,
+                availableDates: availableDates,
+                onSelectedWeek: onSelect
+            )
+        }
+        #endif
+    }
+}
+
+/// iOS sheet 전용. macOS는 툴바 버튼 팝오버를 쓴다.
+private struct WeekDatePickerPresentation: ViewModifier {
+    @Binding var isPresented: Bool
+    let selectedDate: Date
+    let availableDates: Set<Date>
+    let onSelect: (Date) -> Void
+
+    func body(content: Content) -> some View {
+        #if os(macOS)
+        content
+        #else
+        content.sheet(isPresented: $isPresented) {
+            WeekDatePickerModal(
+                initialDate: selectedDate,
+                availableDates: availableDates,
+                onSelectedWeek: onSelect
+            )
+        }
+        #endif
     }
 }
 
@@ -228,28 +291,26 @@ private extension WeekMealScreen {
         return mealRepository.availableDates.filter { $0 >= interval.end }.min()
     }
 
-    /// 이전 pane에 표시할 날짜: 툴바/시트 전환 시 목적지가 이전 주이면 해당 날짜를 사용
+    /// 이전 pane에 표시할 날짜 (iOS 3-pane)
     var prevPaneDate: Date {
         if let t = transitionDate, t < selectedDate { return t }
         return nearestPrevDate ?? Calendar.kst.date(byAdding: .day, value: -7, to: selectedDate) ?? selectedDate
     }
 
-    /// 다음 pane에 표시할 날짜: 툴바/시트 전환 시 목적지가 다음 주이면 해당 날짜를 사용
+    /// 다음 pane에 표시할 날짜 (iOS 3-pane)
     var nextPaneDate: Date {
         if let t = transitionDate, t > selectedDate { return t }
         return nearestNextDate ?? Calendar.kst.date(byAdding: .day, value: 7, to: selectedDate) ?? selectedDate
     }
 
-    /// 드래그 제스처 완료 후 데이터가 있는 가장 가까운 주로 페이지 전환
-    /// 해당 방향에 데이터가 없으면 원위치로 스냅백
     func commitNavigation(forward: Bool) {
+        #if os(iOS)
         guard !isNavigating else { return }
         guard let targetDate = forward ? nearestNextDate : nearestPrevDate else {
             withAnimation(.spring) { dragOffset = 0 }
             return
         }
         isNavigating = true
-        // bounce: 0 → 오버슈트 없이 부드럽게 슬라이드 완료
         withAnimation(.spring(duration: 0.3, bounce: 0)) {
             dragOffset = forward ? -viewWidth : viewWidth
         }
@@ -257,27 +318,29 @@ private extension WeekMealScreen {
             try? await Task.sleep(for: .seconds(0.35))
             await MainActor.run {
                 let pending = pendingNavigation
-                // animation: nil → scrollPosition(id:)
                 withTransaction(Transaction(animation: nil)) {
                     selectedDate = Calendar.kst.startOfDay(for: targetDate)
                     dragOffset = 0
                     isNavigating = false
                     pendingNavigation = nil
                 }
-                // 전환 중 입력된 다음 스와이프가 있으면 즉시 연속 실행
                 if let next = pending {
                     commitNavigation(forward: next)
                 }
             }
         }
+        #else
+        guard let targetDate = forward ? nearestNextDate : nearestPrevDate else { return }
+        navigateTo(Calendar.kst.startOfDay(for: targetDate))
+        #endif
     }
 
-    /// 툴바/시트에서 임의 날짜로 슬라이드 전환
-    /// transitionDate로 인접 pane 내용을 목적지로 덮어쓴 후 슬라이드 인
     func navigateTo(_ newDate: Date) {
         guard !isNavigating else { return }
         let target = Calendar.kst.startOfDay(for: newDate)
         guard target != selectedDate else { return }
+
+        #if os(iOS)
         let forward = target > selectedDate
         isNavigating = true
         transitionDate = target
@@ -295,6 +358,20 @@ private extension WeekMealScreen {
                 }
             }
         }
+        #else
+        isNavigating = true
+        Task { @MainActor in
+            let pending = pendingNavigation
+            await MealPeriodTransition.run(opacity: $contentOpacity) {
+                selectedDate = target
+                pendingNavigation = nil
+            }
+            isNavigating = false
+            if let next = pending {
+                commitNavigation(forward: next)
+            }
+        }
+        #endif
     }
 }
 

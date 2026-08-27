@@ -25,6 +25,33 @@ struct TimeDatePickerModal: View {
     }
 
     var body: some View {
+        #if os(macOS)
+        VStack(alignment: .leading, spacing: 12) {
+            Text("알림 시간 변경")
+                .font(.headline)
+
+            DatePicker(
+                "알림 시간 선택",
+                selection: $selectedTime,
+                displayedComponents: [.hourAndMinute]
+            )
+            .datePickerStyle(.stepperField)
+            .labelsHidden()
+
+            HStack {
+                Spacer()
+                Button("취소") { dismiss() }
+                    .keyboardShortcut(.cancelAction)
+                Button("완료") {
+                    onSelectedTime(selectedTime)
+                    dismiss()
+                }
+                .keyboardShortcut(.defaultAction)
+            }
+        }
+        .padding(16)
+        .fixedSize()
+        #else
         NavigationStack {
             DatePicker(
                 "알림 시간 선택",
@@ -34,24 +61,23 @@ struct TimeDatePickerModal: View {
             .datePickerStyle(.wheel)
             .labelsHidden()
             .navigationTitle("알림 시간 선택")
-            .navigationBarTitleDisplayMode(.inline)
-            .presentationDetents([.medium])
+            .inlineNavigationTitle()
+            .platformPresentationDetents([.medium])
             .toolbar {
-                // 좌측 취소 버튼: 실수로 들어온 경우를 대비해 안정감을 줍니다.
-                ToolbarItem(placement: .topBarLeading) {
+                ToolbarItem(placement: .cancellationAction) {
                     Button(role: .cancel) {
                         dismiss()
                     }
                 }
 
-                ToolbarItem(placement: .topBarTrailing) {
+                ToolbarItem(placement: .confirmationAction) {
                     Button(role: .confirm) {
                         onSelectedTime(selectedTime)
                         dismiss()
                     }
                 }
 
-                ToolbarItem(placement: .title) {
+                ToolbarItem(placement: .principal) {
                     VStack {
                         Text("알림 시간 변경")
                             .font(.headline)
@@ -63,6 +89,7 @@ struct TimeDatePickerModal: View {
                 }
             }
         }
+        #endif
     }
 }
 

@@ -7,7 +7,12 @@
 
 import SwiftData
 import SwiftUI
+#if os(iOS)
 import UIKit
+#endif
+#if os(macOS)
+import AppKit
+#endif
 
 enum AppTab: Hashable {
     case today, week, settings
@@ -20,6 +25,34 @@ struct ContentView: View {
     @State private var todayPage: ShowingMeal = .today
 
     var body: some View {
+        #if os(macOS)
+        NavigationSplitView {
+            List(selection: $selectedTab) {
+                Label("오늘", systemImage: "sun.max").tag(AppTab.today)
+                Label("주간", systemImage: "calendar").tag(AppTab.week)
+                Label("설정", systemImage: "gear").tag(AppTab.settings)
+            }
+            .navigationSplitViewColumnWidth(min: 160, ideal: 180)
+        } detail: {
+            detailContent
+        }
+        .task { handleLaunchNavigation() }
+        .onChange(of: scenePhase) { _, newPhase in
+            guard newPhase == .active else { return }
+            applyPendingIntentNavigation()
+            consumePendingOpenTodayTab()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .openTodayTab)) { _ in
+            selectedTab = .today
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .openAppTab)) { notification in
+            guard let rawValue = notification.object as? String else { return }
+            applyTabNavigation(rawValue: rawValue)
+        }
+        .onOpenURL { url in
+            handleDeepLink(url)
+        }
+        #else
         TabView(selection: $selectedTab) {
             Tab("오늘", systemImage: "sun.max", value: AppTab.today) {
                 TodayMealScreen(showingMeal: $todayPage)
@@ -33,15 +66,7 @@ struct ContentView: View {
                 SettingsScreen()
             }
         }
-        .task {
-            // 킬 상태에서 알림으로 진입한 경우 오늘 탭으로 이동
-            if let delegate = UIApplication.shared.delegate as? AppDelegate,
-               delegate.pendingOpenTodayTab {
-                selectedTab = .today
-                delegate.pendingOpenTodayTab = false
-            }
-            applyPendingIntentNavigation()
-        }
+        .task { handleLaunchNavigation() }
         .onChange(of: scenePhase) { _, newPhase in
             guard newPhase == .active else { return }
             applyPendingIntentNavigation()
@@ -54,17 +79,55 @@ struct ContentView: View {
             applyTabNavigation(rawValue: rawValue)
         }
         .onOpenURL { url in
-            guard url.scheme == "snuecafeteria" else { return }
-            switch url.host {
-            case "today":
-                selectedTab = .today
-                todayPage = .today
-            case "tomorrow":
-                selectedTab = .today
-                todayPage = .tomorrow
-            default:
-                break
-            }
+            handleDeepLink(url)
+        }
+        #endif
+    }
+
+    @ViewBuilder
+    private var detailContent: some View {
+        switch selectedTab {
+        case .today:
+            TodayMealScreen(showingMeal: $todayPage)
+        case .week:
+            WeekMealScreen()
+        case .settings:
+            SettingsScreen()
+        }
+    }
+
+    private func handleLaunchNavigation() {
+        consumePendingOpenTodayTab()
+        applyPendingIntentNavigation()
+    }
+
+    private func consumePendingOpenTodayTab() {
+        #if os(iOS)
+        if let delegate = UIApplication.shared.delegate as? AppDelegate,
+           delegate.pendingOpenTodayTab {
+            selectedTab = .today
+            delegate.pendingOpenTodayTab = false
+        }
+        #elseif os(macOS)
+        if let delegate = NSApp.delegate as? MacAppDelegate,
+           delegate.pendingOpenTodayTab {
+            selectedTab = .today
+            delegate.pendingOpenTodayTab = false
+        }
+        #endif
+    }
+
+    private func handleDeepLink(_ url: URL) {
+        guard url.scheme == "snuecafeteria" else { return }
+        switch url.host {
+        case "today":
+            selectedTab = .today
+            todayPage = .today
+        case "tomorrow":
+            selectedTab = .today
+            todayPage = .tomorrow
+        default:
+            break
         }
     }
 

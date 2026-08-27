@@ -14,12 +14,17 @@ nonisolated enum AppGroupMealCache {
     private static nonisolated(unsafe) var cachedDefaults: UserDefaults?
 
     private static var defaults: UserDefaults? {
+        #if os(macOS)
+        // App Group suite 접근이 macOS TCC("다른 앱의 데이터")를 유발하므로 사용하지 않음
+        return nil
+        #else
         lock.lock()
         defer { lock.unlock() }
         if cachedDefaults == nil {
             cachedDefaults = UserDefaults(suiteName: AppGroupsConfig.groupIdentifier)
         }
         return cachedDefaults
+        #endif
     }
 
     static func load() -> [CachedDayMeal] {

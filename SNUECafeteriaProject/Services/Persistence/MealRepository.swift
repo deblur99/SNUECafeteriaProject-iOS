@@ -7,7 +7,9 @@
 
 import Foundation
 import SwiftData
+#if os(iOS)
 import WidgetKit
+#endif
 
 /// 식단 데이터의 단일 진입점.
 /// Firestore 동기화 → SwiftData 저장 → 앱 상태 갱신 → App Groups 동기화 → 위젯 갱신까지
@@ -92,10 +94,15 @@ final class MealRepository {
     // MARK: - Private
 
     private func writeToAppGroups() {
+        #if os(macOS)
+        // Mac은 Widget/Watch App Group을 쓰지 않음 — 접근 시 TCC("다른 앱의 데이터")가 뜸
+        return
+        #else
         let cachedMeals = meals.map { $0.toCachedModel() }
         guard AppGroupMealCache.save(cachedMeals) else { return }
         WatchMealConnectivityBootstrap.pushMeals(cachedMeals)
         WidgetCenter.shared.reloadAllTimelines()
         print("✅ App Groups에 식단 데이터 저장 완료 (\(cachedMeals.count)일치)")
+        #endif
     }
 }

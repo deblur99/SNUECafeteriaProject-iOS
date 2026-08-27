@@ -50,7 +50,7 @@ struct MealShareExportView: View {
         }
         .padding(14)
         .frame(width: Self.exportWidth)
-        .background(Color(uiColor: .systemGroupedBackground))
+        .background(Color.groupedBackground)
     }
 }
 
@@ -86,7 +86,7 @@ struct MealShareNearestExportView: View {
         }
         .padding(14)
         .frame(width: MealShareExportView.exportWidth)
-        .background(Color(uiColor: .systemGroupedBackground))
+        .background(Color.groupedBackground)
     }
 }
 

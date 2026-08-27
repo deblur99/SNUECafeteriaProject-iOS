@@ -31,17 +31,18 @@ let project = Project(
             product: .app,
             bundleId: bundleID,
             deploymentTargets: .iOS("26.0"),
-            infoPlist: .file(path: "SNUECafeteriaProject/Info.plist"),
+            infoPlist: .file(path: "SNUECafeteriaProjectiOS/Info.plist"),
             sources: [
+                "SNUECafeteriaProjectiOS/**/*.swift",
                 "SNUECafeteriaProject/**/*.swift",
                 "Shared/**/*.swift",
             ],
             resources: [
-                "SNUECafeteriaProject/Assets.xcassets",
-                "SNUECafeteriaProject/AppIcon.icon",
-                "SNUECafeteriaProject/GoogleService-Info.plist",
+                "SNUECafeteriaProjectiOS/Assets.xcassets",
+                "Shared/AppIcon.icon",
+                "SNUECafeteriaProjectiOS/GoogleService-Info.plist",
             ],
-            entitlements: "SNUECafeteriaProject/SNUECafeteriaProject.entitlements",
+            entitlements: "SNUECafeteriaProjectiOS/SNUECafeteriaProject.entitlements",
             dependencies: [
                 .target(name: "SNUECafeteriaWidgetExtension"),
                 .target(name: "SNUECafeteriaWatchApp"),
@@ -88,16 +89,17 @@ let project = Project(
             ]),
             sources: [
                 "SNUECafeteriaWatchApp/**/*.swift",
+                "Shared/Cache/**/*.swift",
                 "Shared/Constants/**/*.swift",
                 "Shared/Extensions/**/*.swift",
                 "Shared/Models/**/*.swift",
-                "Shared/Intents/AppGroupMealCache.swift",
                 "Shared/WatchConnectivity/**/*.swift",
                 "SNUECafeteriaProject/Services/NetworkService.swift",
             ],
             resources: [
                 "SNUECafeteriaWatchApp/Assets.xcassets",
-                "SNUECafeteriaProject/GoogleService-Info.plist",
+                "Shared/AppIcon.icon",
+                "SNUECafeteriaProjectiOS/GoogleService-Info.plist",
             ],
             entitlements: "SNUECafeteriaWatchApp/SNUECafeteriaWatchApp.entitlements",
             dependencies: [
@@ -165,6 +167,57 @@ let project = Project(
             ])
         ),
         .target(
+            name: "SNUECafeteriaMac",
+            destinations: [.mac],
+            product: .app,
+            bundleId: "\(bundleID).mac",
+            deploymentTargets: .macOS("26.0"),
+            infoPlist: .extendingDefault(with: [
+                "CFBundleDisplayName": "교대학식",
+                "LSApplicationCategoryType": "public.app-category.lifestyle",
+            ]),
+            sources: [
+                "SNUECafeteriaMac/**/*.swift",
+                .glob(
+                    "Shared/**/*.swift",
+                    excluding: ["Shared/WatchConnectivity/**"]
+                ),
+                "SNUECafeteriaProject/**/*.swift",
+            ],
+            resources: [
+                "SNUECafeteriaMac/Assets.xcassets",
+                "Shared/AppIcon.icon",
+                "SNUECafeteriaMac/GoogleService-Info.plist",
+            ],
+            entitlements: "SNUECafeteriaMac/SNUECafeteriaMac.entitlements",
+            dependencies: [
+                .package(product: "FirebaseCore"),
+                .package(product: "FirebaseFirestore"),
+            ],
+            settings: .settings(base: [
+                "ASSETCATALOG_COMPILER_APPICON_NAME": "AppIcon",
+                "ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME": "AccentColor",
+                // macOS Automatic 서명: 기본 "-"만 두면 Xcode UI의 Certificate가 비거나 Sign to Run Locally로 풀림
+                "CODE_SIGN_IDENTITY": "-",
+                "CODE_SIGN_IDENTITY[sdk=macosx*]": "Apple Development",
+                "CODE_SIGN_STYLE": "Automatic",
+                "DEVELOPMENT_TEAM": .string(teamID),
+                "ENABLE_PREVIEWS": "YES",
+                "GENERATE_INFOPLIST_FILE": "YES",
+                "INFOPLIST_KEY_CFBundleDisplayName": "교대학식",
+                "INFOPLIST_KEY_LSApplicationCategoryType": "public.app-category.lifestyle",
+                "MACOSX_DEPLOYMENT_TARGET": "26.0",
+                "PRODUCT_NAME": "SNUECafeteriaMac",
+                "STRING_CATALOG_GENERATE_SYMBOLS": "YES",
+                "SWIFT_APPROACHABLE_CONCURRENCY": "YES",
+                "SWIFT_DEFAULT_ACTOR_ISOLATION": "MainActor",
+                "SWIFT_EMIT_LOC_STRINGS": "YES",
+                "SWIFT_STRICT_CONCURRENCY": "complete",
+                "SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY": "YES",
+                "SWIFT_VERSION": "6.0",
+            ])
+        ),
+        .target(
             name: "SNUECafeteriaProjectTests",
             destinations: .iOS,
             product: .unitTests,
@@ -220,6 +273,12 @@ let project = Project(
             shared: true,
             buildAction: .buildAction(targets: ["SNUECafeteriaWatchApp"]),
             runAction: .runAction(executable: "SNUECafeteriaWatchApp")
+        ),
+        .scheme(
+            name: "SNUECafeteriaMac",
+            shared: true,
+            buildAction: .buildAction(targets: ["SNUECafeteriaMac"]),
+            runAction: .runAction(executable: "SNUECafeteriaMac")
         ),
     ]
 )

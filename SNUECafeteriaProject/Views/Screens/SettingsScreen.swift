@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import UserNotifications
 
 /// AppStorage 지원을 위한 RawRepresentable 확장
 extension TimeNotificationStatus: RawRepresentable {
@@ -134,28 +135,34 @@ struct SettingsScreen: View {
                     HStack(spacing: 20) {
                         Image(systemName: "sun.max.fill")
                             .frame(width: 20)
-                            .foregroundStyle(.lunch)
+                            .foregroundStyle(Color.mealColor(for: .lunch))
                         
                         VStack(alignment: .leading) {
                             Text("중식 알림")
                                 .font(.headline)
-                            
-                            HStack(spacing: 4) {
-                                Text(lunchTimeNotificationStatus.description)
-                                    .font(.subheadline)
-                                    .foregroundStyle(.secondary)
 
-                                Image(systemName: "chevron.right")
-                                    .font(.caption)
-                                    .foregroundStyle(.tertiary)
-                            }
-                            .onTapGesture {
-                                showLunchTimePicker = true
+                            NotificationTimePickerButton(
+                                description: lunchTimeNotificationStatus.description,
+                                isPresented: $showLunchTimePicker,
+                                initialTime: lunchTimeNotificationStatus.notificationTime ?? .now
+                            ) { selectedTime in
+                                lunchTimeNotificationStatus.notificationTime = selectedTime
+                                if lunchTimeNotificationStatus.isEnabled {
+                                    Task {
+                                        await services.notification.schedule(
+                                            for: .lunch,
+                                            at: selectedTime,
+                                            meals: mealRepository.meals
+                                        )
+                                    }
+                                }
                             }
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
                         
-                        Toggle(isOn: $lunchTimeNotificationStatus.isEnabled) {}
+                        Toggle("", isOn: $lunchTimeNotificationStatus.isEnabled)
+                            .labelsHidden()
+                            .fixedSize()
                             .onChange(of: lunchTimeNotificationStatus.isEnabled) { _, isOn in
                                 guard isOn else {
                                     Task { await services.notification.cancel(for: .lunch) }
@@ -168,28 +175,34 @@ struct SettingsScreen: View {
                     HStack(spacing: 20) {
                         Image(systemName: "moon.fill")
                             .frame(width: 20)
-                            .foregroundStyle(.dinner)
+                            .foregroundStyle(Color.mealColor(for: .dinner))
                         
                         VStack(alignment: .leading) {
                             Text("석식 알림")
                                 .font(.headline)
-                            
-                            HStack(spacing: 4) {
-                                Text(dinnerTimeNotificationStatus.description)
-                                    .font(.subheadline)
-                                    .foregroundStyle(.secondary)
 
-                                Image(systemName: "chevron.right")
-                                    .font(.caption)
-                                    .foregroundStyle(.tertiary)
-                            }
-                            .onTapGesture {
-                                showDinnerTimePicker = true
+                            NotificationTimePickerButton(
+                                description: dinnerTimeNotificationStatus.description,
+                                isPresented: $showDinnerTimePicker,
+                                initialTime: dinnerTimeNotificationStatus.notificationTime ?? .now
+                            ) { selectedTime in
+                                dinnerTimeNotificationStatus.notificationTime = selectedTime
+                                if dinnerTimeNotificationStatus.isEnabled {
+                                    Task {
+                                        await services.notification.schedule(
+                                            for: .dinner,
+                                            at: selectedTime,
+                                            meals: mealRepository.meals
+                                        )
+                                    }
+                                }
                             }
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
                         
-                        Toggle(isOn: $dinnerTimeNotificationStatus.isEnabled) {}
+                        Toggle("", isOn: $dinnerTimeNotificationStatus.isEnabled)
+                            .labelsHidden()
+                            .fixedSize()
                             .onChange(of: dinnerTimeNotificationStatus.isEnabled) { _, isOn in
                                 guard isOn else {
                                     Task { await services.notification.cancel(for: .dinner) }
@@ -214,7 +227,9 @@ struct SettingsScreen: View {
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
                         
-                        Toggle(isOn: $isOnWeekMealUpdateNotification) {}
+                        Toggle("", isOn: $isOnWeekMealUpdateNotification)
+                            .labelsHidden()
+                            .fixedSize()
                             .onChange(of: isOnWeekMealUpdateNotification) { _, isOn in
                                 guard isOn else {
                                     services.notification.cancelWeekly()
@@ -258,6 +273,14 @@ struct SettingsScreen: View {
                 }
             }
             .navigationTitle("설정")
+            #if os(macOS)
+            // Form에만 너비 제한 — 푸시된 오픈소스 목록 등 하위 화면 스크롤을 막지 않음
+            .formStyle(.grouped)
+            .frame(maxWidth: 520)
+            .frame(maxWidth: .infinity, alignment: .top)
+            .padding(.vertical, 20)
+            #endif
+            #if os(iOS)
             .sheet(isPresented: $showLunchTimePicker) {
                 TimeDatePickerModal(
                     initialTime: lunchTimeNotificationStatus.notificationTime ?? .now
@@ -269,7 +292,7 @@ struct SettingsScreen: View {
                         }
                     }
                 }
-                .presentationDetents([.fraction(0.4)])
+                .platformPresentationDetents([.fraction(0.4)])
             }
             .sheet(isPresented: $showDinnerTimePicker) {
                 TimeDatePickerModal(
@@ -282,49 +305,59 @@ struct SettingsScreen: View {
                         }
                     }
                 }
-                .presentationDetents([.fraction(0.4)])
+                .platformPresentationDetents([.fraction(0.4)])
             }
             .fullScreenCover(isPresented: $showNotificationPermission) {
-                NotificationPermissionScreen(
-                    initialMode: notificationPermissionMode,
-                    onPermissionGranted: {
-                        if let type = pendingMealType {
-                            let time = type == .lunch
-                                ? lunchTimeNotificationStatus.notificationTime
-                                : dinnerTimeNotificationStatus.notificationTime
-                            if let time {
-                                Task {
-                                    await services.notification.schedule(for: type, at: time, meals: mealRepository.meals)
-                                }
-                            }
-                            pendingMealType = nil
-                        }
-                        if pendingWeekly {
-                            services.notification.scheduleWeekly()
-                            pendingWeekly = false
-                        }
-                    },
-                    onCancel: {
-                        if let type = pendingMealType {
-                            switch type {
-                            case .lunch: lunchTimeNotificationStatus.isEnabled = false
-                            case .dinner: dinnerTimeNotificationStatus.isEnabled = false
-                            }
-                            pendingMealType = nil
-                        }
-                        if pendingWeekly {
-                            isOnWeekMealUpdateNotification = false
-                            pendingWeekly = false
-                        }
-                    }
-                )
+                notificationPermissionScreen
             }
+            #else
+            .sheet(isPresented: $showNotificationPermission) {
+                notificationPermissionScreen
+                    .frame(minWidth: 420, minHeight: 480)
+            }
+            #endif
             .task { await syncPermissionState() }
             .onChange(of: scenePhase) { _, phase in
                 guard phase == .active else { return }
                 Task { await syncPermissionState() }
             }
         }
+    }
+
+    private var notificationPermissionScreen: some View {
+        NotificationPermissionScreen(
+            initialMode: notificationPermissionMode,
+            onPermissionGranted: {
+                if let type = pendingMealType {
+                    let time = type == .lunch
+                        ? lunchTimeNotificationStatus.notificationTime
+                        : dinnerTimeNotificationStatus.notificationTime
+                    if let time {
+                        Task {
+                            await services.notification.schedule(for: type, at: time, meals: mealRepository.meals)
+                        }
+                    }
+                    pendingMealType = nil
+                }
+                if pendingWeekly {
+                    services.notification.scheduleWeekly()
+                    pendingWeekly = false
+                }
+            },
+            onCancel: {
+                if let type = pendingMealType {
+                    switch type {
+                    case .lunch: lunchTimeNotificationStatus.isEnabled = false
+                    case .dinner: dinnerTimeNotificationStatus.isEnabled = false
+                    }
+                    pendingMealType = nil
+                }
+                if pendingWeekly {
+                    isOnWeekMealUpdateNotification = false
+                    pendingWeekly = false
+                }
+            }
+        )
     }
 
     // MARK: - Helpers
@@ -384,6 +417,39 @@ struct SettingsScreen: View {
         if isOnWeekMealUpdateNotification {
             services.notification.scheduleWeekly()
         }
+    }
+}
+
+/// Mac: 팝오버로 시간 선택. iOS: 탭 시 `isPresented`만 올려 상위 sheet를 연다.
+private struct NotificationTimePickerButton: View {
+    let description: String
+    @Binding var isPresented: Bool
+    let initialTime: Date
+    let onSelectedTime: (Date) -> Void
+
+    var body: some View {
+        Button {
+            isPresented = true
+        } label: {
+            HStack(spacing: 4) {
+                Text(description)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+
+                Image(systemName: "chevron.right")
+                    .font(.caption)
+                    .foregroundStyle(.tertiary)
+            }
+        }
+        .buttonStyle(.plain)
+        #if os(macOS)
+        .popover(isPresented: $isPresented, arrowEdge: .bottom) {
+            TimeDatePickerModal(
+                initialTime: initialTime,
+                onSelectedTime: onSelectedTime
+            )
+        }
+        #endif
     }
 }
 

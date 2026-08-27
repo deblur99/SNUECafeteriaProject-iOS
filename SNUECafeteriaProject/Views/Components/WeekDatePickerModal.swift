@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct WeekDatePickerModal: View {
+    private let label = "날짜를 선택해 주간 식단 확인"
+    
     let initialDate: Date
     let availableDates: Set<Date>
     var onSelectedWeek: (Date) -> Void
@@ -36,34 +38,52 @@ struct WeekDatePickerModal: View {
     }
 
     var body: some View {
-        NavigationStack {
-            VStack {
-                DatePicker(
-                    "날짜를 선택해 주간 식단 확인",
-                    selection: $selectedDate,
-                    in: datePickerRange,
-                    displayedComponents: [.date]
-                )
+        #if os(macOS)
+        VStack(alignment: .leading, spacing: 12) {
+            Text(label)
+                .font(.headline)
+            
+            datePicker
                 .datePickerStyle(.graphical)
                 .labelsHidden()
-                .frame(height: 360)
-                .onChange(of: selectedDate) { _, _ in
-                    onSelectedWeek(selectedDate)
-                }
-                
+                .padding(12)
+                .fixedSize()
+        }
+        .padding()
+        #else
+        NavigationStack {
+            VStack {
+                datePicker
+                    .datePickerStyle(.graphical)
+                    .labelsHidden()
+                    .frame(height: 360)
+
                 Spacer()
             }
             .padding(.horizontal)
-            .navigationTitle("날짜를 선택해 주간 식단 확인")
-            .navigationBarTitleDisplayMode(.inline)
-            .presentationDetents([.height(450)])
+            .navigationTitle(label)
+            .inlineNavigationTitle()
+            .platformPresentationDetents([.height(450)])
             .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
+                ToolbarItem(placement: .confirmationAction) {
                     Button(role: .confirm) {
                         dismiss()
                     }
                 }
             }
+        }
+        #endif
+    }
+
+    private var datePicker: some View {
+        DatePicker(
+            label,
+            selection: $selectedDate,
+            in: datePickerRange,
+            displayedComponents: [.date]
+        )
+        .onChange(of: selectedDate) { _, newDate in
+            onSelectedWeek(newDate)
         }
     }
 }

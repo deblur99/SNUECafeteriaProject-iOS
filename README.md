@@ -72,10 +72,31 @@
 - 알림 탭 시 해당 날짜·식사로 스크롤
 - Accent color: system blue
 
+### macOS (`SNUECafeteriaMac`)
+- 네이티브 SwiftUI 앱 (Catalyst 아님). 스키마: `SNUECafeteriaMac`
+- NavigationSplitView로 오늘 / 주간 / 설정
+- Firestore·SwiftData 동기화, 로컬 알림, 텍스트·이미지 공유
+- **App Groups 미사용** (샌드박스 TCC 회피). Mac은 앱 단독 SwiftData만 사용
+- 오늘·주간 끼니/날짜 전환: **짧은 페이드** (`MealPeriodTransition`)
+- 주간 달력·알림 시각: 팝오버 + 컴팩트 피커
+- 설정 Form 최대 너비·토글 레이아웃 정리, 오픈소스 목록 스크롤 가능
+- 빈 식단: `MealContentUnavailableView` (다크 ContentUnavailable 카드 회피)
+- 공유 미리보기: 저장(`NSSavePanel`) + 하단 `ShareLink`, 클립보드 복사용 `ProxyRepresentation`
+- 알림 재스케줄 시 **이미 지난 시각은 스킵** (포그라운드 재진입 스팸 방지)
+- Watch·홈 위젯·App Intents는 미포함 (이후 과제)
+- 최소 배포: macOS 26.0 · 번들 ID: `com.deblurlab.SNUECafeteriaProject.mac`
+- Firebase용 `GoogleService-Info.plist`는 로컬 배치 (콘솔에 Mac 번들 등록 권장)
+
+### 플랫폼별 네비게이션
+- **iOS 오늘**: `TabView` + `.page` — 끼니 가로 스와이프, 페이지 안 세로 스크롤 유지
+- **iOS 주간**: 3패널 스와이프 + `dragOffset` — 세로 스크롤은 가로 드래그 중에만 잠금
+- **macOS 오늘·주간**: 페이드 전환 (스크롤 페이지 전환 없음)
+
 ### 데이터 동기화
 - Firebase Firestore에서 식단 데이터 수신
 - SwiftData로 앱 로컬 캐싱, 네트워크 없이도 최근 데이터 사용 가능
-- App Groups로 위젯·App Intents·워치와 식단 캐시 공유 (`AppGroupMealCache`)
+- **iOS**: App Groups로 위젯·App Intents·워치와 식단 캐시 공유 (`AppGroupMealCache`)
+- **macOS**: App Groups 없음 · SwiftData만
 - 중식·석식 시간대는 `MealSchedule`로 앱·위젯·워치·Intents가 공유
 - WatchConnectivityKit으로 iPhone ↔ Apple Watch 식단 동기화
 - 앱 포그라운드 진입 시 자동 동기화
@@ -94,19 +115,22 @@
 | 백엔드 | Firebase Firestore, Analytics, Crashlytics |
 | 알림 | UserNotifications (로컬 알림) |
 | 네트워크 | Network.framework (NWPathMonitor) |
-| 최소 배포 타깃 | iOS 26.0, watchOS 11.0 |
+| 최소 배포 타깃 | iOS 26.0, watchOS 11.0, macOS 26.0 |
 | 프로젝트 | Tuist 4.204 |
 
 ## 프로젝트 구조
 
 ```
-SNUECafeteriaProject/     iOS 앱 (화면, 동기화, 알림, 공유)
+SNUECafeteriaProjectiOS/  iOS 진입점·Assets·Info·entitlements·Firebase plist
+SNUECafeteriaProject/     iOS·macOS 공유 앱 계층 (화면, 동기화, 알림, 공유)
+SNUECafeteriaMac/         macOS 진입점·Assets·entitlements·Firebase plist
 SNUECafeteriaWatchApp/    Apple Watch 앱
 SNUECafeteriaWidget/      홈 화면 위젯
 Shared/
   Models/                 CachedDayMeal, MealType, MealSchedule
-  Intents/                App Intents, AppGroupMealCache
-  Sharing/                MealShareFormatter, MealShareExportView
+  Cache/                  AppGroupMealCache
+  Intents/                App Intents
+  Sharing/                MealShareFormatter, MealShareExportView, CGImagePNGEncoder
   WatchConnectivity/      iPhone ↔ Watch 브릿지
   Constants/, Extensions/
 Project.swift             Tuist 프로젝트 정의
@@ -121,7 +145,12 @@ mise install          # tuist 4.204.0
 tuist generate        # Xcode workspace 생성
 ```
 
-Firebase용 `SNUECafeteriaProject/GoogleService-Info.plist`는 저장소에 포함되지 않습니다. 로컬에 두고 `tuist generate`를 실행하세요.
+Firebase용 `GoogleService-Info.plist`는 저장소에 포함되지 않습니다. 로컬에 두고 `tuist generate`를 실행하세요.
+
+- iOS / Watch: `SNUECafeteriaProjectiOS/GoogleService-Info.plist`
+- macOS: `SNUECafeteriaMac/GoogleService-Info.plist` (`BUNDLE_ID` = `com.deblurlab.SNUECafeteriaProject.mac`)
+
+서명·리소스 경로는 Xcode에서 수동 수정하지 말고 `Project.swift`에 둡니다. `tuist generate`가 프로젝트를 덮어씁니다.
 
 ## 라이선스
 

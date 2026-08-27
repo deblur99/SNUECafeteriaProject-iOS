@@ -15,8 +15,12 @@ final class NotificationService {
         let settings = await center.notificationSettings()
 
         switch settings.authorizationStatus {
-        case .authorized, .provisional, .ephemeral:
+        case .authorized, .provisional:
             return true
+        #if os(iOS)
+        case .ephemeral:
+            return true
+        #endif
         case .denied:
             return false
         case .notDetermined:
@@ -66,11 +70,18 @@ final class NotificationService {
                 mealType: type == .lunch ? .lunch : .dinner
             )
 
-            // KST 기준 년·월·일 + 사용자가 설정한 시:분 조합
-            var components = Calendar.kst.dateComponents([.year, .month, .day], from: meal.date)
+            // 기기 로컬 캘린더로 발화 시각을 만들고, 이미 지난 시각은 등록하지 않는다.
+            // (앱이 active 될 때마다 재등록하면서 과거 트리거가 즉시·반복 울리는 것을 방지)
+            var components = Calendar.current.dateComponents([.year, .month, .day], from: meal.date)
             components.hour = hour
             components.minute = minute
             components.second = 0
+            components.calendar = Calendar.current
+            components.timeZone = Calendar.current.timeZone
+
+            guard let fireDate = Calendar.current.date(from: components), fireDate > Date() else {
+                continue
+            }
 
             let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: false)
             let identifier = type.notificationIDPrefix + dateKey(for: meal.date)
@@ -82,6 +93,10 @@ final class NotificationService {
                 print("알림 등록 실패 (\(type.rawValue), \(meal.date)): \(error)")
             }
         }
+
+        // 이미 전달된 동일 ID 배너가 남아 있으면 제거
+        let deliveredIDs = relevantMeals.map { type.notificationIDPrefix + dateKey(for: $0.date) }
+        center.removeDeliveredNotifications(withIdentifiers: deliveredIDs)
     }
 
     /// 해당 식사 유형의 알림 전부 해제

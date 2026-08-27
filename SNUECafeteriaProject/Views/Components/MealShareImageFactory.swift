@@ -13,10 +13,11 @@ enum MealShareImageFactory {
             content: MealShareContent(dayMeal: meal).environment(mealRepository)
         )
         renderer.scale = 3.0
-        guard let cgImage = renderer.cgImage else { return nil }
-        let uiImage = UIImage(cgImage: cgImage, scale: renderer.scale, orientation: .up)
+        guard let cgImage = renderer.cgImage,
+              let pngData = CGImagePNGEncoder.pngData(from: cgImage)
+        else { return nil }
         return ShareableImage(
-            uiImage: uiImage,
+            pngData: pngData,
             shareDate: meal.date,
             shareText: MealShareFormatter.text(for: meal.toCachedModel())
         )

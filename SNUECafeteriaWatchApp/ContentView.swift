@@ -37,8 +37,8 @@ private enum WatchMealListMode {
 }
 
 private enum WatchListModeTransition {
-    static let fadeOut: TimeInterval = 0.12
-    static let fadeIn: TimeInterval = 0.16
+    static let fadeOut = MealPeriodTransition.fadeOut
+    static let fadeIn = MealPeriodTransition.fadeIn
 }
 
 struct ContentView: View {
@@ -151,10 +151,18 @@ struct ContentView: View {
 
         Task { @MainActor in
             try? await Task.sleep(for: .milliseconds(Int(WatchListModeTransition.fadeOut * 1000)))
-            listMode.toggle()
+            var transaction = Transaction()
+            transaction.animation = nil
+            transaction.disablesAnimations = true
+            withTransaction(transaction) {
+                listMode.toggle()
+                listContentOpacity = 0
+            }
             let target = resolvedScrollRequest(preferring: previousHighlight)
             navigation.updateHighlight(on: target.date, mealType: target.mealType)
             await Task.yield()
+            await Task.yield()
+            try? await Task.sleep(for: .milliseconds(Int(MealPeriodTransition.layoutSettle * 1000)))
             scroll(to: target, proxy: proxy, animated: false)
             withAnimation(.easeIn(duration: WatchListModeTransition.fadeIn)) {
                 listContentOpacity = 1

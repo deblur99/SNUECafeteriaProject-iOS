@@ -6,13 +6,18 @@
 //
 
 import SwiftUI
+#if os(macOS)
+import AppKit
+#else
+import UIKit
+#endif
 
 // MARK: - Shareable Image
 
-/// UIImage는 Identifiable이 아니므로 sheet(item:) 사용을 위한 래퍼
+/// PNG 데이터는 Identifiable이 아니므로 sheet(item:) 사용을 위한 래퍼
 struct ShareableImage: Identifiable {
     let id = UUID()
-    let uiImage: UIImage
+    let pngData: Data
     let shareDate: Date
     let shareText: String
 
@@ -23,6 +28,19 @@ struct ShareableImage: Identifiable {
 
     var textFilename: String {
         MealShareFormatter.filename(for: shareDate, fileExtension: "txt")
+    }
+
+    var previewImage: Image {
+        #if os(macOS)
+        if let nsImage = NSImage(data: pngData) {
+            return Image(nsImage: nsImage)
+        }
+        #else
+        if let uiImage = UIImage(data: pngData) {
+            return Image(uiImage: uiImage)
+        }
+        #endif
+        return Image(systemName: "photo")
     }
 }
 
@@ -72,15 +90,14 @@ private struct MealCardView: View {
 
             Group {
                 if menuItems.isEmpty {
-                    ContentUnavailableView {
-                        Label("식단 정보 없음", systemImage: "fork.knife")
-                            .font(.subheadline.weight(.semibold))
-                    } description: {
-                        Text("해당 시간대 식단이 없습니다.")
-                            .font(.footnote)
-                    }
+                    MealContentUnavailableView(
+                        title: "식단 정보 없음",
+                        systemImage: "fork.knife",
+                        description: "해당 시간대 식단이 없습니다.",
+                        fillsParent: false,
+                        compact: true
+                    )
                     .foregroundStyle(.secondary)
-                    .frame(maxWidth: .infinity)
                 } else {
                     VStack(alignment: .leading, spacing: 6) {
                         ForEach(menuItems, id: \.name) { item in
@@ -139,10 +156,12 @@ private struct DayMealCardsView: View {
 
     var body: some View {
         if dayMeal == nil {
-            ContentUnavailableView(
-                "식단 정보 없음",
+            MealContentUnavailableView(
+                title: "식단 정보 없음",
                 systemImage: "fork.knife",
-                description: Text("해당 날짜의 식단 정보가 없습니다.")
+                description: "해당 날짜의 식단 정보가 없습니다.",
+                fillsParent: false,
+                compact: true
             )
             .foregroundStyle(.secondary)
         } else if dayMeal!.isHoliday {
@@ -169,13 +188,13 @@ private struct DayMealCardsView: View {
     }
 
     private func unavailableCard(title: String, systemImage: String, description: String) -> some View {
-        ContentUnavailableView {
-            Label(title, systemImage: systemImage)
-                .font(.subheadline.weight(.semibold))
-        } description: {
-            Text(description)
-                .font(.footnote)
-        }
+        MealContentUnavailableView(
+            title: title,
+            systemImage: systemImage,
+            description: description,
+            fillsParent: false,
+            compact: true
+        )
         .foregroundStyle(.secondary)
         .frame(maxWidth: .infinity, minHeight: 140)
     }
@@ -221,7 +240,7 @@ struct DayMealCard: View {
         }
         .padding(16)
         .background(
-            Color(uiColor: .secondarySystemGroupedBackground),
+            Color.secondaryGroupedBackground,
             in: RoundedRectangle(cornerRadius: 20)
         )
         .sheet(item: $shareableImage) { item in

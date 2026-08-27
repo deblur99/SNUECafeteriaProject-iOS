@@ -6,6 +6,11 @@
 //
 
 import SwiftUI
+#if os(iOS)
+import UIKit
+#elseif os(macOS)
+import AppKit
+#endif
 
 /// 알림 권한 설정 요청하는 화면
 struct NotificationPermissionScreen: View {
@@ -86,9 +91,7 @@ struct NotificationPermissionScreen: View {
                     }
                 } else {
                     Button {
-                        if let url = URL(string: UIApplication.openNotificationSettingsURLString) {
-                            UIApplication.shared.open(url)
-                        }
+                        openNotificationSettings()
                         dismiss()
                     } label: {
                         Text("설정 앱으로 이동")
@@ -113,6 +116,18 @@ struct NotificationPermissionScreen: View {
             .padding(.bottom, 32)
         }
         .interactiveDismissDisabled()
+    }
+
+    private func openNotificationSettings() {
+        #if os(iOS)
+        if let url = URL(string: UIApplication.openNotificationSettingsURLString) {
+            UIApplication.shared.open(url)
+        }
+        #elseif os(macOS)
+        if let url = URL(string: "x-apple.systempreferences:com.apple.Notifications-Settings.extension") {
+            NSWorkspace.shared.open(url)
+        }
+        #endif
     }
 }
 
