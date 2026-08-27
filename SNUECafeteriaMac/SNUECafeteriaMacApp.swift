@@ -29,7 +29,8 @@ struct SNUECafeteriaMacApp: App {
     }()
 
     var body: some Scene {
-        // WindowGroup 대신 Window: 동일 id의 창을 하나만 유지한다.
+        // matching: [] → 위젯 URL로 새 Window Scene을 만들지 않음.
+        // URL은 기존 창의 onOpenURL / AppDelegate 알림으로만 처리.
         Window("교대학식", id: MacAppDelegate.mainWindowID) {
             ContentView()
                 .environment(mealRepository)
@@ -38,7 +39,12 @@ struct SNUECafeteriaMacApp: App {
                 .alert(errorMessage ?? "", isPresented: .constant(errorMessage != nil)) {
                     Button("확인") { errorMessage = nil }
                 }
+                .handlesExternalEvents(
+                    preferring: Set(MacAppDelegate.deepLinkHosts),
+                    allowing: Set(arrayLiteral: "*")
+                )
         }
+        .handlesExternalEvents(matching: [])
         .modelContainer(sharedModelContainer)
         .defaultSize(width: 960, height: 640)
         .commands {

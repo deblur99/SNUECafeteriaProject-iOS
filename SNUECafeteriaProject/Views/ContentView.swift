@@ -49,6 +49,10 @@ struct ContentView: View {
             guard let rawValue = notification.object as? String else { return }
             applyTabNavigation(rawValue: rawValue)
         }
+        .onReceive(NotificationCenter.default.publisher(for: .openDeepLinkURL)) { notification in
+            guard let url = notification.object as? URL else { return }
+            handleDeepLink(url)
+        }
         .onOpenURL { url in
             handleDeepLink(url)
         }
