@@ -14,10 +14,15 @@ struct ShareableImage: Identifiable {
     let id = UUID()
     let uiImage: UIImage
     let shareDate: Date
+    let shareText: String
 
     /// 파일 형식은 SNUECafeteria_Menu_yyyyMMdd.png
     var filename: String {
         "SNUECafeteria_Menu_\(DateFormatter.kstCompact.string(from: shareDate)).png"
+    }
+
+    var textFilename: String {
+        "SNUECafeteria_Menu_\(DateFormatter.kstCompact.string(from: shareDate)).txt"
     }
 }
 
@@ -234,7 +239,7 @@ struct DayMealCard: View {
             in: RoundedRectangle(cornerRadius: 20)
         )
         .sheet(item: $shareableImage) { item in
-            SharePreviewSheet(image: item.uiImage, fileName: item.filename)
+            SharePreviewSheet(content: item)
         }
     }
 
@@ -245,7 +250,11 @@ struct DayMealCard: View {
         )
         renderer.scale = 3.0
         if let uiImage = renderer.uiImage {
-            shareableImage = ShareableImage(uiImage: uiImage, shareDate: meal.date)
+            shareableImage = ShareableImage(
+                uiImage: uiImage,
+                shareDate: meal.date,
+                shareText: MealShareFormatter.text(for: meal)
+            )
         }
     }
 }

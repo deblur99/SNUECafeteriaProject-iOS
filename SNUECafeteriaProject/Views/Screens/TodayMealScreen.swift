@@ -115,7 +115,7 @@ struct TodayMealScreen: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar(content: toolbarContent)
             .sheet(item: $shareableImage) { item in
-                SharePreviewSheet(image: item.uiImage, fileName: item.filename)
+                SharePreviewSheet(content: item)
             }
         }
     }
@@ -164,7 +164,11 @@ struct TodayMealScreen: View {
         )
         renderer.scale = 3.0
         if let uiImage = renderer.uiImage {
-            shareableImage = ShareableImage(uiImage: uiImage, shareDate: meal.date)
+            shareableImage = ShareableImage(
+                uiImage: uiImage,
+                shareDate: meal.date,
+                shareText: MealShareFormatter.text(for: meal)
+            )
         }
     }
 }
