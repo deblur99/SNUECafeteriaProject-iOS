@@ -10,7 +10,7 @@ import Foundation
 
 struct FetchMealForDateListIntent: AppIntent {
     static let title: LocalizedStringResource = "특정 날짜 식단 목록 조회"
-    static let description = IntentDescription("특정 날짜의 중식 또는 석식 메뉴 항목을 배열로 가져옵니다.")
+    static let description = IntentDescription("특정 날짜의 중식 또는 석식 메뉴를 앱 공유와 동일한 텍스트 형식으로 가져옵니다.")
 
     @Parameter(title: "날짜", requestValueDialog: "어느 날짜의 식단을 알려드릴까요?")
     var date: Date
@@ -22,7 +22,7 @@ struct FetchMealForDateListIntent: AppIntent {
         Summary("\(\.$date) \(\.$mealType) 목록 조회")
     }
 
-    func perform() async throws -> some ReturnsValue<[String]> & ProvidesDialog {
+    func perform() async throws -> some ReturnsValue<String> & ProvidesDialog {
         let targetDay = Calendar.kst.startOfDay(for: date)
         guard let cached = AppGroupMealCache.load()
             .first(where: { Calendar.kst.startOfDay(for: $0.date) == targetDay })
@@ -30,13 +30,8 @@ struct FetchMealForDateListIntent: AppIntent {
             throw AppIntentError.noMealFound
         }
         let type = mealType.mealType
-        let items: [String]
-        switch type {
-        case .lunch: items = cached.sortedLunchItems.map(\.name)
-        case .dinner: items = cached.sortedDinnerItems.map(\.name)
-        }
+        let text = MealShareFormatter.text(for: cached, mealType: type)
         let dateStr = DateFormatter.longDateLabel.string(from: cached.date)
-        let menuList = items.joined(separator: ", ")
-        return .result(value: items, dialog: "\(dateStr) \(type.label) 식단은 \(menuList)입니다.")
+        return .result(value: text, dialog: "\(dateStr) \(type.label) 식단을 가져왔습니다.")
     }
 }

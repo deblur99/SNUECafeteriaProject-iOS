@@ -123,39 +123,6 @@ struct SharePreviewSheet: View {
     }
 }
 
-enum MealShareFormatter {
-    static func text(for dayMeal: DayMeal) -> String {
-        var lines = [
-            "서울교대 학식 메뉴",
-            DateFormatter.longDateLabel.string(from: dayMeal.date),
-            "",
-        ]
-
-        if dayMeal.isHoliday {
-            lines.append("휴무일")
-            return lines.joined(separator: "\n")
-        }
-
-        appendMealSection(title: "중식", items: dayMeal.sortedLunchItems.map(\.name), to: &lines)
-        appendMealSection(title: "석식", items: dayMeal.sortedDinnerItems.map(\.name), to: &lines)
-
-        while lines.last == "" {
-            lines.removeLast()
-        }
-        return lines.joined(separator: "\n")
-    }
-
-    private static func appendMealSection(title: String, items: [String], to lines: inout [String]) {
-        lines.append("[\(title)]")
-        if items.isEmpty {
-            lines.append("식단 없음")
-        } else {
-            lines.append(contentsOf: items)
-        }
-        lines.append("")
-    }
-}
-
 /// ShareLink에서 UIImage를 전달하기 위한 Transferable 래퍼
 private struct TransferableImage: Transferable {
     let uiImage: UIImage
@@ -198,7 +165,7 @@ private struct TransferableTextFile: Transferable {
         content: ShareableImage(
             uiImage: UIImage(named: "today_meal_sample")!,
             shareDate: .now,
-            shareText: MealShareFormatter.text(for: .sample().first!)
+            shareText: MealShareFormatter.text(for: CachedDayMeal.sample().first!)
         )
     )
 }

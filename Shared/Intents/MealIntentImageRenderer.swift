@@ -14,7 +14,7 @@ import UniformTypeIdentifiers
 @MainActor
 func renderMealSnippet<V: View>(_ view: V, filename: String) throws(AppIntentError) -> IntentFile {
     let renderer = ImageRenderer(content: view)
-    renderer.proposedSize = .init(width: 390, height: nil)
+    renderer.proposedSize = .init(width: MealShareExportView.exportWidth, height: nil)
     renderer.scale = 3.0
     guard let uiImage = renderer.uiImage, let data = uiImage.pngData() else {
         throw .renderFailed

@@ -18,11 +18,11 @@ struct ShareableImage: Identifiable {
 
     /// 파일 형식은 SNUECafeteria_Menu_yyyyMMdd.png
     var filename: String {
-        "SNUECafeteria_Menu_\(DateFormatter.kstCompact.string(from: shareDate)).png"
+        MealShareFormatter.filename(for: shareDate, fileExtension: "png")
     }
 
     var textFilename: String {
-        "SNUECafeteria_Menu_\(DateFormatter.kstCompact.string(from: shareDate)).txt"
+        MealShareFormatter.filename(for: shareDate, fileExtension: "txt")
     }
 }
 
@@ -253,7 +253,7 @@ struct DayMealCard: View {
             shareableImage = ShareableImage(
                 uiImage: uiImage,
                 shareDate: meal.date,
-                shareText: MealShareFormatter.text(for: meal)
+                shareText: MealShareFormatter.text(for: meal.toCachedModel())
             )
         }
     }
@@ -261,32 +261,10 @@ struct DayMealCard: View {
 
 /// 식단 카드들을 이미지로 내보내기 위한 레이아웃 뷰
 struct MealShareContent: View {
-    /// ImageRenderer가 이 너비로 렌더링한다. @3x 기준 1080px 출력.
-    static let exportWidth: CGFloat = 360
-
     let dayMeal: DayMeal
 
-    private var dateText: String {
-        return DateFormatter.longDateLabel.string(from: dayMeal.date)
-    }
-
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack {
-                Text("서울교대 학식 메뉴")
-                    .font(.system(size: 11, weight: .bold))
-                    .foregroundStyle(.secondary)
-                Spacer()
-                Text(dateText)
-                    .font(.system(size: 11))
-                    .foregroundStyle(.secondary)
-            }
-
-            DayMealCardsView(dayMeal: dayMeal, preferredColumns: 1, isForExport: true)
-        }
-        .padding(14)
-        .frame(width: Self.exportWidth)
-        .background(Color(uiColor: .systemGroupedBackground))
+        MealShareExportView(meal: dayMeal.toCachedModel())
     }
 }
 

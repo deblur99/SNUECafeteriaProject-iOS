@@ -21,6 +21,15 @@ struct MealShortcutsProvider: AppShortcutsProvider {
             systemImageName: "fork.knife.circle"
         )
         AppShortcut(
+            intent: FetchNearestMealTextIntent(),
+            phrases: [
+                "지금 \(.applicationName) 식단 텍스트",
+                "\(.applicationName) 지금 식단 텍스트",
+            ],
+            shortTitle: "지금 식단 텍스트",
+            systemImageName: "doc.text"
+        )
+        AppShortcut(
             intent: FetchNearestMealListIntent(),
             phrases: [
                 "지금 \(.applicationName) 식단 목록",
@@ -37,6 +46,15 @@ struct MealShortcutsProvider: AppShortcutsProvider {
             ],
             shortTitle: "날짜 식단",
             systemImageName: "calendar"
+        )
+        AppShortcut(
+            intent: FetchMealForDateTextIntent(),
+            phrases: [
+                "\(.applicationName) 날짜 식단 텍스트",
+                "날짜별 \(.applicationName) 식단 텍스트",
+            ],
+            shortTitle: "날짜 식단 텍스트",
+            systemImageName: "doc.text"
         )
         AppShortcut(
             intent: FetchMealForDateListIntent(),

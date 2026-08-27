@@ -167,7 +167,7 @@ struct TodayMealScreen: View {
             shareableImage = ShareableImage(
                 uiImage: uiImage,
                 shareDate: meal.date,
-                shareText: MealShareFormatter.text(for: meal)
+                shareText: MealShareFormatter.text(for: meal.toCachedModel())
             )
         }
     }
