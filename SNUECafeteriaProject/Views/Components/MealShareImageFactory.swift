@@ -13,7 +13,8 @@ enum MealShareImageFactory {
             content: MealShareContent(dayMeal: meal).environment(mealRepository)
         )
         renderer.scale = 3.0
-        guard let uiImage = renderer.uiImage else { return nil }
+        guard let cgImage = renderer.cgImage else { return nil }
+        let uiImage = UIImage(cgImage: cgImage, scale: renderer.scale, orientation: .up)
         return ShareableImage(
             uiImage: uiImage,
             shareDate: meal.date,
