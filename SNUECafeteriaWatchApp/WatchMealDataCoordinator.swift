@@ -31,6 +31,7 @@ final class WatchMealDataCoordinator {
             store.reload()
             if store.hasCachedMeals {
                 print("✅ companion 동기화로 식단 로드 (\(store.meals.count)일)")
+                WidgetTimelineReload.requestAll()
                 return
             }
             print("⚠️ companion 경로에서 식단을 받지 못함 — 네트워크 fallback 시도")
@@ -50,6 +51,7 @@ final class WatchMealDataCoordinator {
             guard !meals.isEmpty else { return }
             _ = AppGroupMealCache.save(meals)
             store.reload()
+            WidgetTimelineReload.requestAll()
             print("✅ Watch 독립 모드 Firestore 동기화 완료 (\(meals.count)일치)")
         } catch {
             print("⚠️ Watch Firestore 동기화 실패: \(error.localizedDescription)")

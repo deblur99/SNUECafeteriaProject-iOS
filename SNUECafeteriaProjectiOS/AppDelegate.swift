@@ -40,6 +40,9 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
     func applicationDidBecomeActive(_ application: UIApplication) {
         // 런치 직후 즉시 activate하면 WatchConnectivity 내부 크래시가 날 수 있어 지연 스케줄한다.
         PhoneWatchSyncService.shared.scheduleActivationAndPush()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) {
+            MealShareRelayBridge.shared.install()
+        }
     }
 
     func applicationWillEnterForeground(_ application: UIApplication) {

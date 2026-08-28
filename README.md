@@ -6,7 +6,7 @@
 | 플랫폼 | 타깃 / 스키마 | 비고 |
 |--------|----------------|------|
 | iPhone · iPad | `SNUECafeteriaProject` | 탭 UI, 위젯, App Intents, Watch 페어링 |
-| Apple Watch | `SNUECafeteriaWatchApp` | 오늘·주간 목록, iPhone 동기화 / 독립 조회 |
+| Apple Watch | `SNUECafeteriaWatchApp` | 오늘·주간 목록, Smart Stack 위젯, 공유, iPhone 동기화 / 독립 조회 |
 | Mac | `SNUECafeteriaMac` | NavigationSplitView, 단일 창, Mac 위젯 |
 
 ## 중요 안내
@@ -79,6 +79,12 @@
 - iPhone과 WatchConnectivityKit으로 식단 동기화
 - iPhone 미연결 시 Firestore REST `runQuery`로 이번 주만 독립 조회
 - 알림 탭 시 해당 날짜·식사로 스크롤
+- **Smart Stack 위젯** (`SNUECafeteriaWatchWidgetExtension`, `accessoryRectangular`): 오늘 현재 끼니·메뉴 요약, 탭 시 앱 오늘 식단으로 이동 (`snuecafeteria-watch://today`)
+- 동기화·캐시 갱신 시 `WidgetCenter.reloadAllTimelines()`로 위젯 타임라인 갱신
+- **공유**: 워치 **ShareLink**로 식단 **텍스트** 공유 (메시지·메일 등 — Android 수신자도 본문 읽기 가능)
+  - iPhone 경유 WatchConnectivity 릴레이는 `sendMessage` 크래시로 **제거** (별도 서버 릴레이는 보류)
+  - 워치 단독 AirDrop·이미지 공유는 Apple이 서드파티에 제공하지 않음
+- 툴바: leading 현재 식단 이동 · trailing 오늘/주간 전환 · bottomBar 공유
 - Accent color: system blue
 
 ### macOS (`SNUECafeteriaMac`)
@@ -140,13 +146,14 @@ SNUECafeteriaProject/     iOS·iPadOS·macOS 공유 앱 계층 (화면, 동기�
 SNUECafeteriaMac/         macOS 진입점·Assets·entitlements·Firebase plist
 SNUECafeteriaWidget/      홈 화면 위젯 (iPhone·iPad·Mac 공유 소스)
 SNUECafeteriaWatchApp/    Apple Watch 앱
+SNUECafeteriaWatchWidget/ Apple Watch Smart Stack 위젯 (accessoryRectangular)
 Shared/
   Models/                 CachedDayMeal, MealType, MealSchedule
   Cache/                  AppGroupMealCache
   Intents/                App Intents (iPhone·iPad)
-  Sharing/                MealShareFormatter, MealShareExportView, CGImagePNGEncoder
-  WatchConnectivity/      iPhone ↔ Watch 브릿지
-  Constants/, Extensions/
+  Sharing/                MealShareFormatter, MealShareExportView, MealShareRelayPayload
+  WatchConnectivity/      iPhone ↔ Watch 식단 동기화, iOS 공유 수신 bridge
+  Extensions/             View+PlatformChrome, WidgetTimelineReload
 Project.swift             Tuist 멀티플랫폼 프로젝트 정의
 .github/workflows/        macOS Developer ID 서명·공증·Release
 ci/                       exportOptions 등 CI 보조 파일

@@ -63,7 +63,7 @@ struct WeekDatePickerModal: View {
             .padding(.horizontal)
             .navigationTitle(label)
             .inlineNavigationTitle()
-            .platformPresentationDetents([.height(450)])
+            .dismissibleSheetChrome(detents: [.height(450)])
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button(role: .confirm) {

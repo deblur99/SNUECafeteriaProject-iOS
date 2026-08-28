@@ -50,6 +50,7 @@ struct SNUECafeteriaProjectApp: App {
             ContentView()
                 .environment(mealRepository)
                 .environment(services)
+                .watchShareRelayPresentation()
                 .alert(errorMessage ?? "", isPresented: .constant(errorMessage != nil)) {
                     Button("확인") {
                         errorMessage = nil

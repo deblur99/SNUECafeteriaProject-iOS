@@ -9,7 +9,15 @@
           "glass" : true,
           "hidden" : false,
           "image-name" : "AppIcon-1024.png",
-          "name" : "AppIcon-1024"
+          "name" : "AppIcon-1024",
+          "opacity" : 1,
+          "position" : {
+            "scale" : 1.06,
+            "translation-in-points" : [
+              0,
+              0
+            ]
+          }
         }
       ],
       "shadow" : {

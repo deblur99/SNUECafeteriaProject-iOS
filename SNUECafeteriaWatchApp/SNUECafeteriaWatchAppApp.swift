@@ -12,6 +12,9 @@ struct SNUECafeteriaWatchAppApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .onOpenURL { url in
+                    appDelegate.handleOpenURL(url)
+                }
         }
     }
 }

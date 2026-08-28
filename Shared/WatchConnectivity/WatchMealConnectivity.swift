@@ -41,6 +41,7 @@ enum WatchMealConnectivityBootstrap {
             dataStore: AppGroupWatchMealDataStore(),
             configuration: SNUEWatchSyncConfiguration.current
         )
+        scheduleRelayBridgeInstall()
         #elseif os(watchOS)
         WatchCompanionSyncService.shared.configure(
             dataStore: AppGroupWatchMealDataStore(),
@@ -48,6 +49,15 @@ enum WatchMealConnectivityBootstrap {
         )
         #endif
     }
+
+    #if os(iOS)
+    /// PhoneWatchSyncService가 delegate를 설정한 뒤 공유 릴레이 bridge를 올린다.
+    private static func scheduleRelayBridgeInstall() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+            MealShareRelayBridge.shared.install()
+        }
+    }
+    #endif
 
     #if os(iOS)
     /// 이번 주 범위로 필터링한 뒤 Watch로 push한다.

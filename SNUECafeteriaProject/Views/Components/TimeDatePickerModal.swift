@@ -62,7 +62,7 @@ struct TimeDatePickerModal: View {
             .labelsHidden()
             .navigationTitle("알림 시간 선택")
             .inlineNavigationTitle()
-            .platformPresentationDetents([.medium])
+            .dismissibleSheetChrome(detents: [.fraction(0.4)])
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button(role: .cancel) {

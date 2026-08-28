@@ -292,7 +292,6 @@ struct SettingsScreen: View {
                         }
                     }
                 }
-                .platformPresentationDetents([.fraction(0.4)])
             }
             .sheet(isPresented: $showDinnerTimePicker) {
                 TimeDatePickerModal(
@@ -305,7 +304,6 @@ struct SettingsScreen: View {
                         }
                     }
                 }
-                .platformPresentationDetents([.fraction(0.4)])
             }
             .fullScreenCover(isPresented: $showNotificationPermission) {
                 notificationPermissionScreen

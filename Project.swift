@@ -86,6 +86,12 @@ let project = Project(
             infoPlist: .extendingDefault(with: [
                 "CFBundleDisplayName": "교대학식",
                 "WKCompanionAppBundleIdentifier": .string(bundleID),
+                "CFBundleURLTypes": [
+                    [
+                        "CFBundleURLName": "com.deblurlab.SNUECafeteriaProject.watch",
+                        "CFBundleURLSchemes": ["snuecafeteria-watch"],
+                    ],
+                ],
             ]),
             sources: [
                 "SNUECafeteriaWatchApp/**/*.swift",
@@ -93,6 +99,7 @@ let project = Project(
                 "Shared/Constants/**/*.swift",
                 "Shared/Extensions/**/*.swift",
                 "Shared/Models/**/*.swift",
+                "Shared/Sharing/**/*.swift",
                 "Shared/WatchConnectivity/**/*.swift",
                 "SNUECafeteriaProject/Services/NetworkService.swift",
             ],
@@ -103,6 +110,7 @@ let project = Project(
             ],
             entitlements: "SNUECafeteriaWatchApp/SNUECafeteriaWatchApp.entitlements",
             dependencies: [
+                .target(name: "SNUECafeteriaWatchWidgetExtension"),
                 .package(product: "WatchConnectivityKit"),
             ],
             settings: .settings(base: [
@@ -122,6 +130,48 @@ let project = Project(
                 "SWIFT_EMIT_LOC_STRINGS": "YES",
                 "SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY": "YES",
                 "SWIFT_VERSION": "6.0",
+                "TARGETED_DEVICE_FAMILY": "4",
+            ])
+        ),
+        .target(
+            name: "SNUECafeteriaWatchWidgetExtension",
+            destinations: [.appleWatch],
+            product: .appExtension,
+            bundleId: "\(bundleID).watchkitapp.widget",
+            deploymentTargets: .watchOS("11.0"),
+            infoPlist: .extendingDefault(with: [
+                "CFBundleDisplayName": "교대학식",
+                "NSExtension": [
+                    "NSExtensionPointIdentifier": "com.apple.widgetkit-extension",
+                ],
+            ]),
+            sources: [
+                .glob("SNUECafeteriaWatchWidget/**/*.swift"),
+                .glob("Shared/Cache/**/*.swift"),
+                .glob("Shared/Constants/**/*.swift"),
+                .glob("Shared/Models/**/*.swift"),
+                .glob(
+                    "Shared/Extensions/**/*.swift",
+                    excluding: [
+                        "Shared/Extensions/View+PlatformChrome.swift",
+                        "Shared/Extensions/MealPeriodTransition.swift",
+                        "Shared/Extensions/Color+GroupedBackground.swift",
+                    ]
+                ),
+            ],
+            entitlements: "SNUECafeteriaWatchWidgetExtension.entitlements",
+            dependencies: [
+                .sdk(name: "WidgetKit", type: .framework),
+                .sdk(name: "SwiftUI", type: .framework),
+            ],
+            settings: .settings(base: [
+                "ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME": "AccentColor",
+                "SKIP_INSTALL": "YES",
+                "STRING_CATALOG_GENERATE_SYMBOLS": "YES",
+                "SWIFT_APPROACHABLE_CONCURRENCY": "YES",
+                "SWIFT_EMIT_LOC_STRINGS": "YES",
+                "SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY": "YES",
+                "SWIFT_VERSION": "5.0",
                 "TARGETED_DEVICE_FAMILY": "4",
             ])
         ),
@@ -337,7 +387,7 @@ let project = Project(
         .scheme(
             name: "SNUECafeteriaWatchApp",
             shared: true,
-            buildAction: .buildAction(targets: ["SNUECafeteriaWatchApp"]),
+            buildAction: .buildAction(targets: ["SNUECafeteriaWatchApp", "SNUECafeteriaWatchWidgetExtension"]),
             runAction: .runAction(executable: "SNUECafeteriaWatchApp")
         ),
         .scheme(

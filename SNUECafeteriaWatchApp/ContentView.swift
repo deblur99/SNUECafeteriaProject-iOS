@@ -48,6 +48,7 @@ struct ContentView: View {
     @State private var listMode: WatchMealListMode = .todayTomorrow
     @State private var listContentOpacity = 1.0
     @State private var isModeTransitioning = false
+    @State private var isShareSheetPresented = false
 
     var body: some View {
         NavigationStack {
@@ -96,14 +97,31 @@ struct ContentView: View {
                         .accessibilityLabel(listMode.toolbarAccessibilityLabel)
                         .disabled(isModeTransitioning)
                     }
+                    ToolbarItem(placement: .bottomBar) {
+                        Button {
+                            isShareSheetPresented = true
+                        } label: {
+                            Image(systemName: "square.and.arrow.up")
+                        }
+                        .accessibilityLabel("식단 공유")
+                        .disabled(!store.hasCachedMeals)
+                    }
                 }
             }
             .navigationTitle(listMode.navigationTitle)
             .navigationBarTitleDisplayMode(.inline)
+            .sheet(isPresented: $isShareSheetPresented) {
+                if let meal = shareTargetMeal {
+                    NavigationStack {
+                        WatchShareSheet(meal: meal)
+                    }
+                }
+            }
         }
         .task {
             WatchCompanionSyncService.shared.onPayloadUpdated = { @MainActor in
                 store.reload()
+                WidgetTimelineReload.requestAll()
             }
             await WatchMealDataCoordinator.shared.sync(store: store)
         }
@@ -122,6 +140,15 @@ struct ContentView: View {
         case .weekly:
             return Calendar.kstDatesInWeek()
         }
+    }
+
+    private var shareTargetMeal: CachedDayMeal? {
+        let today = Calendar.kst.startOfDay(for: .now)
+        if let highlight = navigation.highlightRequest,
+           let meal = store.meal(for: highlight.date) {
+            return meal
+        }
+        return store.meal(for: today)
     }
 
     private func highlightedMealType(for date: Date) -> MealType? {

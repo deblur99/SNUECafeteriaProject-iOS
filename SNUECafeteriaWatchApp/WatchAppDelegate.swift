@@ -14,6 +14,18 @@ final class WatchAppDelegate: NSObject, WKApplicationDelegate, UNUserNotificatio
         WatchCompanionSyncService.shared.activate()
     }
 
+    func handleOpenURL(_ url: URL) {
+        guard url.scheme == "snuecafeteria-watch" else { return }
+        Task { @MainActor in
+            switch url.host {
+            case "today":
+                WatchNavigationState.shared.openMeal(on: .now, mealType: MealSchedule.displayMealType(at: .now))
+            default:
+                WatchNavigationState.shared.openMeal(on: .now, mealType: nil)
+            }
+        }
+    }
+
     func userNotificationCenter(
         _ center: UNUserNotificationCenter,
         didReceive response: UNNotificationResponse,

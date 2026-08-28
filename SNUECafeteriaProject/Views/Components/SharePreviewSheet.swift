@@ -48,6 +48,7 @@ struct SharePreviewSheet: View {
         macBody
         #else
         iosBody
+            .lockedSheetChrome(detents: [.medium])
         #endif
     }
 
