@@ -162,7 +162,13 @@ struct TodayMealScreen: View {
             Button("공유", systemImage: "square.and.arrow.up") {
                 shareCurrentMeal()
             }
+            .disabled(!canShareCurrentMeal)
         }
+    }
+
+    private var canShareCurrentMeal: Bool {
+        guard let meal = showingMeal.meal(from: mealRepository) else { return false }
+        return !meal.isHoliday && (meal.hasLunch || meal.hasDinner)
     }
 
     private var showingMealPickerBinding: Binding<ShowingMeal> {

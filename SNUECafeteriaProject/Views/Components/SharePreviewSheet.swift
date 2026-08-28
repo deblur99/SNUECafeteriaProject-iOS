@@ -34,11 +34,17 @@ private enum SharePreviewMode: Hashable {
     }
 }
 
+private enum TextShareDeliveryMode: Hashable {
+    case plainText
+    case textFile
+}
+
 /// 공유할 이미지·텍스트를 미리보기로 제공하는 시트
 struct SharePreviewSheet: View {
     @Environment(\.dismiss) private var dismiss
     let content: ShareableImage
     @State private var previewMode: SharePreviewMode = .image
+    @State private var textDeliveryMode: TextShareDeliveryMode = .plainText
     /// iOS 텍스트 ShareLink용 임시 파일. 경로의 파일명을 그대로 쓴다.
     /// macOS는 파일 URL 없이 Transferable로 공유하고, 저장만 NSSavePanel을 쓴다.
     @State private var textShareURL: URL?
@@ -48,7 +54,7 @@ struct SharePreviewSheet: View {
         macBody
         #else
         iosBody
-            .lockedSheetChrome(detents: [.medium])
+            .lockedSheetChrome(detents: [.height(550)])
         #endif
     }
 
@@ -178,12 +184,22 @@ struct SharePreviewSheet: View {
             .navigationTitle("공유 미리보기")
             .inlineNavigationTitle()
             .safeAreaInset(edge: .bottom) {
-                iosShareButton
-                    .frame(maxWidth: 320)
-                    .padding(.horizontal, 20)
-                    .padding(.top, 8)
-                    .padding(.bottom, 8)
-                    .frame(maxWidth: .infinity)
+                VStack(spacing: 12) {
+                    if previewMode == .text {
+                        Picker("공유 형식", selection: $textDeliveryMode) {
+                            Text("텍스트").tag(TextShareDeliveryMode.plainText)
+                            Text(".txt 파일").tag(TextShareDeliveryMode.textFile)
+                        }
+                        .pickerStyle(.segmented)
+                        .accessibilityLabel("텍스트 공유 형식")
+                    }
+                    iosShareButton
+                }
+                .frame(maxWidth: 320)
+                .padding(.horizontal, 20)
+                .padding(.top, 8)
+                .padding(.bottom, 8)
+                .frame(maxWidth: .infinity)
             }
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -228,23 +244,35 @@ struct SharePreviewSheet: View {
             }
             .prominentShareButtonStyle()
         case .text:
-            if let textShareURL {
+            switch textDeliveryMode {
+            case .plainText:
                 ShareLink(
-                    item: textShareURL,
+                    item: content.shareText,
+                    subject: Text("서울교대 학식 메뉴"),
+                    message: Text(content.shareText),
                     preview: SharePreview("서울교대 학식 메뉴")
                 ) {
                     shareLabel
                 }
                 .prominentShareButtonStyle()
-            } else {
-                // 파일 준비 전에도 클립보드 Copy용 텍스트는 공유 가능
-                ShareLink(
-                    item: TransferableText(text: content.shareText, fileName: content.textFilename),
-                    preview: SharePreview("서울교대 학식 메뉴")
-                ) {
-                    shareLabel
+            case .textFile:
+                if let textShareURL {
+                    ShareLink(
+                        item: textShareURL,
+                        preview: SharePreview("서울교대 학식 메뉴")
+                    ) {
+                        shareLabel
+                    }
+                    .prominentShareButtonStyle()
+                } else {
+                    ShareLink(
+                        item: TransferableTextFile(text: content.shareText, fileName: content.textFilename),
+                        preview: SharePreview("서울교대 학식 메뉴")
+                    ) {
+                        shareLabel
+                    }
+                    .prominentShareButtonStyle()
                 }
-                .prominentShareButtonStyle()
             }
         }
     }
@@ -289,6 +317,21 @@ private struct TransferableImage: Transferable {
         ProxyRepresentation(exporting: \.shareText)
         DataRepresentation(exportedContentType: .png) { item in
             item.pngData
+        }
+        .suggestedFileName { item in
+            item.fileName
+        }
+    }
+}
+
+/// 텍스트 파일 공유 — UTF-8 plain text 파일로 내보낸다.
+private struct TransferableTextFile: Transferable {
+    let text: String
+    let fileName: String
+
+    static var transferRepresentation: some TransferRepresentation {
+        DataRepresentation(exportedContentType: .utf8PlainText) { item in
+            Data(item.text.utf8)
         }
         .suggestedFileName { item in
             item.fileName

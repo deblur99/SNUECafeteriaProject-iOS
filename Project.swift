@@ -13,7 +13,7 @@ let project = Project(
     ),
     packages: [
         .package(url: "https://github.com/firebase/firebase-ios-sdk", from: "12.12.1"),
-        .package(url: "https://github.com/deblur99/WatchConnectivityKit", from: "1.0.1"),
+        .package(url: "https://github.com/deblur99/WatchConnectivityKit", from: "1.1.2"),
     ],
     settings: .settings(
         base: [

@@ -19,7 +19,9 @@ enum MealShareImageFactory {
         return ShareableImage(
             pngData: pngData,
             shareDate: meal.date,
-            shareText: MealShareFormatter.text(for: meal.toCachedModel())
+            shareText: MealShareFormatter
+                .text(for: meal.toCachedModel())
+                .trimmingCharacters(in: .whitespacesAndNewlines)
         )
     }
 }

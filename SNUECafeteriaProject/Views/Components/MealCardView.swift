@@ -77,7 +77,7 @@ private struct MealCardView: View {
         HStack(alignment: .top, spacing: 0) {
             VStack(spacing: 6) {
                 Text(mealTypeLabel)
-                    .font(.system(.callout, design: .rounded, weight: .bold))
+                    .font(MealTypeBannerStyle.circleLabelFont)
                     .foregroundStyle(.white)
                     .frame(width: 44, height: 44)
                     .background(accentColor, in: Circle())

@@ -177,7 +177,7 @@ private struct MealTypeCircle: View {
 
     var body: some View {
         Text(mealType.label)
-            .font(.system(size: size * 0.36, weight: .bold, design: .rounded))
+            .font(MealTypeBannerStyle.circleLabelFont)
             .foregroundStyle(renderingMode == .fullColor ? .white : .primary)
             .frame(width: size, height: size)
             .background(Circle().fill(backgroundFill))

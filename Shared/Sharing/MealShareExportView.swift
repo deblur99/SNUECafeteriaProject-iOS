@@ -99,7 +99,7 @@ struct MealShareCardRow: View {
     var body: some View {
         HStack(alignment: .top, spacing: 0) {
             Text(mealType.label)
-                .font(.system(size: 13, weight: .bold, design: .rounded))
+                .font(MealTypeBannerStyle.circleLabelFont)
                 .foregroundStyle(.white)
                 .frame(width: 36, height: 36)
                 .background(Color.mealColor(for: mealType), in: Circle())

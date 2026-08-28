@@ -39,9 +39,9 @@ enum WatchMealConnectivityBootstrap {
         #if os(iOS)
         PhoneWatchSyncService.shared.configure(
             dataStore: AppGroupWatchMealDataStore(),
-            configuration: SNUEWatchSyncConfiguration.current
+            configuration: SNUEWatchSyncConfiguration.current,
+            logging: watchConnectivityLogging
         )
-        scheduleRelayBridgeInstall()
         #elseif os(watchOS)
         WatchCompanionSyncService.shared.configure(
             dataStore: AppGroupWatchMealDataStore(),
@@ -51,15 +51,14 @@ enum WatchMealConnectivityBootstrap {
     }
 
     #if os(iOS)
-    /// PhoneWatchSyncService가 delegate를 설정한 뒤 공유 릴레이 bridge를 올린다.
-    private static func scheduleRelayBridgeInstall() {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
-            MealShareRelayBridge.shared.install()
-        }
-    }
-    #endif
+    private static let watchConnectivityLogging: WatchSyncLoggingConfiguration = {
+        #if DEBUG
+        WatchSyncLoggingConfiguration(isEnabled: true)
+        #else
+        WatchSyncLoggingConfiguration(isEnabled: false)
+        #endif
+    }()
 
-    #if os(iOS)
     /// 이번 주 범위로 필터링한 뒤 Watch로 push한다.
     static func pushMeals(_ meals: [CachedDayMeal]) {
         let filtered = Calendar.kstMealsInWeek(from: meals)
