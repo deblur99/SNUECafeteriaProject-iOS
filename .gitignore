@@ -71,6 +71,11 @@ Tuist/Dependencies
 graph.png
 graph.dot
 
+# Tuist local XDG state/cache (project-scoped; not the Tuist/ manifest directory)
+.tuist-xdg/
+.tuist/
+GraphViz/
+
 # CocoaPods
 #
 # We recommend against adding the Pods directory to your .gitignore. However
