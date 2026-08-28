@@ -7,6 +7,7 @@
 
 @preconcurrency import FirebaseFirestore
 import Foundation
+import KSTDateKit
 
 // @DocumentID가 Non-Sendable 및 var 사용 -> struct를 nonisolated 대신 MainActor 격리
 nonisolated struct FirestoreMealDTO: Codable, Sendable {

@@ -2,42 +2,28 @@
 //  AppGroupMealCache.swift
 //  SNUECafeteriaProject
 //
-//  Created by 한현민 on 5/29/26.
-//
 
+import AppGroupCodableCache
 import Foundation
+import KSTDateKit
 
 /// App Groups UserDefaults에서 `[CachedDayMeal]`을 읽고 쓰는 헬퍼.
 /// App Group 컨테이너는 기기(iPhone / Watch)마다 별도이다.
 nonisolated enum AppGroupMealCache {
-    private static let lock = NSLock()
-    private static nonisolated(unsafe) var cachedDefaults: UserDefaults?
-
-    private static var defaults: UserDefaults? {
-        lock.lock()
-        defer { lock.unlock() }
-        if cachedDefaults == nil {
-            cachedDefaults = UserDefaults(suiteName: AppGroupsConfig.groupIdentifier)
-        }
-        return cachedDefaults
-    }
+    private static let store = AppGroupCodableStore<[CachedDayMeal]>(
+        suiteName: AppGroupsConfig.groupIdentifier,
+        key: AppGroupsConfig.UserDefaultsKeys.cachedMeals,
+        lastUpdatedKey: AppGroupsConfig.UserDefaultsKeys.lastUpdated
+    )
 
     static func load() -> [CachedDayMeal] {
-        guard let data = defaults?.data(forKey: AppGroupsConfig.UserDefaultsKeys.cachedMeals)
-        else { return [] }
-        return (try? JSONDecoder().decode([CachedDayMeal].self, from: data)) ?? []
+        store.load() ?? []
     }
 
     @discardableResult
     static func save(_ meals: [CachedDayMeal]) -> Bool {
-        guard !meals.isEmpty,
-              let data = try? JSONEncoder().encode(meals),
-              let defaults
-        else { return false }
-        defaults.set(data, forKey: AppGroupsConfig.UserDefaultsKeys.cachedMeals)
-        defaults.set(Date(), forKey: AppGroupsConfig.UserDefaultsKeys.lastUpdated)
-        defaults.synchronize()
-        return true
+        guard !meals.isEmpty else { return false }
+        return store.save(meals)
     }
 
     /// 오늘(KST) 기준으로 원격 동기화가 필요한지 판별한다.
@@ -45,7 +31,7 @@ nonisolated enum AppGroupMealCache {
         let meals = load()
         guard !meals.isEmpty else { return true }
 
-        if let lastUpdated = defaults?.object(forKey: AppGroupsConfig.UserDefaultsKeys.lastUpdated) as? Date,
+        if let lastUpdated = store.lastUpdated(),
            Calendar.kst.isDateInToday(lastUpdated) {
             return false
         }
@@ -65,7 +51,6 @@ nonisolated enum AppGroupMealCache {
     }
 
     /// 현재 시각 기준으로 오늘 중식 또는 석식 중 활성 시간대의 식단을 반환한다.
-    /// 식사 시간대가 아니거나 데이터가 없으면 nil을 반환한다.
     static func nearestMeal(from now: Date = .now) -> (meal: CachedDayMeal, type: MealType)? {
         guard let type = MealSchedule.activeMealType(at: now) else { return nil }
         let meals = load()

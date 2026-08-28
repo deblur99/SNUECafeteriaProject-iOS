@@ -3,6 +3,7 @@
 //  SNUECafeteriaProject
 //
 
+import CGImagePNGKit
 import SwiftUI
 
 enum MealShareImageFactory {
@@ -14,7 +15,7 @@ enum MealShareImageFactory {
         )
         renderer.scale = 3.0
         guard let cgImage = renderer.cgImage,
-              let pngData = CGImagePNGEncoder.pngData(from: cgImage)
+              let pngData = CGImagePNGKit.pngData(from: cgImage)
         else { return nil }
         return ShareableImage(
             pngData: pngData,

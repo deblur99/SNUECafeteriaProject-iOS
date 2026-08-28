@@ -4,6 +4,8 @@
 //
 
 import SwiftUI
+import KSTDateKit
+import PlatformSwiftUI
 
 /// 앱 공유 미리보기·App Intents 이미지 출력에 공통으로 쓰는 내보내기 레이아웃
 struct MealShareExportView: View {

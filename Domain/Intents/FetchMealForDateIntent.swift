@@ -8,6 +8,7 @@
 import AppIntents
 import Foundation
 import SwiftUI
+import KSTDateKit
 
 struct FetchMealForDateImageIntent: AppIntent {
     static let title: LocalizedStringResource = "특정 날짜 식단 조회 (이미지)"

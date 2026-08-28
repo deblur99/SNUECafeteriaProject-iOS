@@ -5,6 +5,7 @@
 //  Created by 한현민 on 5/7/26.
 //
 
+import PlatformSwiftUI
 import SwiftUI
 import UniformTypeIdentifiers
 #if os(macOS)
@@ -54,7 +55,7 @@ struct SharePreviewSheet: View {
         macBody
         #else
         iosBody
-            .lockedSheetChrome(detents: [.height(550)])
+            .lockedSheetChrome(detents: [.height(600)])
         #endif
     }
 
@@ -112,8 +113,7 @@ struct SharePreviewSheet: View {
             ShareLink(
                 item: TransferableImage(
                     pngData: content.pngData,
-                    fileName: content.filename,
-                    shareText: content.shareText
+                    fileName: content.filename
                 ),
                 preview: SharePreview(
                     "서울교대 학식 메뉴",
@@ -162,7 +162,7 @@ struct SharePreviewSheet: View {
             case .image:
                 try content.pngData.write(to: url, options: .atomic)
             case .text:
-                try Data(content.shareText.utf8).write(to: url, options: .atomic)
+                try Data(content.shareText.trimmingCharacters(in: .whitespacesAndNewlines).utf8).write(to: url, options: .atomic)
             }
         } catch {
             let alert = NSAlert(error: error)
@@ -232,8 +232,7 @@ struct SharePreviewSheet: View {
             ShareLink(
                 item: TransferableImage(
                     pngData: content.pngData,
-                    fileName: content.filename,
-                    shareText: content.shareText
+                    fileName: content.filename
                 ),
                 preview: SharePreview(
                     "서울교대 학식 메뉴",
@@ -247,9 +246,8 @@ struct SharePreviewSheet: View {
             switch textDeliveryMode {
             case .plainText:
                 ShareLink(
-                    item: content.shareText,
+                    item: TransferableText(text: content.shareText, fileName: content.textFilename),
                     subject: Text("서울교대 학식 메뉴"),
-                    message: Text(content.shareText),
                     preview: SharePreview("서울교대 학식 메뉴")
                 ) {
                     shareLabel
@@ -294,27 +292,56 @@ struct SharePreviewSheet: View {
                 .resizable()
                 .scaledToFit()
         case .text:
-            // disabled TextField는 회색으로 고정되므로 Text + primary로 다크모드 가독성 확보
-            Text(content.shareText)
-                .font(.body)
-                .foregroundStyle(.primary)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .textSelection(.enabled)
-                .padding(12)
-                .background(Color.secondary.opacity(0.12), in: RoundedRectangle(cornerRadius: 12))
+            VStack(alignment: .leading, spacing: 12) {
+                Text(content.shareText)
+                    .font(.body)
+                    .foregroundStyle(.primary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .textSelection(.enabled)
+                    .padding(12)
+                    .background(Color.secondary.opacity(0.12), in: RoundedRectangle(cornerRadius: 12))
+
+                if showsTextShareCopyHint {
+                    textShareCopyHint
+                }
+            }
         }
+    }
+
+    private var showsTextShareCopyHint: Bool {
+        switch previewMode {
+        case .image:
+            return false
+        case .text:
+            #if os(macOS)
+            return true
+            #else
+            return textDeliveryMode == .plainText
+            #endif
+        }
+    }
+
+    private var textShareCopyHint: some View {
+        Label {
+            Text("카카오톡·디스코드 등 일부 앱은 텍스트를 바로 받지 못할 수 있습니다. 공유 시트에서 「복사」를 선택한 뒤 붙여넣기해 주세요.")
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+        } icon: {
+            Image(systemName: "info.circle")
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
 
-/// ShareLink에서 PNG + 텍스트(클립보드 Copy)를 전달하기 위한 Transferable 래퍼
+/// ShareLink에서 PNG 파일을 전달하기 위한 Transferable 래퍼
 private struct TransferableImage: Transferable {
     let pngData: Data
     let fileName: String
-    let shareText: String
 
     static var transferRepresentation: some TransferRepresentation {
-        // Copy는 보통 문자열 Proxy를 우선한다.
-        ProxyRepresentation(exporting: \.shareText)
         DataRepresentation(exportedContentType: .png) { item in
             item.pngData
         }
@@ -331,7 +358,7 @@ private struct TransferableTextFile: Transferable {
 
     static var transferRepresentation: some TransferRepresentation {
         DataRepresentation(exportedContentType: .utf8PlainText) { item in
-            Data(item.text.utf8)
+            Data(item.text.trimmingCharacters(in: .whitespacesAndNewlines).utf8)
         }
         .suggestedFileName { item in
             item.fileName
@@ -347,7 +374,7 @@ private struct TransferableText: Transferable {
     static var transferRepresentation: some TransferRepresentation {
         ProxyRepresentation(exporting: \.text)
         DataRepresentation(exportedContentType: .utf8PlainText) { item in
-            Data(item.text.utf8)
+            Data(item.text.trimmingCharacters(in: .whitespacesAndNewlines).utf8)
         }
         .suggestedFileName { item in
             item.fileName
@@ -362,7 +389,7 @@ private enum TextShareFileWriter {
         if FileManager.default.fileExists(atPath: fileURL.path) {
             try FileManager.default.removeItem(at: fileURL)
         }
-        try Data(text.utf8).write(to: fileURL, options: .atomic)
+        try Data(text.trimmingCharacters(in: .whitespacesAndNewlines).utf8).write(to: fileURL, options: .atomic)
         return fileURL
     }
 }

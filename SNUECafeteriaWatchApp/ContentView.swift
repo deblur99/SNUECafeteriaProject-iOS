@@ -3,8 +3,10 @@
 //  SNUECafeteriaWatchApp
 //
 
+import PlatformSwiftUI
 import SwiftUI
 import WatchConnectivityKit
+import KSTDateKit
 
 private enum WatchMealListMode {
     case todayTomorrow
@@ -37,8 +39,8 @@ private enum WatchMealListMode {
 }
 
 private enum WatchListModeTransition {
-    static let fadeOut = MealPeriodTransition.fadeOut
-    static let fadeIn = MealPeriodTransition.fadeIn
+    static let fadeOut = ContentFadeTransition.fadeOut
+    static let fadeIn = ContentFadeTransition.fadeIn
 }
 
 struct ContentView: View {
@@ -189,7 +191,7 @@ struct ContentView: View {
             navigation.updateHighlight(on: target.date, mealType: target.mealType)
             await Task.yield()
             await Task.yield()
-            try? await Task.sleep(for: .milliseconds(Int(MealPeriodTransition.layoutSettle * 1000)))
+            try? await Task.sleep(for: .milliseconds(Int(ContentFadeTransition.layoutSettle * 1000)))
             scroll(to: target, proxy: proxy, animated: false)
             withAnimation(.easeIn(duration: WatchListModeTransition.fadeIn)) {
                 listContentOpacity = 1

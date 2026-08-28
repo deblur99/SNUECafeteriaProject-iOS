@@ -4,6 +4,7 @@
 //
 
 import Foundation
+import KSTDateKit
 
 /// watchOS는 Firebase SDK Firestore를 지원하지 않아 REST API로 `meals`를 가져온다.
 /// 독립 모드에서는 워치에 필요한 이번 주(월~일, KST) 문서만 `runQuery`로 요청한다.

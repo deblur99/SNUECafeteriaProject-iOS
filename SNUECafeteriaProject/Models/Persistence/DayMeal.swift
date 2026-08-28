@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftData
+import KSTDateKit
 
 @Model
 final class DayMeal {

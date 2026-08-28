@@ -5,6 +5,7 @@
 //  Created by 한현민 on 4/27/26.
 //
 
+import PlatformSwiftUI
 import SwiftUI
 #if os(macOS)
 import AppKit

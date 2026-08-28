@@ -5,8 +5,10 @@
 //  Created by 한현민 on 4/27/26.
 //
 
+import PlatformSwiftUI
 import SwiftData
 import SwiftUI
+import KSTDateKit
 
 // MARK: - Supporting Types
 
@@ -362,7 +364,7 @@ private extension WeekMealScreen {
         isNavigating = true
         Task { @MainActor in
             let pending = pendingNavigation
-            await MealPeriodTransition.run(opacity: $contentOpacity) {
+            await ContentFadeTransition.run(opacity: $contentOpacity) {
                 selectedDate = target
                 pendingNavigation = nil
             }

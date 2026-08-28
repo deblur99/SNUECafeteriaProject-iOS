@@ -3,6 +3,7 @@
 //  SNUECafeteriaMac
 //
 
+import NetworkMonitorKit
 import SwiftData
 import SwiftUI
 

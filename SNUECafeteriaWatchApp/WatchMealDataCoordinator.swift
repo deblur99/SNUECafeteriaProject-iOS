@@ -4,7 +4,10 @@
 //
 
 import Foundation
+import NetworkMonitorKit
+import PlatformSwiftUI
 import WatchConnectivityKit
+import KSTDateKit
 
 /// Watch 식단 데이터 동기화 전략:
 /// - iPhone 페어링·companion 가능: WatchConnectivity 우선
@@ -14,7 +17,7 @@ import WatchConnectivityKit
 final class WatchMealDataCoordinator {
     static let shared = WatchMealDataCoordinator()
 
-    private let network = NetworkService()
+    private let network = NetworkMonitor()
     private var isSyncing = false
 
     func sync(store: WatchMealStore) async {

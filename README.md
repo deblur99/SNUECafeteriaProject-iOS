@@ -95,7 +95,7 @@
 - **표시 이름**: `CFBundleDisplayName` / `CFBundleName` = `교대학식` · `PRODUCT_NAME`은 ASCII(`SNUECafeteriaMac`) 유지 (한글 PRODUCT_NAME은 CodeSign NFD/NFC 실패)
 - **위젯**: iOS와 동일 UI (`SNUECafeteriaWidget` 소스 공유) · ExtensionKit 타깃 `SNUECafeteriaMacWidgetExtension`
 - **App Groups**: Mac은 Team ID 접두 `44HRTG996V.com.deblurlab.SNUECafeteriaProject` (iOS `group.`과 별도)
-- 오늘·주간 끼니/날짜 전환: **짧은 페이드** (`MealPeriodTransition`)
+- 오늘·주간 끼니/날짜 전환: **짧은 페이드** (`ContentFadeTransition`)
 - 주간 달력·알림 시각: 팝오버 + 컴팩트 피커
 - 설정 Form 최대 너비·토글 레이아웃 정리, 오픈소스 목록 스크롤 가능
 - 빈 식단: `MealContentUnavailableView` (다크 ContentUnavailable 카드 회피)
@@ -108,7 +108,7 @@
 ### 플랫폼별 네비게이션
 - **iPhone · iPad 오늘**: `TabView` + `.page` — 끼니 가로 스와이프, 페이지 안 세로 스크롤 유지
 - **iPhone · iPad 주간**: 3패널 스와이프 + `dragOffset` — 세로 스크롤은 가로 드래그 중에만 잠금
-- **macOS 오늘·주간**: 페이드 전환 (스크롤 페이지 전환 없음)
+- **macOS 오늘·주간**: 페이드 전환 (`ContentFadeTransition`, PlatformSwiftUI)
 - **watchOS**: 오늘·내일 / 이번 주 모드 전환 (짧은 페이드)
 
 ### 데이터 동기화
@@ -133,7 +133,7 @@
 | Apple Watch | WatchConnectivityKit |
 | 백엔드 | Firebase Firestore, Analytics, Crashlytics |
 | 알림 | UserNotifications (로컬 알림) |
-| 네트워크 | Network.framework (NWPathMonitor) |
+| 네트워크 | [NetworkMonitorKit](https://github.com/deblur99/NetworkMonitorKit) (`NWPathMonitor`) |
 | 최소 배포 타깃 | iOS 26.0 (iPhone·iPad), watchOS 11.0, macOS 26.0 |
 | 프로젝트 | Tuist 4.204 |
 | 플랫폼 | iOS · iPadOS · watchOS · macOS (네이티브 멀티타깃) |
@@ -147,16 +147,39 @@ SNUECafeteriaMac/         macOS 진입점·Assets·entitlements·Firebase plist
 SNUECafeteriaWidget/      홈 화면 위젯 (iPhone·iPad·Mac 공유 소스)
 SNUECafeteriaWatchApp/    Apple Watch 앱
 SNUECafeteriaWatchWidget/ Apple Watch Smart Stack 위젯 (accessoryRectangular)
-Shared/
-  Models/                 CachedDayMeal, MealType, MealSchedule
-  Cache/                  AppGroupMealCache
+Domain/                   앱 전용 도메인 (Models, Cache wrapper, Intents, Sharing)
+  Models/                 CachedDayMeal, MealType, MealSchedule, MealDate
+  Cache/                  AppGroupMealCache (Kit wrapper + nearestMeal 쿼리)
   Intents/                App Intents (iPhone·iPad)
-  Sharing/                MealShareFormatter, MealShareExportView, MealShareRelayPayload
-  WatchConnectivity/      iPhone ↔ Watch 식단 동기화, iOS 공유 수신 bridge
-  Extensions/             View+PlatformChrome, WidgetTimelineReload
+  Sharing/                MealShareFormatter, MealShareExportView
+  Constants/              AppGroupsConfig, NotificationPayload
+  Extensions/             Color+MealType, Calendar+CachedMeals
+Bridge/
+  WatchMealConnectivity.swift   iPhone ↔ Watch 식단 동기화 (WatchConnectivityKit)
+Resources/                AppIcon.icon
 Project.swift             Tuist 멀티플랫폼 프로젝트 정의
 .github/workflows/        macOS Developer ID 서명·공증·Release
 ci/                       exportOptions 등 CI 보조 파일
+```
+
+### 재사용 Kit (SPM)
+
+| Package | 용도 | GitHub |
+|---------|------|--------|
+| AppGroupCodableCache | App Group `UserDefaults` Codable 저장 | `deblur99/AppGroupCodableCache` |
+| NetworkMonitorKit | `async` 네트워크 연결 확인 | `deblur99/NetworkMonitorKit` |
+| KSTDateKit | KST 시간대·주간·포맷터 | `deblur99/KSTDateKit` |
+| PlatformSwiftUI | 시트 chrome, 페이드 전환, grouped color, 위젯 reload | `deblur99/PlatformSwiftUI` |
+| CGImagePNGKit | CGImage → PNG | `deblur99/CGImagePNGKit` |
+| WatchConnectivityKit | iPhone ↔ Watch 바이너리 동기화 | `deblur99/WatchConnectivityKit` |
+
+교대학식 앱은 위 Kit의 **reference implementation (첫 소비자)** 입니다. `Project.swift`는 GitHub SPM `url` dependency로 연결합니다.
+
+다른 프로젝트에서 사용 예:
+
+```swift
+.package(url: "https://github.com/deblur99/AppGroupCodableCache.git", from: "1.0.0")
+.package(url: "https://github.com/deblur99/KSTDateKit.git", from: "1.0.0")
 ```
 
 Xcode 프로젝트 파일은 커밋하지 않습니다. `tuist generate`로 생성합니다.

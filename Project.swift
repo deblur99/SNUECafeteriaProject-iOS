@@ -3,6 +3,12 @@ import ProjectDescription
 private let bundleID = "com.deblurlab.SNUECafeteriaProject"
 private let teamID = "44HRTG996V"
 
+private let kitAppGroup: TargetDependency = .package(product: "AppGroupCodableCache")
+private let kitNetwork: TargetDependency = .package(product: "NetworkMonitorKit")
+private let kitKST: TargetDependency = .package(product: "KSTDateKit")
+private let kitPlatformUI: TargetDependency = .package(product: "PlatformSwiftUI")
+private let kitPNG: TargetDependency = .package(product: "CGImagePNGKit")
+
 let project = Project(
     name: "SNUECafeteriaProject",
     organizationName: "deblurlab",
@@ -12,8 +18,13 @@ let project = Project(
         developmentRegion: "en"
     ),
     packages: [
+        .package(url: "https://github.com/deblur99/AppGroupCodableCache.git", from: "1.0.0"),
+        .package(url: "https://github.com/deblur99/NetworkMonitorKit.git", from: "1.0.0"),
+        .package(url: "https://github.com/deblur99/KSTDateKit.git", from: "1.0.0"),
+        .package(url: "https://github.com/deblur99/PlatformSwiftUI.git", from: "1.0.0"),
+        .package(url: "https://github.com/deblur99/CGImagePNGKit.git", from: "1.0.0"),
+        .package(url: "https://github.com/deblur99/WatchConnectivityKit.git", from: "1.1.3"),
         .package(url: "https://github.com/firebase/firebase-ios-sdk", from: "12.12.1"),
-        .package(url: "https://github.com/deblur99/WatchConnectivityKit", from: "1.1.2"),
     ],
     settings: .settings(
         base: [
@@ -35,17 +46,23 @@ let project = Project(
             sources: [
                 "SNUECafeteriaProjectiOS/**/*.swift",
                 "SNUECafeteriaProject/**/*.swift",
-                "Shared/**/*.swift",
+                "Domain/**/*.swift",
+                "Bridge/**/*.swift",
             ],
             resources: [
                 "SNUECafeteriaProjectiOS/Assets.xcassets",
-                "Shared/AppIcon.icon",
+                "Resources/AppIcon.icon",
                 "SNUECafeteriaProjectiOS/GoogleService-Info.plist",
             ],
             entitlements: "SNUECafeteriaProjectiOS/SNUECafeteriaProject.entitlements",
             dependencies: [
                 .target(name: "SNUECafeteriaWidgetExtension"),
                 .target(name: "SNUECafeteriaWatchApp"),
+                kitAppGroup,
+                kitNetwork,
+                kitKST,
+                kitPlatformUI,
+                kitPNG,
                 .package(product: "WatchConnectivityKit"),
                 .package(product: "FirebaseAnalytics"),
                 .package(product: "FirebaseCore"),
@@ -95,22 +112,25 @@ let project = Project(
             ]),
             sources: [
                 "SNUECafeteriaWatchApp/**/*.swift",
-                "Shared/Cache/**/*.swift",
-                "Shared/Constants/**/*.swift",
-                "Shared/Extensions/**/*.swift",
-                "Shared/Models/**/*.swift",
-                "Shared/Sharing/**/*.swift",
-                "Shared/WatchConnectivity/**/*.swift",
-                "SNUECafeteriaProject/Services/NetworkService.swift",
+                "Domain/Cache/**/*.swift",
+                "Domain/Constants/**/*.swift",
+                "Domain/Extensions/**/*.swift",
+                "Domain/Models/**/*.swift",
+                "Domain/Sharing/**/*.swift",
+                "Bridge/**/*.swift",
             ],
             resources: [
                 "SNUECafeteriaWatchApp/Assets.xcassets",
-                "Shared/AppIcon.icon",
+                "Resources/AppIcon.icon",
                 "SNUECafeteriaProjectiOS/GoogleService-Info.plist",
             ],
             entitlements: "SNUECafeteriaWatchApp/SNUECafeteriaWatchApp.entitlements",
             dependencies: [
                 .target(name: "SNUECafeteriaWatchWidgetExtension"),
+                kitAppGroup,
+                kitNetwork,
+                kitKST,
+                kitPlatformUI,
                 .package(product: "WatchConnectivityKit"),
             ],
             settings: .settings(base: [
@@ -147,22 +167,18 @@ let project = Project(
             ]),
             sources: [
                 .glob("SNUECafeteriaWatchWidget/**/*.swift"),
-                .glob("Shared/Cache/**/*.swift"),
-                .glob("Shared/Constants/**/*.swift"),
-                .glob("Shared/Models/**/*.swift"),
-                .glob(
-                    "Shared/Extensions/**/*.swift",
-                    excluding: [
-                        "Shared/Extensions/View+PlatformChrome.swift",
-                        "Shared/Extensions/MealPeriodTransition.swift",
-                        "Shared/Extensions/Color+GroupedBackground.swift",
-                    ]
-                ),
+                .glob("Domain/Cache/**/*.swift"),
+                .glob("Domain/Constants/**/*.swift"),
+                .glob("Domain/Models/**/*.swift"),
+                .glob("Domain/Extensions/**/*.swift"),
             ],
             entitlements: "SNUECafeteriaWatchWidgetExtension.entitlements",
             dependencies: [
                 .sdk(name: "WidgetKit", type: .framework),
                 .sdk(name: "SwiftUI", type: .framework),
+                kitAppGroup,
+                kitKST,
+                kitPlatformUI,
             ],
             settings: .settings(base: [
                 "ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME": "AccentColor",
@@ -192,8 +208,7 @@ let project = Project(
                     "SNUECafeteriaWidget/**/*.swift"
                 ),
                 .glob(
-                    "Shared/**/*.swift",
-                    excluding: ["Shared/WatchConnectivity/**"]
+                    "Domain/**/*.swift"
                 ),
             ],
             resources: [
@@ -203,6 +218,10 @@ let project = Project(
             dependencies: [
                 .sdk(name: "WidgetKit", type: .framework),
                 .sdk(name: "SwiftUI", type: .framework),
+                kitAppGroup,
+                kitKST,
+                kitPlatformUI,
+                kitPNG,
             ],
             settings: .settings(base: [
                 "ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME": "AccentColor",
@@ -235,20 +254,22 @@ let project = Project(
             ]),
             sources: [
                 "SNUECafeteriaMac/**/*.swift",
-                .glob(
-                    "Shared/**/*.swift",
-                    excluding: ["Shared/WatchConnectivity/**"]
-                ),
+                .glob("Domain/**/*.swift"),
                 "SNUECafeteriaProject/**/*.swift",
             ],
             resources: [
                 "SNUECafeteriaMac/Assets.xcassets",
-                "Shared/AppIcon.icon",
+                "Resources/AppIcon.icon",
                 "SNUECafeteriaMac/GoogleService-Info.plist",
             ],
             entitlements: "SNUECafeteriaMac/SNUECafeteriaMac.entitlements",
             dependencies: [
                 .target(name: "SNUECafeteriaMacWidgetExtension"),
+                kitAppGroup,
+                kitNetwork,
+                kitKST,
+                kitPlatformUI,
+                kitPNG,
                 .package(product: "FirebaseCore"),
                 .package(product: "FirebaseFirestore"),
             ],
@@ -293,17 +314,10 @@ let project = Project(
             ]),
             sources: [
                 .glob("SNUECafeteriaWidget/**/*.swift"),
-                .glob("Shared/Cache/**/*.swift"),
-                .glob("Shared/Constants/**/*.swift"),
-                .glob("Shared/Models/**/*.swift"),
-                .glob(
-                    "Shared/Extensions/**/*.swift",
-                    excluding: [
-                        "Shared/Extensions/View+PlatformChrome.swift",
-                        "Shared/Extensions/MealPeriodTransition.swift",
-                        "Shared/Extensions/Color+GroupedBackground.swift",
-                    ]
-                ),
+                .glob("Domain/Cache/**/*.swift"),
+                .glob("Domain/Constants/**/*.swift"),
+                .glob("Domain/Models/**/*.swift"),
+                .glob("Domain/Extensions/**/*.swift"),
             ],
             resources: [
                 "SNUECafeteriaWidget/Assets.xcassets",
@@ -312,6 +326,9 @@ let project = Project(
             dependencies: [
                 .sdk(name: "WidgetKit", type: .framework),
                 .sdk(name: "SwiftUI", type: .framework),
+                kitAppGroup,
+                kitKST,
+                kitPlatformUI,
             ],
             settings: .settings(base: [
                 "ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME": "AccentColor",

@@ -6,6 +6,7 @@
 //
 
 import AppIntents
+import CGImagePNGKit
 import SwiftUI
 import UniformTypeIdentifiers
 
@@ -18,7 +19,7 @@ func renderMealSnippet<V: View>(_ view: V, filename: String) throws(AppIntentErr
     renderer.scale = 3.0
 
     guard let cgImage = renderer.cgImage,
-          let data = CGImagePNGEncoder.pngData(from: cgImage)
+          let data = CGImagePNGKit.pngData(from: cgImage)
     else {
         throw .renderFailed
     }

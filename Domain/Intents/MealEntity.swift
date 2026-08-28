@@ -7,6 +7,7 @@
 
 import AppIntents
 import Foundation
+import KSTDateKit
 
 /// App Intents의 데이터 기본 단위 — 하루치 식단 정보를 담는다.
 nonisolated struct MealEntity: AppEntity {

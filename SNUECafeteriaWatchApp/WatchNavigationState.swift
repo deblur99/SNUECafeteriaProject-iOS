@@ -4,6 +4,7 @@
 //
 
 import Foundation
+import KSTDateKit
 
 struct WatchNavigationRequest: Equatable {
     let date: Date

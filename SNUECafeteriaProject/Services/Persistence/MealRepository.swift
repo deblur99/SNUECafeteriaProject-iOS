@@ -8,6 +8,7 @@
 import Foundation
 import SwiftData
 import WidgetKit
+import KSTDateKit
 
 /// 식단 데이터의 단일 진입점.
 /// Firestore 동기화 → SwiftData 저장 → 앱 상태 갱신 → App Groups 동기화 → 위젯 갱신까지

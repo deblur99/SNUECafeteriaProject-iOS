@@ -7,6 +7,7 @@
 
 import AppIntents
 import Foundation
+import KSTDateKit
 
 nonisolated struct MealEntityQuery: EntityQuery {
     func entities(for identifiers: [String]) async throws -> [MealEntity] {

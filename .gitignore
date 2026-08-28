@@ -64,7 +64,6 @@ playground.xcworkspace
 
 # Swift Package Manager / Tuist
 .build/
-Packages/
 Derived/
 Tuist/.build
 Tuist/Dependencies

@@ -8,6 +8,7 @@
 import FirebaseCore
 import Foundation
 import SwiftData
+import KSTDateKit
 
 nonisolated enum MealSyncService {
     // MARK: - Public

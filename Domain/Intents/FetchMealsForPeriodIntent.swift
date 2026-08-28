@@ -7,6 +7,7 @@
 
 import AppIntents
 import Foundation
+import KSTDateKit
 
 struct FetchMealsForPeriodIntent: AppIntent {
     static let title: LocalizedStringResource = "기간별 식단 조회"

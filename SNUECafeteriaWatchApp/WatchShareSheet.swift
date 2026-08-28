@@ -4,6 +4,7 @@
 //
 
 import SwiftUI
+import KSTDateKit
 
 struct WatchShareSheet: View {
     let meal: CachedDayMeal
@@ -28,7 +29,6 @@ struct WatchShareSheet: View {
                 ShareLink(
                     item: shareText,
                     subject: Text("서울교대 학식 메뉴"),
-                    message: Text(shareText),
                     preview: SharePreview("서울교대 학식 메뉴")
                 ) {
                     Label("공유", systemImage: "square.and.arrow.up")

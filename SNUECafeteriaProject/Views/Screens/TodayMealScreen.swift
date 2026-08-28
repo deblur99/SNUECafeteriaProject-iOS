@@ -5,6 +5,7 @@
 //  Created by 한현민 on 4/27/26.
 //
 
+import PlatformSwiftUI
 import SwiftData
 import SwiftUI
 #if os(iOS)
@@ -189,7 +190,7 @@ struct TodayMealScreen: View {
         guard newValue != showingMeal, !isPeriodTransitioning else { return }
         isPeriodTransitioning = true
         Task { @MainActor in
-            await MealPeriodTransition.run(opacity: $contentOpacity) {
+            await ContentFadeTransition.run(opacity: $contentOpacity) {
                 showingMeal = newValue
             }
             isPeriodTransitioning = false

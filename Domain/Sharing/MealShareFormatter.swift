@@ -4,6 +4,7 @@
 //
 
 import Foundation
+import KSTDateKit
 
 nonisolated enum MealShareFormatter {
     static func text(for meal: CachedDayMeal) -> String {
@@ -11,13 +12,13 @@ nonisolated enum MealShareFormatter {
 
         if meal.isHoliday {
             lines.append("휴무일")
-            return lines.joined(separator: "\n")
+            return joinedLines(lines)
         }
 
         appendMealSection(title: MealType.lunch.label, items: meal.sortedLunchItems.map(\.name), to: &lines)
         appendMealSection(title: MealType.dinner.label, items: meal.sortedDinnerItems.map(\.name), to: &lines)
 
-        return trimmed(lines).joined(separator: "\n")
+        return joinedLines(lines)
     }
 
     static func text(for meal: CachedDayMeal, mealType: MealType) -> String {
@@ -26,7 +27,7 @@ nonisolated enum MealShareFormatter {
             ? meal.sortedLunchItems.map(\.name)
             : meal.sortedDinnerItems.map(\.name)
         appendMealSection(title: mealType.label, items: items, to: &lines)
-        return trimmed(lines).joined(separator: "\n")
+        return joinedLines(lines)
     }
 
     static func filename(for date: Date, fileExtension: String) -> String {
@@ -53,9 +54,15 @@ nonisolated enum MealShareFormatter {
 
     private static func trimmed(_ lines: [String]) -> [String] {
         var result = lines
-        while result.last == "" {
+        while result.last?.isEmpty == true {
             result.removeLast()
         }
         return result
+    }
+
+    private static func joinedLines(_ lines: [String]) -> String {
+        trimmed(lines)
+            .joined(separator: "\n")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
     }
 }

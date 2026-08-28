@@ -4,6 +4,7 @@
 //
 
 import Foundation
+import KSTDateKit
 
 /// 중식·석식 시간대와 “지금/가장 가까운 식사” 판별.
 /// App · Widget · Watch · Intents가 동일한 윈도우를 쓰도록 한곳에 둔다.

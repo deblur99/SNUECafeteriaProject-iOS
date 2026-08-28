@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftData
+import KSTDateKit
 
 enum DataSeeder {
     /// DB가 비어 있거나 아직 없는 날짜의 데이터를 삽입합니다. 날짜별로 중복 삽입을 방지합니다.
